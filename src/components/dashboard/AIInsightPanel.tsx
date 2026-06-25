@@ -1,6 +1,8 @@
 import { Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SHAP } from "@/data/mock";
+import { SHAP_BY_DISEASE } from "@/data/mock";
+
+const shap = SHAP_BY_DISEASE.anemia;
 
 export function AIInsightPanel() {
   return (
@@ -22,9 +24,9 @@ export function AIInsightPanel() {
         "Your iron intake has been below recommended levels for 5 consecutive days."
       </h3>
       <p className="relative mt-3 max-w-[58ch] text-[15px] leading-relaxed text-mint/75">
-        To keep your anemia risk from creeping up, add 150g of <span className="text-mint">Isombe</span> or a side
-        of <span className="text-mint">Ibishyimbo</span> at lunch. Your absorption will improve if paired with a
-        citrus or tomato source for vitamin C.
+        To keep your anemia risk from creeping up, add 150g of <span className="text-mint font-semibold">Isombe</span> or
+        a side of <span className="text-mint font-semibold">Ibishyimbo</span> at lunch. Pair with a citrus or tomato
+        source to boost vitamin C absorption.
       </p>
 
       {/* SHAP explainability */}
@@ -34,7 +36,7 @@ export function AIInsightPanel() {
           <span>SHAP · explainable AI</span>
         </div>
         <div className="space-y-3">
-          {SHAP.map((s) => {
+          {shap.map((s) => {
             const pos = s.v >= 0;
             const mag = Math.min(95, Math.abs(s.v) * 180);
             return (
@@ -52,14 +54,8 @@ export function AIInsightPanel() {
                     }}
                   />
                 </div>
-                <span
-                  className={cn(
-                    "text-right font-mono text-[11px] font-semibold tabular-nums",
-                    pos ? "text-emerald-200" : "text-coral",
-                  )}
-                >
-                  {pos ? "+" : ""}
-                  {s.v.toFixed(2)}
+                <span className={cn("text-right font-mono text-[11px] font-semibold tabular-nums", pos ? "text-emerald-200" : "text-coral")}>
+                  {pos ? "+" : ""}{s.v.toFixed(2)}
                 </span>
               </div>
             );

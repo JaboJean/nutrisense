@@ -189,6 +189,22 @@
 .animate-nv-grow-bar { animation: nv-grow-bar 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: left; }
 .animate-nv-ring { animation: nv-ring-draw 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
+@keyframes nv-slide-in {
+  from { opacity: 0; transform: translateX(24px); max-height: 0; }
+  to   { opacity: 1; transform: translateX(0);    max-height: 120px; }
+}
+@keyframes nv-slide-out {
+  from { opacity: 1; transform: translateX(0);    max-height: 120px; margin-bottom: 0.625rem; }
+  to   { opacity: 0; transform: translateX(32px); max-height: 0;     margin-bottom: 0; }
+}
+@keyframes nv-expand {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-nv-slide-in  { animation: nv-slide-in  0.35s cubic-bezier(0.16,1,0.3,1) both; overflow: hidden; }
+.animate-nv-slide-out { animation: nv-slide-out 0.28s ease-in forwards; overflow: hidden; pointer-events: none; }
+.animate-nv-expand    { animation: nv-expand    0.4s  cubic-bezier(0.16,1,0.3,1) both; }
+
 .nv-glass {
   background: color-mix(in oklab, white 60%, transparent);
   backdrop-filter: blur(14px) saturate(140%);
