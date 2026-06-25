@@ -17,7 +17,7 @@ export function FoodLabSection({ logItems, onAdd, onRemove, onOpenLogger }: Prop
         <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Dietary intake tracking</div>
         <h2 className="font-display text-3xl font-medium tracking-tight text-ink">Food Lab</h2>
         <p className="mt-2 max-w-[56ch] text-[15px] text-ink/55">
-          Log every meal using Rwandan staples. Your nutrient profile updates in real time and feeds the risk model.
+          Log every meal to build your nutrient profile. Data updates in real time and feeds the risk model.
         </p>
       </div>
 
@@ -30,7 +30,7 @@ export function FoodLabSection({ logItems, onAdd, onRemove, onOpenLogger }: Prop
         {/* Food database browser */}
         <div className="lg:col-span-2 space-y-5">
           <div className="rounded-[28px] nv-glass p-6">
-            <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40 mb-1">Rwandan food database</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40 mb-1">Food database</div>
             <h4 className="font-display text-lg font-semibold text-ink mb-4">Nutrient reference</h4>
             <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
               {FOOD_DATABASE.map((food) => (
@@ -39,7 +39,7 @@ export function FoodLabSection({ logItems, onAdd, onRemove, onOpenLogger }: Prop
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[12px] font-semibold text-ink truncate">{food.name}</span>
-                      <span className="text-[10px] text-ink/35 truncate hidden sm:inline">{food.nameKin}</span>
+                      <span className="text-[10px] text-ink/35 truncate hidden sm:inline">{food.category}</span>
                     </div>
                     <div className="flex gap-3 mt-0.5 text-[10px] text-ink/45">
                       <span>{food.kcal} kcal</span>

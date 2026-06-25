@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Mic, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { RWANDAN_FOODS, FOOD_DATABASE, type LogItem } from "@/data/mock";
+import { QUICK_ADD_FOODS, FOOD_DATABASE, type LogItem } from "@/data/mock";
 
 type Props = {
   logItems: LogItem[];
@@ -18,7 +18,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger }: Props) {
   const suggestions = query.length > 0
     ? FOOD_DATABASE.filter((f) =>
         f.name.toLowerCase().includes(query.toLowerCase()) ||
-        f.nameKin.toLowerCase().includes(query.toLowerCase()),
+        f.category.toLowerCase().includes(query.toLowerCase()),
       ).slice(0, 5)
     : [];
 
@@ -89,7 +89,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger }: Props) {
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Isombe, Matoke, Ubugali…"
+              placeholder="Search Spinach, Chicken, Lentils…"
               className="w-full bg-transparent text-sm placeholder:text-ink/35 focus:outline-none"
             />
             {query && (
@@ -129,7 +129,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger }: Props) {
 
         {/* Quick-add chips */}
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {RWANDAN_FOODS.map((f) => (
+          {QUICK_ADD_FOODS.map((f: string) => (
             <button
               key={f}
               onClick={() => handleChipAdd(f)}

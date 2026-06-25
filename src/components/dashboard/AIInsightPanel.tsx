@@ -24,8 +24,8 @@ export function AIInsightPanel() {
         "Your iron intake has been below recommended levels for 5 consecutive days."
       </h3>
       <p className="relative mt-3 max-w-[58ch] text-[15px] leading-relaxed text-mint/75">
-        To keep your anemia risk from creeping up, add 150g of <span className="text-mint font-semibold">Isombe</span> or
-        a side of <span className="text-mint font-semibold">Ibishyimbo</span> at lunch. Pair with a citrus or tomato
+        To keep your anemia risk from creeping up, add 150g of <span className="text-mint font-semibold">spinach</span> or
+        a side of <span className="text-mint font-semibold">lentils</span> at lunch. Pair with a citrus or tomato
         source to boost vitamin C absorption.
       </p>
 
@@ -74,7 +74,7 @@ export function AIInsightPanel() {
         <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
           <div className="text-[10px] uppercase tracking-widest text-mint/50">Suggested Correction</div>
           <div className="mt-1 flex items-baseline justify-between">
-            <span className="font-display text-xl font-medium">+150g Isombe</span>
+            <span className="font-display text-xl font-medium">+150g Spinach</span>
             <span className="text-xs text-mint/60">at lunch</span>
           </div>
         </div>

@@ -26,7 +26,6 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
     query.length < 1
       ? true
       : f.name.toLowerCase().includes(query.toLowerCase()) ||
-        f.nameKin.toLowerCase().includes(query.toLowerCase()) ||
         f.category.toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -52,7 +51,7 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
         {/* Header */}
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-ink/5">
           <SheetTitle className="font-display text-xl font-semibold text-ink">Log a Meal</SheetTitle>
-          <p className="text-sm text-ink/50">Search Rwandan foods and add them to today's log.</p>
+          <p className="text-sm text-ink/50">Search foods and add them to today's log.</p>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
@@ -63,7 +62,7 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
               autoFocus
               value={query}
               onChange={(e) => { setQuery(e.target.value); setSelected(null); }}
-              placeholder="Search Isombe, Ubugali, Eggs…"
+              placeholder="Search Spinach, Chicken, Lentils…"
               className="w-full bg-transparent text-sm placeholder:text-ink/35 focus:outline-none"
             />
             {query && (
@@ -122,9 +121,6 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[13px] font-semibold text-ink">{food.name}</span>
-                        {food.nameKin !== food.name && (
-                          <span className="text-[11px] text-ink/40">{food.nameKin}</span>
-                        )}
                       </div>
                       <div className="text-[11px] text-ink/50">{food.kcal} kcal · {food.iron}mg iron · {food.protein}g protein</div>
                     </div>
