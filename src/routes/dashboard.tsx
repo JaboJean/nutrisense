@@ -267,6 +267,7 @@ function Dashboard() {
         profile={profile}
         onSave={saveProfile}
         onReset={() => { clearProfile(); setProfileOpen(false); }}
+        onLogout={handleLogout}
       />
       <MealDetailSheet item={selectedMeal} onClose={() => setSelectedMeal(null)} />
     </div>
