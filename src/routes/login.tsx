@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -9,30 +9,52 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-function LoginPage() {
-  const navigate = useNavigate();
-  const { user, loaded, login } = useAuth();
+const DEMO_EMAIL    = "demo@nutrisense.ai";
+const DEMO_PASSWORD = "demo123";
+const DEMO_PROFILE  = {
+  name: "Jean Jacques", age: 24, sex: "male" as const,
+  weightKg: 72, heightCm: 175,
+};
 
-  const [email, setEmail]     = useState("");
+function LoginPage() {
+  const { user, loaded, login, register } = useAuth();
+
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [showPwd,  setShowPwd]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
+  const [loading,  setLoading]  = useState(false);
 
   useEffect(() => {
-    if (loaded && user) navigate({ to: "/dashboard" });
-  }, [loaded, user, navigate]);
+    if (loaded && user) window.location.href = "/dashboard";
+  }, [loaded, user]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     setError(null);
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    const result = login(email.trim(), password);
+    await new Promise((r) => setTimeout(r, 400));
+    const result = login(email.trim().toLowerCase(), password);
     if (result === true) {
-      navigate({ to: "/dashboard" });
+      window.location.href = "/dashboard";
     } else {
       setError(result);
+      setLoading(false);
+    }
+  }
+
+  async function handleDemoLogin() {
+    setLoading(true);
+    setError(null);
+    await new Promise((r) => setTimeout(r, 400));
+    // Try login first; if no demo account exists, create one
+    let result = login(DEMO_EMAIL, DEMO_PASSWORD);
+    if (result !== true) {
+      result = register(DEMO_EMAIL, DEMO_PASSWORD, DEMO_PROFILE);
+    }
+    if (result === true) {
+      window.location.href = "/dashboard";
+    } else {
+      setError("Demo login failed. Please try signing up.");
       setLoading(false);
     }
   }
@@ -42,7 +64,7 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen">
 
-      {/* ── Left panel (desktop branding) ── */}
+      {/* ── Left panel ── */}
       <div className="hidden lg:flex lg:w-[45%] flex-col justify-between bg-emerald-deep p-12">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="grid size-9 place-items-center rounded-xl bg-mint/20">
@@ -61,7 +83,6 @@ function LoginPage() {
             Sign in to see your personalised risk scores for anemia, Type 2 diabetes,
             and overweight — powered by XGBoost and SHAP explainability.
           </p>
-
           <div className="mt-10 space-y-3">
             {[
               "AI food recognition via Vision Transformer",
@@ -80,9 +101,9 @@ function LoginPage() {
         <p className="text-[11px] text-mint/30">BSc Software Engineering Capstone · ALU Rwanda</p>
       </div>
 
-      {/* ── Right panel (form) ── */}
+      {/* ── Right panel ── */}
       <div className="flex flex-1 flex-col justify-center px-6 py-12 sm:px-10 lg:px-16">
-        {/* Mobile logo */}
+
         <Link to="/" className="flex items-center gap-2 mb-10 lg:hidden">
           <div className="grid size-7 place-items-center rounded-lg bg-emerald-deep">
             <Sparkles className="size-3.5 text-mint" />
@@ -96,7 +117,24 @@ function LoginPage() {
             <p className="mt-2 text-sm text-ink/50">Sign in to your Nutrisense-AI account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Demo access */}
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="mb-6 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-deep/30 bg-emerald-deep/4 py-3 text-sm font-semibold text-emerald-deep hover:bg-emerald-deep/8 transition-colors"
+          >
+            <Zap className="size-4" />
+            Try demo — instant access, no sign-up needed
+          </button>
+
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-ink/8" />
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-ink/30">or sign in</span>
+            <div className="flex-1 h-px bg-ink/8" />
+          </div>
+
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
             <label className="block">
               <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-ink/40">Email</span>
               <input
@@ -135,6 +173,11 @@ function LoginPage() {
             {error && (
               <div className="rounded-2xl bg-coral/8 px-4 py-3 text-sm text-coral ring-1 ring-coral/20">
                 {error}
+                {error.includes("Invalid") && (
+                  <span className="block mt-1 text-[11px] text-coral/70">
+                    No account yet? <Link to="/signup" className="font-bold underline">Create one free →</Link>
+                  </span>
+                )}
               </div>
             )}
 
@@ -167,7 +210,6 @@ function LoginPage() {
           </p>
         </div>
       </div>
-
     </div>
   );
 }
