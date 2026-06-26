@@ -2,7 +2,7 @@ import { Droplet, Heart, Wind } from "lucide-react";
 import { Ring } from "@/components/Ring";
 import { Particles } from "@/components/Particles";
 
-export function HeroSection({ score }: { score: number }) {
+export function HeroSection({ score, name }: { score: number; name?: string }) {
   return (
     <section className="animate-nv-rise relative grid items-center gap-12 md:grid-cols-2">
       <div className="space-y-6">
@@ -11,7 +11,7 @@ export function HeroSection({ score }: { score: number }) {
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-deep opacity-60" />
             <span className="relative inline-flex size-1.5 rounded-full bg-emerald-deep" />
           </span>
-          Morning Brief · Jean Jacques
+          Morning Brief · {name ?? "Jean Jacques"}
         </div>
         <h1 className="font-display text-4xl font-medium leading-[1.05] tracking-tight text-ink sm:text-5xl md:text-[56px]">
           Understand your nutrition. <br />
