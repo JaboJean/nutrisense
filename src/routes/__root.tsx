@@ -73,10 +73,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "NutriVision AI" },
+      { title: "Nutrisense-AI" },
       { name: "description", content: "AI-powered diet-based disease risk prediction from your daily meals." },
       { name: "author", content: "JABO Jean Jacques" },
-      { property: "og:title", content: "NutriVision AI" },
+      { property: "og:title", content: "Nutrisense-AI" },
       { property: "og:description", content: "Predict your risk of anemia, diabetes, and overweight from what you eat." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -1,14 +1,21 @@
 """
-NutriVision AI — Complete Kaggle Notebook
-==========================================
-Copy this file into Kaggle. Each line starting with  # %%  is a new cell.
+Nutrisense-AI — Complete Kaggle Training Script
+================================================
+Upload this file to Kaggle as a dataset, OR import the
+nutrisense_training.ipynb notebook directly (recommended).
 
-Before running:
-  Right panel → Add Data:
-    ✅ kmader/food41
-    ✅ araraltawil/arabic-food-101   (optional, needed for Phase 2)
-  Settings → Accelerator → GPU T4 x2
-  Settings → Internet    → On          (needed to download ViT weights)
+REQUIRED DATASET  →  https://www.kaggle.com/datasets/kmader/food41
+  Right panel → Add Data → search "kmader/food41" → Add
+
+Settings → Accelerator  → GPU T4 x2
+Settings → Internet     → On   (downloads ViT-Base pretrained weights)
+
+Expected runtime : ~25–35 min · 3 epochs · T4
+Output files (in /kaggle/working/):
+  food_phase1_best.pth      — food classifier Phase 1
+  food_finetuned_model.pth  — final food classifier
+  class_names.txt           — class label list
+  nutrisense_model.joblib   — 3 XGBoost classifiers + SHAP explainers
 """
 
 # %% [cell 1] ── Install ───────────────────────────────────────────────────────
@@ -90,7 +97,7 @@ print(f"Arabic data : {'found' if ARABIC_EXISTS else 'NOT found — Phase 2 will
 IMG_SIZE     = 224
 BATCH_SIZE   = 64       # safe for T4 16 GB with AMP
 ACCUM_STEPS  = 2        # effective batch = 128
-EPOCHS       = 15       # 15 is enough with OneCycleLR
+EPOCHS       = 3        # quick run for progress check
 LR           = 1e-4 * (BATCH_SIZE * ACCUM_STEPS / 128)   # linear scaling rule → 1e-4
 WEIGHT_DECAY = 0.05
 NUM_WORKERS  = 4
@@ -406,10 +413,10 @@ else:
         p.requires_grad = True
     ft_opt2 = optim.AdamW(ft_model.parameters(), lr=5e-6, weight_decay=0.05)
     ft_sched = optim.lr_scheduler.OneCycleLR(
-        ft_opt2, max_lr=5e-6, epochs=5, steps_per_epoch=len(ft_loader))
-    print("\n── Stage 2: full fine-tuning (5 epochs) ──")
+        ft_opt2, max_lr=5e-6, epochs=3, steps_per_epoch=len(ft_loader))
+    print("\n── Stage 2: full fine-tuning (3 epochs) ──")
     ft_best = 0.0
-    for ep in range(1, 6):
+    for ep in range(1, 4):
         ft_model.train()
         for images, labels in tqdm(ft_loader, desc=f"Stage2 ep{ep}", leave=False):
             images, labels = images.to(DEVICE), labels.to(DEVICE)
@@ -418,7 +425,7 @@ else:
             ft_scaler.scale(loss).backward()
             ft_scaler.step(ft_opt2); ft_scaler.update()
             ft_sched.step(); ft_opt2.zero_grad()
-        print(f"  epoch {ep}/5  loss {loss.item():.4f}")
+        print(f"  epoch {ep}/3  loss {loss.item():.4f}")
 
     save_ckpt(ft_model, CKPT_PHASE2, 8, 0.0)
     model = ft_model

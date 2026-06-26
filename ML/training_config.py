@@ -55,7 +55,7 @@ IMG_SIZE = 224
 # and saves ~1.5 hours of GPU time on Kaggle.
 V1_MODEL_NAME    = "vit_base_patch16_224.orig_in21k"
 V1_NUM_CLASSES   = 101
-V1_EPOCHS        = 15      # was 30 — saves ~2 hrs on T4
+V1_EPOCHS        = 3       # quick run for progress check
 V1_LR            = 3e-4    # scaled for effective batch 128
 V1_WEIGHT_DECAY  = 0.05
 V1_LABEL_SMOOTH  = 0.1
@@ -66,13 +66,13 @@ V1_CHECKPOINT    = os.path.join(SAVE_DIR, "food101_best_model.pth")
 # ── Phase 2 — Arabic fine-tuning (extend to 119 classes) ──────────────────────
 # Load V1 checkpoint, add 18 new Arabic class heads, fine-tune for 8 epochs.
 V2_NUM_CLASSES   = 119     # 101 Food-101 + 18 Arabic
-V2_EPOCHS        = 8       # was not specified — 8 is enough for transfer learning
+V2_EPOCHS        = 3       # quick run for progress check
 V2_LR            = 5e-6    # much smaller LR for fine-tuning
 V2_CHECKPOINT    = os.path.join(SAVE_DIR, "food_finetuned_model.pth")
 CLASSES_TXT      = os.path.join(SAVE_DIR, "class_names.txt")  # must save 119 names
 
 # ── Phase 3 — V2 improvements (focal loss + RandAugment) ──────────────────────
-V3_EPOCHS        = 10
+V3_EPOCHS        = 3
 V3_LR            = 1e-6
 V3_CHECKPOINT    = os.path.join(SAVE_DIR, "food_V2_model.pth")
 
@@ -80,7 +80,7 @@ V3_CHECKPOINT    = os.path.join(SAVE_DIR, "food_V2_model.pth")
 # ConvNeXt converges in fewer epochs than ViT on fine-grained data.
 V4_MODEL_NAME    = "convnext_base.fb_in22k"
 V4_NUM_CLASSES   = 119
-V4_EPOCHS        = 10
+V4_EPOCHS        = 3
 V4_LR            = 3e-4
 V4_CHECKPOINT    = os.path.join(SAVE_DIR, "food_V3_model.pth")
 
