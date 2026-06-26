@@ -40,7 +40,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   if (done) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-deep">
-        <div className="animate-nv-rise text-center text-mint">
+        <div className="animate-nv-rise text-center text-mint px-6">
           <div className="mx-auto mb-5 grid size-20 place-items-center rounded-full bg-mint/15 ring-2 ring-mint/30">
             <Check className="size-10" strokeWidth={2.5} />
           </div>
@@ -53,58 +53,76 @@ export function OnboardingFlow({ onComplete }: Props) {
     );
   }
 
+  const inputCls = "w-full rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-emerald-deep/40 transition-shadow";
+  const labelCls = "block text-[11px] font-semibold uppercase tracking-widest text-ink/40 mb-1.5";
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 backdrop-blur-sm sm:items-center">
-      <div className="w-full max-w-md rounded-t-[32px] bg-ivory p-8 shadow-2xl sm:rounded-[32px] animate-nv-rise">
+      {/*
+        Card: flex column, max height = 90% of viewport, no overflow on the card itself.
+        Progress + button are sticky — content scrolls between them.
+      */}
+      <div className="flex w-full max-w-md flex-col rounded-t-[32px] bg-ivory shadow-2xl sm:rounded-[32px] animate-nv-rise"
+           style={{ maxHeight: "90svh" }}>
 
-        {/* Progress bar */}
-        <div className="mb-8 flex items-center gap-2">
-          {[0, 1].map((i) => (
-            <div
-              key={i}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-500",
-                i <= step ? "flex-1 bg-emerald-deep" : "w-8 bg-ink/12",
-              )}
-            />
-          ))}
+        {/* ── Fixed top: progress + heading ── */}
+        <div className="shrink-0 px-6 pt-6 pb-4">
+          {/* Progress bar */}
+          <div className="mb-5 flex items-center gap-2">
+            {[0, 1].map((i) => (
+              <div
+                key={i}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-500",
+                  i <= step ? "flex-1 bg-emerald-deep" : "w-8 bg-ink/12",
+                )}
+              />
+            ))}
+          </div>
+
+          <div className="text-[10px] uppercase tracking-[0.2em] text-ink/40">
+            Step {step + 1} of 2
+          </div>
+          <h2 className="mt-0.5 font-display text-2xl font-medium">
+            {step === 0 ? "Tell us about you" : "Body measurements"}
+          </h2>
+          <p className="mt-1 text-sm text-ink/50">
+            {step === 0
+              ? "Personalises your disease risk analysis."
+              : "Used to calibrate your overweight risk score."}
+          </p>
         </div>
 
-        {/* ── Step 0 ── */}
-        {step === 0 && (
-          <div className="space-y-6 animate-nv-slide-in">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-ink/40">Step 1 of 2</div>
-              <h2 className="mt-1 font-display text-2xl font-medium">Tell us about you</h2>
-              <p className="mt-1 text-sm text-ink/50">Used to personalise your risk analysis.</p>
-            </div>
+        {/* ── Scrollable content ── */}
+        <div className="flex-1 overflow-y-auto px-6 pb-2">
 
-            <div className="space-y-4">
+          {step === 0 && (
+            <div className="space-y-4 pb-2">
               <label className="block">
-                <span className="block text-[11px] font-semibold uppercase tracking-widest text-ink/40 mb-1.5">Full name</span>
+                <span className={labelCls}>Full name</span>
                 <input
                   autoFocus
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleNext()}
                   placeholder="Your name"
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-emerald-deep/40 transition-shadow"
+                  className={inputCls}
                 />
               </label>
 
               <label className="block">
-                <span className="block text-[11px] font-semibold uppercase tracking-widest text-ink/40 mb-1.5">Age</span>
+                <span className={labelCls}>Age</span>
                 <input
                   type="number" min={10} max={100}
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   placeholder="e.g. 24"
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-emerald-deep/40 transition-shadow"
+                  className={inputCls}
                 />
               </label>
 
               <div>
-                <span className="block text-[11px] font-semibold uppercase tracking-widest text-ink/40 mb-1.5">Biological sex</span>
+                <span className={labelCls}>Biological sex</span>
                 <div className="flex gap-3">
                   {(["male", "female"] as const).map((s) => (
                     <button
@@ -123,42 +141,34 @@ export function OnboardingFlow({ onComplete }: Props) {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ── Step 1 ── */}
-        {step === 1 && (
-          <div className="space-y-6 animate-nv-slide-in">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-ink/40">Step 2 of 2</div>
-              <h2 className="mt-1 font-display text-2xl font-medium">Body measurements</h2>
-              <p className="mt-1 text-sm text-ink/50">Calibrates your overweight risk score.</p>
-            </div>
-
-            <div className="space-y-4">
-              <label className="block">
-                <span className="block text-[11px] font-semibold uppercase tracking-widest text-ink/40 mb-1.5">Weight (kg)</span>
-                <input
-                  autoFocus
-                  type="number" min={30} max={250}
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  placeholder="e.g. 68"
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-emerald-deep/40 transition-shadow"
-                />
-              </label>
-
-              <label className="block">
-                <span className="block text-[11px] font-semibold uppercase tracking-widest text-ink/40 mb-1.5">Height (cm)</span>
-                <input
-                  type="number" min={100} max={250}
-                  value={height}
-                  onChange={(e) => setHeight(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleNext()}
-                  placeholder="e.g. 172"
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm ring-1 ring-ink/10 focus:outline-none focus:ring-2 focus:ring-emerald-deep/40 transition-shadow"
-                />
-              </label>
+          {step === 1 && (
+            <div className="space-y-4 pb-2">
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className={labelCls}>Weight (kg)</span>
+                  <input
+                    autoFocus
+                    type="number" min={30} max={250}
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    placeholder="e.g. 68"
+                    className={inputCls}
+                  />
+                </label>
+                <label className="block">
+                  <span className={labelCls}>Height (cm)</span>
+                  <input
+                    type="number" min={100} max={250}
+                    value={height}
+                    onChange={(e) => setHeight(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleNext()}
+                    placeholder="e.g. 172"
+                    className={inputCls}
+                  />
+                </label>
+              </div>
 
               {bmi && (
                 <div className={cn(
@@ -181,22 +191,26 @@ export function OnboardingFlow({ onComplete }: Props) {
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        <button
-          onClick={handleNext}
-          disabled={step === 0 ? !step1Ok : !step2Ok}
-          className={cn(
-            "mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all",
-            (step === 0 ? step1Ok : step2Ok)
-              ? "bg-emerald-deep text-mint shadow-[0_10px_28px_-12px_rgba(15,118,110,0.7)] hover:scale-[1.01] active:scale-[0.98]"
-              : "cursor-not-allowed bg-ink/8 text-ink/30",
           )}
-        >
-          {step === 1 ? "Complete setup" : "Continue"}
-          <ArrowRight className="size-4" />
-        </button>
+        </div>
+
+        {/* ── Fixed bottom: CTA button ── */}
+        <div className="shrink-0 px-6 pt-3 pb-6">
+          <button
+            onClick={handleNext}
+            disabled={step === 0 ? !step1Ok : !step2Ok}
+            className={cn(
+              "flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all",
+              (step === 0 ? step1Ok : step2Ok)
+                ? "bg-emerald-deep text-mint shadow-[0_10px_28px_-12px_rgba(15,118,110,0.7)] hover:scale-[1.01] active:scale-[0.98]"
+                : "cursor-not-allowed bg-ink/8 text-ink/30",
+            )}
+          >
+            {step === 1 ? "Complete setup" : "Continue"}
+            <ArrowRight className="size-4" />
+          </button>
+        </div>
+
       </div>
     </div>
   );
