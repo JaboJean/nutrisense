@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,49 +13,48 @@ export const Route = createFileRoute("/signup")({
 const STEPS = ["Account", "Personal", "Body"] as const;
 
 function SignupPage() {
-  const navigate = useNavigate();
+  const navigate    = useNavigate();
   const { user, loaded, register } = useAuth();
+  const registering = useRef(false); // prevent useEffect from redirecting mid-registration
 
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
 
-  // Step 0
   const [name,     setName]     = useState("");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [showPwd,  setShowPwd]  = useState(false);
+  const [age,      setAge]      = useState("");
+  const [sex,      setSex]      = useState<"male" | "female" | "">("");
+  const [weight,   setWeight]   = useState("");
+  const [height,   setHeight]   = useState("");
+  const [error,    setError]    = useState<string | null>(null);
+  const [loading,  setLoading]  = useState(false);
 
-  // Step 1
-  const [age, setAge] = useState("");
-  const [sex, setSex] = useState<"male" | "female" | "">("");
-
-  // Step 2
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
-
-  const [error, setError]     = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Only redirect if already logged in BEFORE the user started registering
+  useEffect(() => {
+    if (loaded && user && !registering.current) {
+      navigate({ to: "/dashboard" });
+    }
+  }, [loaded, user, navigate]);
 
   const bmi = weight && height && Number(weight) > 0 && Number(height) > 0
     ? getBMI(Number(weight), Number(height))
     : null;
 
-  useEffect(() => {
-    if (loaded && user) navigate({ to: "/dashboard" });
-  }, [loaded, user, navigate]);
-
   const step0Ok = name.trim().length > 1 && email.includes("@") && password.length >= 6;
   const step1Ok = Number(age) >= 10 && sex !== "";
   const step2Ok = Number(weight) >= 20 && Number(height) >= 100;
+  const stepOk  = [step0Ok, step1Ok, step2Ok][step];
 
   async function handleNext() {
     setError(null);
-    if (step < 2) {
-      setStep((s) => s + 1);
-      return;
-    }
+    if (step < 2) { setStep((s) => s + 1); return; }
+
+    registering.current = true;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 500));
+
     const result = register(email.trim().toLowerCase(), password, {
       name:     name.trim(),
       age:      Number(age),
@@ -63,10 +62,13 @@ function SignupPage() {
       weightKg: Number(weight),
       heightCm: Number(height),
     });
+
     if (result === true) {
       setDone(true);
-      setTimeout(() => navigate({ to: "/dashboard" }), 1600);
+      // Hard navigate so the dashboard mounts fresh and reads localStorage cleanly
+      setTimeout(() => { window.location.href = "/dashboard"; }, 1400);
     } else {
+      registering.current = false;
       setError(result);
       setLoading(false);
     }
@@ -74,8 +76,6 @@ function SignupPage() {
 
   const inputCls = "w-full rounded-2xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm focus:border-emerald-deep/40 focus:outline-none focus:ring-2 focus:ring-emerald-deep/15 transition-all";
   const labelCls = "mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-ink/40";
-
-  const stepOk = [step0Ok, step1Ok, step2Ok][step];
 
   if (done) {
     return (
@@ -85,7 +85,8 @@ function SignupPage() {
             <Check className="size-10" strokeWidth={2.5} />
           </div>
           <h2 className="font-display text-3xl font-medium">Welcome, {name.trim().split(" ")[0]}!</h2>
-          <p className="mt-2 text-mint/70">Your account is ready. Taking you to the dashboard…</p>
+          <p className="mt-2 text-mint/70">Your account is ready. Loading your dashboard…</p>
+          <div className="mt-5 mx-auto size-5 rounded-full border-2 border-mint/30 border-t-mint animate-spin" />
         </div>
       </div>
     );
@@ -110,23 +111,23 @@ function SignupPage() {
             Your personal disease risk dashboard.
           </h2>
           <p className="mt-3 text-mint/55 leading-relaxed text-sm">
-            Set up your profile in 60 seconds. We use your age, sex, and body measurements to calibrate your personalised risk scores.
+            Set up your profile in 60 seconds. We use your age, sex, and body measurements
+            to calibrate your personalised risk scores.
           </p>
 
-          {/* Step indicator */}
           <div className="mt-10 space-y-3">
             {STEPS.map((s, i) => (
               <div key={s} className={cn(
                 "flex items-center gap-3 text-sm transition-all",
-                i < step   ? "text-mint/50"  : "",
-                i === step ? "text-mint font-semibold" : "",
-                i > step   ? "text-mint/25"  : "",
+                i < step   ? "text-mint/50"            : "",
+                i === step ? "text-mint font-semibold"  : "",
+                i > step   ? "text-mint/25"             : "",
               )}>
                 <div className={cn(
                   "flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-all",
-                  i < step   ? "bg-mint/20 text-mint/60" : "",
-                  i === step ? "bg-mint text-emerald-deep" : "",
-                  i > step   ? "bg-mint/10 text-mint/30" : "",
+                  i < step   ? "bg-mint/20 text-mint/60"      : "",
+                  i === step ? "bg-mint text-emerald-deep"    : "",
+                  i > step   ? "bg-mint/10 text-mint/30"      : "",
                 )}>
                   {i < step ? <Check className="size-3" /> : i + 1}
                 </div>
@@ -142,7 +143,6 @@ function SignupPage() {
       {/* ── Right panel ── */}
       <div className="flex flex-1 flex-col justify-center px-6 py-12 sm:px-10 lg:px-14">
 
-        {/* Mobile logo */}
         <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
           <div className="grid size-7 place-items-center rounded-lg bg-emerald-deep">
             <Sparkles className="size-3.5 text-mint" />
@@ -152,7 +152,7 @@ function SignupPage() {
 
         <div className="w-full max-w-sm">
 
-          {/* Progress (mobile) */}
+          {/* Mobile progress */}
           <div className="flex items-center gap-1.5 mb-6 lg:hidden">
             {STEPS.map((_, i) => (
               <div key={i} className={cn(
@@ -162,15 +162,15 @@ function SignupPage() {
             ))}
           </div>
 
-          <div className="mb-7">
+          <div className="mb-6">
             <div className="text-[10px] uppercase tracking-[0.2em] text-ink/35">Step {step + 1} of 3</div>
             <h1 className="mt-1 font-display text-2xl font-bold">
               {step === 0 && "Create your account"}
               {step === 1 && "Tell us about you"}
               {step === 2 && "Body measurements"}
             </h1>
-            <p className="mt-1.5 text-sm text-ink/45">
-              {step === 0 && "Your credentials to sign in."}
+            <p className="mt-1 text-sm text-ink/45">
+              {step === 0 && "Your sign-in credentials."}
               {step === 1 && "Personalises your disease risk analysis."}
               {step === 2 && "Used to calibrate your overweight risk score."}
             </p>
@@ -178,7 +178,6 @@ function SignupPage() {
 
           <div className="space-y-4">
 
-            {/* Step 0: Account */}
             {step === 0 && (
               <>
                 <label className="block">
@@ -203,7 +202,10 @@ function SignupPage() {
                   />
                 </label>
                 <label className="block">
-                  <span className={labelCls}>Password <span className="normal-case tracking-normal text-ink/30">(min 6 chars)</span></span>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={labelCls.replace("mb-1.5", "")}>Password</span>
+                    <span className="text-[10px] text-ink/35">min 6 characters</span>
+                  </div>
                   <div className="relative">
                     <input
                       type={showPwd ? "text" : "password"}
@@ -225,11 +227,10 @@ function SignupPage() {
               </>
             )}
 
-            {/* Step 1: Personal */}
             {step === 1 && (
               <>
                 <label className="block">
-                  <span className={labelCls}>Age</span>
+                  <span className={labelCls}>Age (years)</span>
                   <input
                     autoFocus
                     type="number" min={10} max={100}
@@ -262,32 +263,38 @@ function SignupPage() {
               </>
             )}
 
-            {/* Step 2: Body */}
             {step === 2 && (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block">
-                    <span className={labelCls}>Weight (kg)</span>
-                    <input
-                      autoFocus
-                      type="number" min={30} max={250}
-                      value={weight}
-                      onChange={(e) => setWeight(e.target.value)}
-                      placeholder="e.g. 68"
-                      className={inputCls}
-                    />
+                    <span className={labelCls}>Weight</span>
+                    <div className="relative">
+                      <input
+                        autoFocus
+                        type="number" min={20} max={300}
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        placeholder="68"
+                        className={cn(inputCls, "pr-10")}
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink/35">kg</span>
+                    </div>
                   </label>
                   <label className="block">
-                    <span className={labelCls}>Height (cm)</span>
-                    <input
-                      type="number" min={100} max={250}
-                      value={height}
-                      onChange={(e) => setHeight(e.target.value)}
-                      placeholder="e.g. 172"
-                      className={inputCls}
-                    />
+                    <span className={labelCls}>Height</span>
+                    <div className="relative">
+                      <input
+                        type="number" min={100} max={250}
+                        value={height}
+                        onChange={(e) => setHeight(e.target.value)}
+                        placeholder="172"
+                        className={cn(inputCls, "pr-10")}
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink/35">cm</span>
+                    </div>
                   </label>
                 </div>
+                <p className="text-[11px] text-ink/35 -mt-1">Enter height in centimetres (e.g. 172, not 1.72)</p>
 
                 {bmi && (
                   <div className={cn(
@@ -306,7 +313,6 @@ function SignupPage() {
                     <div>
                       <div className="text-[10px] uppercase tracking-widest text-ink/40">Your BMI</div>
                       <div className="text-sm font-semibold">{getBMILabel(bmi)}</div>
-                      <div className="text-xs text-ink/40">Used to calibrate risk model</div>
                     </div>
                   </div>
                 )}
@@ -316,7 +322,23 @@ function SignupPage() {
             {error && (
               <div className="rounded-2xl bg-coral/8 px-4 py-3 text-sm text-coral ring-1 ring-coral/20">
                 {error}
+                {error.includes("already exists") && (
+                  <span> <Link to="/login" className="font-bold underline">Sign in instead</Link></span>
+                )}
               </div>
+            )}
+
+            {/* Validation hint when button is disabled */}
+            {!stepOk && !error && (
+              <p className="text-[11px] text-ink/35">
+                {step === 0 && "Fill in all fields — password must be at least 6 characters."}
+                {step === 1 && (!age || Number(age) < 10 ? "Enter your age (10–100)." : "Select your biological sex.")}
+                {step === 2 && (!weight || Number(weight) < 20
+                  ? "Enter your weight in kg."
+                  : !height || Number(height) < 100
+                  ? "Enter your height in cm (e.g. 172, not 1.72)."
+                  : "")}
+              </p>
             )}
 
             <button
@@ -324,7 +346,7 @@ function SignupPage() {
               onClick={handleNext}
               disabled={!stepOk || loading}
               className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all mt-1",
+                "flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold transition-all",
                 stepOk && !loading
                   ? "bg-emerald-deep text-mint shadow-[0_10px_28px_-12px_rgba(15,118,110,0.7)] hover:scale-[1.01] active:scale-[0.98]"
                   : "cursor-not-allowed bg-ink/8 text-ink/30",
@@ -340,7 +362,7 @@ function SignupPage() {
               )}
             </button>
 
-            {step > 0 && (
+            {step > 0 && !loading && (
               <button
                 type="button"
                 onClick={() => { setError(null); setStep((s) => s - 1); }}
@@ -357,7 +379,6 @@ function SignupPage() {
               Sign in
             </Link>
           </p>
-
         </div>
       </div>
     </div>
