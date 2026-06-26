@@ -8,9 +8,10 @@ type Props = {
   onAdd: (item: LogItem) => void;
   onRemove: (id: string) => void;
   onOpenLogger: () => void;
+  onMealClick?: (item: LogItem) => void;
 };
 
-export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger }: Props) {
+export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }: Props) {
   const [query, setQuery] = useState("");
   const [removing, setRemoving] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
@@ -170,9 +171,10 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger }: Props) {
                 key={f.id}
                 style={{ animationDelay: `${i * 50}ms` }}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl bg-white/55 p-3 ring-1 ring-ink/5",
+                  "flex items-center gap-3 rounded-2xl bg-white/55 p-3 ring-1 ring-ink/5 cursor-pointer hover:ring-emerald-deep/20 hover:bg-white/80 transition-all",
                   removing.has(f.id) ? "animate-nv-slide-out" : "animate-nv-slide-in",
                 )}
+                onClick={() => onMealClick?.(f)}
               >
                 <div className={cn(
                   "grid size-12 shrink-0 place-items-center rounded-xl text-2xl ring-1 ring-ink/5",
@@ -195,7 +197,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger }: Props) {
                   {f.tag}
                 </span>
                 <button
-                  onClick={() => handleRemove(f.id)}
+                  onClick={(e) => { e.stopPropagation(); handleRemove(f.id); }}
                   className="ml-1 grid size-6 shrink-0 place-items-center rounded-full text-ink/25 hover:bg-red-50 hover:text-red-400 transition-colors"
                 >
                   <X className="size-3.5" />

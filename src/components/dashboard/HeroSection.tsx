@@ -18,7 +18,7 @@ export function HeroSection({ score }: { score: number }) {
           <span className="text-emerald-deep">Prevent disease</span> before it starts.
         </h1>
         <p className="max-w-[52ch] text-[17px] leading-relaxed text-ink/65">
-          AI-powered nutrition intelligence built around your real eating habits. NutriVision watches the
+          AI-powered nutrition intelligence built around your real eating habits. Nutrisense-AI watches the
           patterns most clinicians miss — and tells you, gently, what to change next.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-2">
