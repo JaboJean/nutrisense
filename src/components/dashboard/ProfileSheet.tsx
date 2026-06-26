@@ -10,9 +10,10 @@ type Props = {
   profile: UserProfile | null;
   onSave: (p: UserProfile) => void;
   onReset: () => void;
+  onLogout: () => void;
 };
 
-export function ProfileSheet({ open, onOpenChange, profile, onSave, onReset }: Props) {
+export function ProfileSheet({ open, onOpenChange, profile, onSave, onReset, onLogout }: Props) {
   const [name, setName]     = useState("");
   const [age, setAge]       = useState("");
   const [sex, setSex]       = useState<"male" | "female">("male");
@@ -120,13 +121,13 @@ export function ProfileSheet({ open, onOpenChange, profile, onSave, onReset }: P
 
           <button
             onClick={onReset}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl py-2.5 text-xs font-semibold text-ink/40 hover:text-coral hover:bg-coral/5 transition-colors"
+            className="w-full text-center text-xs text-ink/30 hover:text-ink/60 transition-colors py-1"
           >
-            <LogOut className="size-3.5" /> Reset profile
+            Reset profile data
           </button>
         </div>
 
-        <div className="px-6 py-4 border-t border-ink/5 bg-white/50">
+        <div className="px-6 py-4 border-t border-ink/5 bg-white/50 space-y-2">
           <button
             onClick={handleSave}
             disabled={!valid}
@@ -138,6 +139,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onSave, onReset }: P
             )}
           >
             {saved ? <><Check className="size-4" /> Saved!</> : "Save changes"}
+          </button>
+          <button
+            onClick={onLogout}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl py-2.5 text-sm font-semibold text-coral bg-coral/5 hover:bg-coral/10 transition-colors"
+          >
+            <LogOut className="size-4" /> Sign out
           </button>
         </div>
       </SheetContent>
