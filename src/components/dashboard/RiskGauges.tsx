@@ -3,6 +3,7 @@ import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronRight } from "lucide-
 import { cn } from "@/lib/utils";
 import { Ring } from "@/components/Ring";
 import { RISKS, SHAP_BY_DISEASE } from "@/data/mock";
+import type { RiskScores, ShapEntry } from "@/lib/mlApi";
 
 function ShapBar({ shap }: { shap: { f: string; v: number }[] }) {
   return (
@@ -39,14 +40,29 @@ function ShapBar({ shap }: { shap: { f: string; v: number }[] }) {
   );
 }
 
-export function RiskGauges() {
+type Props = {
+  scores?: RiskScores;
+  shap?:   { anemia: ShapEntry[]; diabetes: ShapEntry[]; overweight: ShapEntry[] };
+};
+
+function badgeForScore(score: number): { badge: string; badgeTone: "coral" | "amber" | "sky" } {
+  if (score >= 60) return { badge: "HIGH",    badgeTone: "coral" };
+  if (score >= 35) return { badge: "MONITOR", badgeTone: "amber" };
+  return               { badge: "LOW",     badgeTone: "sky"   };
+}
+
+export function RiskGauges({ scores, shap }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
     <section className="grid gap-5 sm:grid-cols-3">
       {RISKS.map((r, i) => {
-        const isOpen = expanded === r.key;
-        const shap = SHAP_BY_DISEASE[r.key] ?? [];
+        const isOpen  = expanded === r.key;
+        const dynVal  = scores?.[r.key as keyof RiskScores];
+        const value   = dynVal !== undefined ? dynVal : r.value;
+        const dynBadge = dynVal !== undefined ? badgeForScore(dynVal) : { badge: r.badge, badgeTone: r.badgeTone };
+        const shapData = shap?.[r.key as keyof typeof shap] ?? SHAP_BY_DISEASE[r.key] ?? [];
+        const trendUp  = dynVal !== undefined ? dynVal > 40 : r.trendUp;
         return (
           <article
             key={r.key}
@@ -67,22 +83,22 @@ export function RiskGauges() {
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink/45">{r.label}</div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="font-display text-4xl font-medium tracking-tighter text-ink tabular-nums">{r.value}%</span>
-                  <span className={cn("inline-flex items-center gap-0.5 text-xs font-semibold", r.trendUp ? "text-coral" : "text-emerald-deep")}>
-                    {r.trendUp ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
+                  <span className="font-display text-4xl font-medium tracking-tighter text-ink tabular-nums">{value}%</span>
+                  <span className={cn("inline-flex items-center gap-0.5 text-xs font-semibold", trendUp ? "text-coral" : "text-emerald-deep")}>
+                    {trendUp ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
                     {r.trend}
                   </span>
                 </div>
               </div>
-              <Ring value={r.value} size={64} stroke={6} color={r.color} track={`${r.color}22`}>
-                <span className="text-[10px] font-semibold text-ink/60">{r.value}</span>
+              <Ring value={value} size={64} stroke={6} color={r.color} track={`${r.color}22`}>
+                <span className="text-[10px] font-semibold text-ink/60">{value}</span>
               </Ring>
             </div>
 
             {/* Progress bar */}
             <div className="relative mt-5">
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/5">
-                <div className="h-full animate-nv-grow-bar rounded-full" style={{ width: `${r.value}%`, background: r.color }} />
+                <div className="h-full animate-nv-grow-bar rounded-full" style={{ width: `${value}%`, background: r.color }} />
               </div>
               <div className="mt-1 flex justify-between text-[10px] uppercase tracking-[0.14em] text-ink/35">
                 <span>Low</span><span>High</span>
@@ -99,17 +115,17 @@ export function RiskGauges() {
             {/* SHAP detail (expanded) */}
             {isOpen && (
               <div className="relative">
-                <ShapBar shap={shap} />
+                <ShapBar shap={shapData} />
               </div>
             )}
 
             <span className={cn(
               "absolute right-5 top-5 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-              r.badgeTone === "coral" && "bg-coral/10 text-coral",
-              r.badgeTone === "amber" && "bg-amber/10 text-amber",
-              r.badgeTone === "sky"   && "bg-sky/10 text-sky",
+              dynBadge.badgeTone === "coral" && "bg-coral/10 text-coral",
+              dynBadge.badgeTone === "amber" && "bg-amber/10 text-amber",
+              dynBadge.badgeTone === "sky"   && "bg-sky/10 text-sky",
             )}>
-              {r.badge}
+              {dynBadge.badge}
             </span>
           </article>
         );

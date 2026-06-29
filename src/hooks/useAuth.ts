@@ -1,78 +1,124 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import type { UserProfile } from "./useProfile";
 
-export type AuthUser = {
-  name:    string;
-  email:   string;
-  token:   string;
-  profile: UserProfile;
-};
+export type { UserProfile };
+export type { User };
 
-type StoredAccount = {
-  email:    string;
-  password: string;
-  profile:  UserProfile;
-};
+export interface UseAuthReturn {
+  user:          User | null;
+  profile:       UserProfile | null;
+  loaded:        boolean;
+  displayName:   string;
+  register:      (email: string, password: string, p: UserProfile) => Promise<true | string>;
+  login:         (email: string, password: string)                 => Promise<true | string>;
+  logout:        ()                                                => Promise<void>;
+  updateProfile: (p: UserProfile)                                  => Promise<true | string>;
+}
 
-const AUTH_KEY     = "nv_auth";
-const ACCOUNTS_KEY = "nv_accounts";
-
-export function useAuth() {
-  const [user, setUser]     = useState<AuthUser | null>(null);
-  const [loaded, setLoaded] = useState(false);
+export function useAuth(): UseAuthReturn {
+  const [user, setUser]       = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loaded, setLoaded]   = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(AUTH_KEY);
-      setUser(raw ? (JSON.parse(raw) as AuthUser) : null);
-    } catch {
-      setUser(null);
-    }
-    setLoaded(true);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) await fetchProfile(u.id);
+      setLoaded(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const u = session?.user ?? null;
+        setUser(u);
+        if (u) await fetchProfile(u.id);
+        else setProfile(null);
+        setLoaded(true);
+      },
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  function register(email: string, password: string, profile: UserProfile): true | string {
-    try {
-      const raw      = localStorage.getItem(ACCOUNTS_KEY);
-      const accounts: StoredAccount[] = raw ? JSON.parse(raw) : [];
-      if (accounts.some((a) => a.email.toLowerCase() === email.toLowerCase())) {
-        return "An account with this email already exists.";
-      }
-      accounts.push({ email, password, profile });
-      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-      localStorage.setItem("nv_profile", JSON.stringify(profile));
-      const authUser: AuthUser = { name: profile.name, email, token: `nv_${Date.now()}`, profile };
-      localStorage.setItem(AUTH_KEY, JSON.stringify(authUser));
-      setUser(authUser);
-      return true;
-    } catch {
-      return "Something went wrong. Please try again.";
+  async function fetchProfile(userId: string): Promise<void> {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    if (data) {
+      setProfile({
+        name:     data.name      ?? "",
+        age:      data.age       ?? 0,
+        sex:      data.sex       ?? "male",
+        weightKg: data.weight_kg ?? 0,
+        heightCm: data.height_cm ?? 0,
+      });
     }
   }
 
-  function login(email: string, password: string): true | string {
-    try {
-      const raw      = localStorage.getItem(ACCOUNTS_KEY);
-      const accounts: StoredAccount[] = raw ? JSON.parse(raw) : [];
-      const account  = accounts.find(
-        (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password,
-      );
-      if (!account) return "Invalid email or password.";
-      localStorage.setItem("nv_profile", JSON.stringify(account.profile));
-      const authUser: AuthUser = { name: account.profile.name, email, token: `nv_${Date.now()}`, profile: account.profile };
-      localStorage.setItem(AUTH_KEY, JSON.stringify(authUser));
-      setUser(authUser);
-      return true;
-    } catch {
-      return "Something went wrong. Please try again.";
-    }
+  async function register(
+    email: string,
+    password: string,
+    p: UserProfile,
+  ): Promise<true | string> {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name: p.name } },
+    });
+    if (error) return error.message;
+    if (!data.user) return "Signup failed — please try again.";
+
+    const { error: pe } = await supabase.from("profiles").upsert({
+      id:        data.user.id,
+      name:      p.name,
+      age:       p.age,
+      sex:       p.sex,
+      weight_kg: p.weightKg,
+      height_cm: p.heightCm,
+    });
+    if (pe) return pe.message;
+
+    setProfile(p);
+    return true;
   }
 
-  function logout() {
-    localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem("nv_profile");
+  async function login(email: string, password: string): Promise<true | string> {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return error.message;
+    return true;
+  }
+
+  async function logout(): Promise<void> {
+    await supabase.auth.signOut();
     setUser(null);
+    setProfile(null);
   }
 
-  return { user, loaded, register, login, logout };
+  async function updateProfile(p: UserProfile): Promise<true | string> {
+    if (!user) return "Not authenticated.";
+    const { error } = await supabase.from("profiles").upsert({
+      id:        user.id,
+      name:      p.name,
+      age:       p.age,
+      sex:       p.sex,
+      weight_kg: p.weightKg,
+      height_cm: p.heightCm,
+    });
+    if (error) return error.message;
+    setProfile(p);
+    return true;
+  }
+
+  const displayName =
+    profile?.name ??
+    (user?.user_metadata?.name as string | undefined) ??
+    user?.email?.split("@")[0] ??
+    "User";
+
+  return { user, profile, loaded, displayName, register, login, logout, updateProfile };
 }

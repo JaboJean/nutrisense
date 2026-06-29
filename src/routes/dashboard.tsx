@@ -2,10 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell, Flame, History, Home, LineChart as LineIcon, LogOut, Plus, Search, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCountUp } from "@/hooks/use-count-up";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
-import { INITIAL_LOG, type LogItem } from "@/data/mock";
+import { useFoodLogs } from "@/hooks/useFoodLogs";
+import { predictRisk, type Prediction } from "@/lib/mlApi";
+import type { LogItem } from "@/data/mock";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { RiskGauges } from "@/components/dashboard/RiskGauges";
 import { AIInsightPanel } from "@/components/dashboard/AIInsightPanel";
@@ -40,15 +40,20 @@ function getInitials(name: string) {
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { user, loaded: authLoaded, logout } = useAuth();
-  const { profile, saveProfile, clearProfile } = useProfile();
-  const score = useCountUp(84);
+  const { user, profile, loaded: authLoaded, displayName, logout, updateProfile } = useAuth();
+  const { logs: logItems, loading: logsLoading, addLog, removeLog } = useFoodLogs(user);
 
   const [active, setActive]             = useState<TabKey>("overview");
-  const [logItems, setLogItems]         = useState<LogItem[]>(INITIAL_LOG);
   const [sheetOpen, setSheetOpen]       = useState(false);
   const [profileOpen, setProfileOpen]   = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<LogItem | null>(null);
+  const [prediction, setPrediction]     = useState<Prediction | null>(null);
+
+  // Re-run ML prediction whenever the food log or profile changes
+  useEffect(() => {
+    if (logsLoading) return;
+    predictRisk(logItems, profile).then(setPrediction);
+  }, [logItems, logsLoading, profile]);
 
   useEffect(() => {
     if (authLoaded && !user) navigate({ to: "/login" });
@@ -62,16 +67,16 @@ function Dashboard() {
     );
   }
 
-  function addItem(item: LogItem)  { setLogItems((prev) => [item, ...prev]); }
-  function removeItem(id: string)  { setLogItems((prev) => prev.filter((i) => i.id !== id)); }
+  const addItem    = addLog;
+  const removeItem = removeLog;
+  const healthScore = prediction ? Math.round(100 - prediction.scores.overall) : 72;
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     navigate({ to: "/" });
   }
 
-  const displayName = user.name;
-  const initials    = getInitials(displayName);
+  const initials = getInitials(displayName);
 
   const BOTTOM_NAV = [
     { icon: Home,     label: "Home",    tab: "overview" as TabKey },
@@ -148,8 +153,8 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection score={score} name={displayName} />
-            <RiskGauges />
+            <HeroSection score={healthScore} name={displayName} />
+            <RiskGauges scores={prediction?.scores} shap={prediction?.shap} />
 
             <section className="grid gap-8 lg:grid-cols-5">
               <div className="lg:col-span-3 space-y-6">
@@ -265,8 +270,7 @@ function Dashboard() {
         open={profileOpen}
         onOpenChange={setProfileOpen}
         profile={profile}
-        onSave={saveProfile}
-        onReset={() => { clearProfile(); setProfileOpen(false); }}
+        onSave={async (p) => { await updateProfile(p); setProfileOpen(false); }}
         onLogout={handleLogout}
       />
       <MealDetailSheet item={selectedMeal} onClose={() => setSelectedMeal(null)} />

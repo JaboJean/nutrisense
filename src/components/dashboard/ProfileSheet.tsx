@@ -8,12 +8,11 @@ type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   profile: UserProfile | null;
-  onSave: (p: UserProfile) => void;
-  onReset: () => void;
-  onLogout: () => void;
+  onSave: (p: UserProfile) => void | Promise<void>;
+  onLogout: () => void | Promise<void>;
 };
 
-export function ProfileSheet({ open, onOpenChange, profile, onSave, onReset, onLogout }: Props) {
+export function ProfileSheet({ open, onOpenChange, profile, onSave, onLogout }: Props) {
   const [name, setName]     = useState("");
   const [age, setAge]       = useState("");
   const [sex, setSex]       = useState<"male" | "female">("male");
@@ -119,12 +118,6 @@ export function ProfileSheet({ open, onOpenChange, profile, onSave, onReset, onL
             </div>
           )}
 
-          <button
-            onClick={onReset}
-            className="w-full text-center text-xs text-ink/30 hover:text-ink/60 transition-colors py-1"
-          >
-            Reset profile data
-          </button>
         </div>
 
         <div className="px-6 py-4 border-t border-ink/5 bg-white/50 space-y-2">
