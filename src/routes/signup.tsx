@@ -53,9 +53,8 @@ function SignupPage() {
 
     registering.current = true;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
 
-    const result = register(email.trim().toLowerCase(), password, {
+    const result: true | string = await register(email.trim().toLowerCase(), password, {
       name:     name.trim(),
       age:      Number(age),
       sex:      sex as "male" | "female",

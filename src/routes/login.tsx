@@ -33,7 +33,7 @@ function LoginPage() {
     setError(null);
     setLoading(true);
     await new Promise((r) => setTimeout(r, 400));
-    const result = login(email.trim().toLowerCase(), password);
+    const result: true | string = await login(email.trim().toLowerCase(), password);
     if (result === true) {
       window.location.href = "/dashboard";
     } else {
@@ -45,11 +45,10 @@ function LoginPage() {
   async function handleDemoLogin() {
     setLoading(true);
     setError(null);
-    await new Promise((r) => setTimeout(r, 400));
     // Try login first; if no demo account exists, create one
-    let result = login(DEMO_EMAIL, DEMO_PASSWORD);
+    let result: true | string = await login(DEMO_EMAIL, DEMO_PASSWORD);
     if (result !== true) {
-      result = register(DEMO_EMAIL, DEMO_PASSWORD, DEMO_PROFILE);
+      result = await register(DEMO_EMAIL, DEMO_PASSWORD, DEMO_PROFILE);
     }
     if (result === true) {
       window.location.href = "/dashboard";

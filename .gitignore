@@ -20,6 +20,18 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# ML model binaries (large files – copy manually from _output_/)
+api/models/*.pth
+api/models/*.joblib
+api/models/*.pkl
+api/models/*.pt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
