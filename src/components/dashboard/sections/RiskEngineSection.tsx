@@ -3,9 +3,16 @@ import { RiskGauges } from "@/components/dashboard/RiskGauges";
 import { PredictionPipeline } from "@/components/dashboard/PredictionPipeline";
 import { SHAP_BY_DISEASE, RISKS } from "@/data/mock";
 import { cn } from "@/lib/utils";
+import type { Prediction } from "@/lib/mlApi";
 
-function DiseaseSummaryCard({ risk }: { risk: typeof RISKS[0] }) {
-  const shap = SHAP_BY_DISEASE[risk.key] ?? [];
+function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; prediction?: Prediction | null }) {
+  const liveScore = prediction?.scores?.[risk.key as keyof typeof prediction.scores];
+  const displayScore = liveScore ?? risk.value;
+  const liveBadge = liveScore !== undefined
+    ? liveScore >= 60 ? "HIGH" : liveScore >= 35 ? "MONITOR" : "LOW"
+    : risk.badge;
+
+  const shap = prediction?.shap?.[risk.key as keyof typeof prediction.shap] ?? SHAP_BY_DISEASE[risk.key] ?? [];
   const topPositive = shap.filter((s) => s.v > 0).sort((a, b) => b.v - a.v)[0];
   const topNegative = shap.filter((s) => s.v < 0).sort((a, b) => a.v - b.v)[0];
 
@@ -20,7 +27,7 @@ function DiseaseSummaryCard({ risk }: { risk: typeof RISKS[0] }) {
         </div>
         <div>
           <div className="font-display text-base font-semibold text-ink">{risk.label}</div>
-          <div className="text-[11px] text-ink/45">{risk.value}% risk · {risk.badge}</div>
+          <div className="text-[11px] text-ink/45">{displayScore}% risk · {liveBadge}</div>
         </div>
       </div>
 
@@ -67,7 +74,9 @@ function DiseaseSummaryCard({ risk }: { risk: typeof RISKS[0] }) {
   );
 }
 
-export function RiskEngineSection() {
+type Props = { prediction?: Prediction | null };
+
+export function RiskEngineSection({ prediction }: Props) {
   return (
     <div className="space-y-10">
       <div className="flex items-start justify-between gap-4">
@@ -84,13 +93,13 @@ export function RiskEngineSection() {
         </div>
       </div>
 
-      <RiskGauges />
+      <RiskGauges scores={prediction?.scores} shap={prediction?.shap} />
 
       <div>
         <div className="mb-4 text-[10px] uppercase tracking-[0.18em] text-ink/40">Feature breakdown per disease</div>
         <div className="grid gap-5 md:grid-cols-3">
           {RISKS.map((r) => (
-            <DiseaseSummaryCard key={r.key} risk={r} />
+            <DiseaseSummaryCard key={r.key} risk={r} prediction={prediction} />
           ))}
         </div>
       </div>

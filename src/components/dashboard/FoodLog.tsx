@@ -90,7 +90,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Spinach, Chicken, Lentils…"
+              placeholder="Search Ugali, Ibishyimbo, Isombe…"
               className="w-full bg-transparent text-sm placeholder:text-ink/35 focus:outline-none"
             />
             {query && (
