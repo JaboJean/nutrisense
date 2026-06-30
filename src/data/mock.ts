@@ -159,20 +159,20 @@ export const TREND_90D = Array.from({ length: 13 }, (_, i) => ({
 // ── Recommendations ────────────────────────────────────────────────────────────
 export const RECOMMENDATIONS = [
   {
-    n: "Ibishyimbo", b: "+4.4mg Iron · −8% Anemia risk", a: "Daily staple",     s: 96, g: "🫘",
-    img: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=640&h=400&fit=crop&auto=format&q=80",
+    n: "Ibishyimbo",         b: "+4.4mg Iron · −8% Anemia risk", a: "Daily staple",     s: 96, g: "🫘",
+    img: "/beans.jpg",
   },
   {
-    n: "Isombe",     b: "Iron + Vitamin A · greens",     a: "Cassava leaves",   s: 93, g: "🌿",
-    img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=640&h=400&fit=crop&auto=format&q=80",
+    n: "Isombe",             b: "Iron + Vitamin A · greens",      a: "Cassava leaves",   s: 93, g: "🌿",
+    img: "/isombe.jpg",
   },
   {
-    n: "Sorghum Ugali", b: "+3.6mg Iron · high fiber",   a: "Swap maize ugali", s: 90, g: "🫕",
-    img: "https://images.unsplash.com/photo-1547592180-85f173990554?w=640&h=400&fit=crop&auto=format&q=80",
+    n: "Sorghum Ugali",      b: "+3.6mg Iron · high fiber",       a: "Swap maize ugali", s: 90, g: "🫕",
+    img: "/ugali.jpg",
   },
   {
-    n: "Sweet Potato Leaves", b: "Iron + Vit C + Vit A combo", a: "Ikijumba greens", s: 86, g: "🌿",
-    img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=640&h=400&fit=crop&auto=format&q=80",
+    n: "Sweet Potato Leaves",b: "Iron + Vit C + Vit A combo",     a: "Ikijumba greens", s: 86, g: "🌿",
+    img: "/sweet-potato.jpg",
   },
 ];
 
