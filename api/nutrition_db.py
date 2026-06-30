@@ -633,6 +633,128 @@ NUTRITION_DB: dict[str, FoodMeta] = {
         "calcium": 100.0, "zinc": 0.8, "sodium": 450.0,
         "glyph": "🧇", "tone": "amber", "tag": "Breakfast",
     },
+
+    # ── Rwandan staple foods (FAO East Africa food composition data) ──────────
+    "ugali": {
+        "display": "Ugali", "kcal": 194, "protein": 4.4, "fat": 0.8, "carb": 43.0,
+        "iron": 0.6, "vitC": 0.0, "vitA": 0.0, "fiber": 2.4, "sugar": 0.0,
+        "calcium": 10.0, "zinc": 0.8, "sodium": 4.0,
+        "glyph": "🫕", "tone": "amber", "tag": "Staple Grain",
+    },
+    "isombe": {
+        "display": "Isombe", "kcal": 145, "protein": 7.0, "fat": 8.5, "carb": 12.0,
+        "iron": 3.2, "vitC": 22.0, "vitA": 420.0, "fiber": 4.8, "sugar": 1.5,
+        "calcium": 180.0, "zinc": 0.9, "sodium": 15.0,
+        "glyph": "🌿", "tone": "emerald", "tag": "Iron-Rich Greens",
+    },
+    "matoke": {
+        "display": "Matoke", "kcal": 134, "protein": 2.0, "fat": 0.6, "carb": 34.2,
+        "iron": 0.9, "vitC": 21.0, "vitA": 27.0, "fiber": 3.9, "sugar": 18.0,
+        "calcium": 5.0, "zinc": 0.3, "sodium": 5.0,
+        "glyph": "🍌", "tone": "amber", "tag": "Plantain",
+    },
+    "ibirayi": {
+        "display": "Ibirayi", "kcal": 129, "protein": 2.4, "fat": 0.2, "carb": 30.2,
+        "iron": 0.9, "vitC": 29.0, "vitA": 1441.0, "fiber": 4.5, "sugar": 6.3,
+        "calcium": 45.0, "zinc": 0.5, "sodium": 83.0,
+        "glyph": "🍠", "tone": "emerald", "tag": "Vitamin A",
+    },
+    "ibishyimbo": {
+        "display": "Ibishyimbo", "kcal": 191, "protein": 13.1, "fat": 0.8, "carb": 34.2,
+        "iron": 4.4, "vitC": 1.8, "vitA": 0.0, "fiber": 9.6, "sugar": 0.5,
+        "calcium": 42.0, "zinc": 1.7, "sodium": 3.0,
+        "glyph": "🫘", "tone": "emerald", "tag": "High Iron",
+    },
+    "umutsima": {
+        "display": "Umutsima", "kcal": 170, "protein": 3.6, "fat": 0.6, "carb": 39.0,
+        "iron": 1.6, "vitC": 0.0, "vitA": 0.0, "fiber": 3.0, "sugar": 0.0,
+        "calcium": 30.0, "zinc": 1.0, "sodium": 6.0,
+        "glyph": "🫕", "tone": "amber", "tag": "Staple Porridge",
+    },
+    "ikivuguto": {
+        "display": "Ikivuguto", "kcal": 130, "protein": 9.0, "fat": 8.0, "carb": 7.0,
+        "iron": 0.3, "vitC": 2.5, "vitA": 75.0, "fiber": 0.0, "sugar": 7.0,
+        "calcium": 313.0, "zinc": 1.0, "sodium": 115.0,
+        "glyph": "🥛", "tone": "sky", "tag": "Calcium-Rich",
+    },
+    "inshyushyu": {
+        "display": "Inshyushyu", "kcal": 156, "protein": 4.4, "fat": 1.2, "carb": 35.0,
+        "iron": 2.4, "vitC": 0.0, "vitA": 0.0, "fiber": 3.6, "sugar": 0.0,
+        "calcium": 24.0, "zinc": 1.4, "sodium": 4.0,
+        "glyph": "🌾", "tone": "amber", "tag": "High Iron",
+    },
+    "brochettes": {
+        "display": "Brochettes", "kcal": 165, "protein": 21.0, "fat": 8.5, "carb": 0.0,
+        "iron": 2.5, "vitC": 0.0, "vitA": 0.0, "fiber": 0.0, "sugar": 0.0,
+        "calcium": 15.0, "zinc": 4.0, "sodium": 85.0,
+        "glyph": "🍢", "tone": "sky", "tag": "Lean Protein",
+    },
+    "amashaza": {
+        "display": "Amashaza", "kcal": 177, "protein": 12.5, "fat": 0.6, "carb": 31.7,
+        "iron": 2.7, "vitC": 0.8, "vitA": 3.0, "fiber": 8.3, "sugar": 0.8,
+        "calcium": 33.0, "zinc": 1.5, "sodium": 5.0,
+        "glyph": "🫛", "tone": "emerald", "tag": "High Iron",
+    },
+    "sambaza": {
+        "display": "Sambaza", "kcal": 148, "protein": 17.6, "fat": 8.0, "carb": 0.0,
+        "iron": 1.4, "vitC": 0.0, "vitA": 12.0, "fiber": 0.0, "sugar": 0.0,
+        "calcium": 320.0, "zinc": 1.2, "sodium": 96.0,
+        "glyph": "🐟", "tone": "sky", "tag": "Calcium-Rich",
+    },
+    "tilapia": {
+        "display": "Tilapia", "kcal": 154, "protein": 31.4, "fat": 3.2, "carb": 0.0,
+        "iron": 0.8, "vitC": 0.0, "vitA": 0.0, "fiber": 0.0, "sugar": 0.0,
+        "calcium": 12.0, "zinc": 0.5, "sodium": 62.0,
+        "glyph": "🐠", "tone": "sky", "tag": "Lean Protein",
+    },
+    "avocado": {
+        "display": "Avocado", "kcal": 160, "protein": 2.0, "fat": 14.7, "carb": 8.5,
+        "iron": 0.6, "vitC": 10.0, "vitA": 7.0, "fiber": 6.7, "sugar": 0.7,
+        "calcium": 12.0, "zinc": 0.6, "sodium": 7.0,
+        "glyph": "🥑", "tone": "emerald", "tag": "Healthy Fats",
+    },
+    "mandazi": {
+        "display": "Mandazi", "kcal": 181, "protein": 3.3, "fat": 6.9, "carb": 26.7,
+        "iron": 1.1, "vitC": 0.0, "vitA": 0.0, "fiber": 0.9, "sugar": 4.8,
+        "calcium": 27.0, "zinc": 0.3, "sodium": 168.0,
+        "glyph": "🫓", "tone": "amber", "tag": "Fried Dough",
+    },
+    "cassava": {
+        "display": "Cassava", "kcal": 240, "protein": 2.1, "fat": 0.5, "carb": 57.2,
+        "iron": 0.5, "vitC": 30.0, "vitA": 2.0, "fiber": 2.7, "sugar": 2.6,
+        "calcium": 24.0, "zinc": 0.5, "sodium": 21.0,
+        "glyph": "🌽", "tone": "amber", "tag": "Starchy Staple",
+    },
+    "doodo": {
+        "display": "Doodo", "kcal": 23, "protein": 2.5, "fat": 0.3, "carb": 4.0,
+        "iron": 2.3, "vitC": 43.0, "vitA": 292.0, "fiber": 2.2, "sugar": 0.0,
+        "calcium": 215.0, "zinc": 0.9, "sodium": 20.0,
+        "glyph": "🥬", "tone": "emerald", "tag": "Iron-Rich Greens",
+    },
+    "groundnuts": {
+        "display": "Groundnuts", "kcal": 170, "protein": 7.7, "fat": 14.8, "carb": 4.8,
+        "iron": 1.4, "vitC": 0.0, "vitA": 0.0, "fiber": 2.6, "sugar": 1.4,
+        "calcium": 28.0, "zinc": 1.0, "sodium": 2.0,
+        "glyph": "🥜", "tone": "amber", "tag": "Plant Protein",
+    },
+    "sorghum_ugali": {
+        "display": "Sorghum Ugali", "kcal": 166, "protein": 5.6, "fat": 1.8, "carb": 35.0,
+        "iron": 3.6, "vitC": 0.0, "vitA": 0.0, "fiber": 3.0, "sugar": 0.0,
+        "calcium": 50.0, "zinc": 1.6, "sodium": 4.0,
+        "glyph": "🫕", "tone": "emerald", "tag": "High Iron Grain",
+    },
+    "agatogo": {
+        "display": "Agatogo", "kcal": 210, "protein": 10.4, "fat": 5.6, "carb": 31.0,
+        "iron": 2.0, "vitC": 16.0, "vitA": 24.0, "fiber": 4.4, "sugar": 12.0,
+        "calcium": 30.0, "zinc": 1.6, "sodium": 70.0,
+        "glyph": "🍲", "tone": "emerald", "tag": "Balanced Meal",
+    },
+    "sweet_potato_leaves": {
+        "display": "Sweet Potato Leaves", "kcal": 43, "protein": 4.8, "fat": 0.5, "carb": 7.2,
+        "iron": 2.6, "vitC": 35.0, "vitA": 318.0, "fiber": 3.8, "sugar": 0.0,
+        "calcium": 130.0, "zinc": 0.7, "sodium": 25.0,
+        "glyph": "🌿", "tone": "emerald", "tag": "Iron-Rich Greens",
+    },
 }
 
 _FALLBACK: FoodMeta = {
