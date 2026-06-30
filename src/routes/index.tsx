@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ArrowRight, Brain, Camera, ChevronRight, Dna, Flame, Leaf, Shield, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -12,6 +14,15 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+  const { user, loaded: authLoaded } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authLoaded && user) {
+      navigate({ to: "/dashboard" });
+    }
+  }, [authLoaded, user, navigate]);
+
   return (
     <div className="min-h-screen bg-white text-ink overflow-x-hidden">
 
