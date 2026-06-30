@@ -35,18 +35,20 @@ const RISK_LABELS: Record<string, string> = {
 
 export function HeroSection({ score, name, logItems, scores }: Props) {
   const { kcal, iron, protein } = useMemo(() => {
-    let kcal = 0, iron = 0, protein = 0;
-    for (const log of logItems) {
-      const food = FOOD_DATABASE.find(
-        (f) => f.name.toLowerCase() === log.name.toLowerCase(),
-      );
-      if (food) {
-        kcal    += food.kcal;
-        iron    += food.iron;
-        protein += food.protein;
-      }
-    }
-    return { kcal, iron, protein };
+    return logItems.reduce(
+      (acc, log) => {
+        // Parse kcal and iron directly from the meta string — works for every food
+        const kcalMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*kcal/i);
+        const ironMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
+        if (kcalMatch) acc.kcal += parseFloat(kcalMatch[1]);
+        if (ironMatch) acc.iron += parseFloat(ironMatch[1]);
+        // Protein is not stored in meta, look it up from the database
+        const food = FOOD_DATABASE.find((f) => f.name.toLowerCase() === log.name.toLowerCase());
+        if (food) acc.protein += food.protein;
+        return acc;
+      },
+      { kcal: 0, iron: 0, protein: 0 },
+    );
   }, [logItems]);
 
   const highestRisk = scores
