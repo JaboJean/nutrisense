@@ -73,30 +73,39 @@ export function FoodLabSection({ logItems, onAdd, onRemove, onOpenLogger }: Prop
             <article
               key={r.n}
               style={{ animationDelay: `${i * 80}ms` }}
-              className="animate-nv-rise group relative overflow-hidden rounded-3xl nv-glass p-5 transition-transform hover:-translate-y-1.5"
+              className="animate-nv-rise group relative overflow-hidden rounded-3xl nv-glass transition-transform hover:-translate-y-1.5 flex flex-col"
             >
-              <div className="absolute -top-12 -right-10 size-32 rounded-full bg-mint/60 blur-2xl opacity-70 group-hover:opacity-100 transition-opacity" />
-              <div className="relative grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-mint to-white text-3xl ring-1 ring-ink/5">
-                <span aria-hidden>{r.g}</span>
+              {/* Food photo */}
+              <div className="relative h-36 w-full overflow-hidden rounded-t-3xl bg-gradient-to-br from-mint to-emerald-100 shrink-0">
+                <img
+                  src={r.img}
+                  alt={r.n}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <span className="absolute right-3 top-3 rounded-full bg-black/40 px-2.5 py-0.5 text-[11px] font-bold text-white backdrop-blur-sm">
+                  {r.s}
+                </span>
               </div>
-              <div className="relative mt-4 flex items-center justify-between">
-                <h4 className="font-display text-lg font-semibold">{r.n}</h4>
-                <span className="rounded-md bg-emerald-deep/10 px-2 py-0.5 text-[10px] font-bold text-emerald-deep">{r.s}</span>
+
+              {/* Card body */}
+              <div className="flex flex-col gap-1 p-5 flex-1">
+                <h4 className="font-display text-lg font-semibold leading-tight">{r.n}</h4>
+                <p className="text-[13px] text-ink/65">{r.b}</p>
+                <div className="mt-1 flex items-center justify-between text-[11px] text-ink/45">
+                  <span className="inline-flex items-center gap-1"><Apple className="size-3" /> {r.a}</span>
+                  <span className="font-semibold text-emerald-deep">3×/week</span>
+                </div>
+                <button
+                  onClick={() => {
+                    const food = FOOD_DATABASE.find((f) => f.name === r.n);
+                    if (food) onAdd({ id: `log-${Date.now()}`, name: food.name, meta: `Recommended · ${food.kcal} kcal · ${food.iron}mg Iron`, tag: food.tag, tone: food.tone, glyph: food.glyph, meal: "Lunch" });
+                  }}
+                  className="mt-auto pt-3 w-full rounded-xl bg-emerald-deep/8 py-2 text-[11px] font-semibold text-emerald-deep hover:bg-emerald-deep/15 transition-colors"
+                >
+                  + Add to log
+                </button>
               </div>
-              <p className="relative mt-1 text-[13px] text-ink/65">{r.b}</p>
-              <div className="relative mt-3 flex items-center justify-between text-[11px] text-ink/45">
-                <span className="inline-flex items-center gap-1"><Apple className="size-3" /> {r.a}</span>
-                <span className="font-semibold text-emerald-deep">3×/week</span>
-              </div>
-              <button
-                onClick={() => {
-                  const food = FOOD_DATABASE.find((f) => f.name === r.n);
-                  if (food) onAdd({ id: `log-${Date.now()}`, name: food.name, meta: `Recommended · ${food.kcal} kcal · ${food.iron}mg Iron`, tag: food.tag, tone: food.tone, glyph: food.glyph, meal: "Lunch" });
-                }}
-                className="relative mt-3 w-full rounded-xl bg-emerald-deep/8 py-2 text-[11px] font-semibold text-emerald-deep hover:bg-emerald-deep/15 transition-colors"
-              >
-                + Add to log
-              </button>
             </article>
           ))}
         </div>
