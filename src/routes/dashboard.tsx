@@ -153,7 +153,7 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection score={healthScore} name={displayName} />
+            <HeroSection score={healthScore} name={displayName} logItems={logItems} scores={prediction?.scores} />
             <RiskGauges scores={prediction?.scores} shap={prediction?.shap} />
 
             <section className="grid gap-8 lg:grid-cols-5">
