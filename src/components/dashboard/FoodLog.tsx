@@ -62,10 +62,21 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
     }, 280);
   }
 
-  const totalKcal = logItems.reduce((sum, item) => {
-    const match = item.meta.match(/(\d+)\s*kcal/);
-    return sum + (match ? parseInt(match[1]) : 0);
-  }, 0);
+  const { totalKcal, totalIron, totalFiber, totalProtein } = logItems.reduce(
+    (acc, item) => {
+      const kcalMatch = item.meta.match(/(\d+(?:\.\d+)?)\s*kcal/i);
+      const ironMatch = item.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
+      if (kcalMatch) acc.totalKcal  += parseFloat(kcalMatch[1]);
+      if (ironMatch) acc.totalIron  += parseFloat(ironMatch[1]);
+      const food = FOOD_DATABASE.find((f) => f.name.toLowerCase() === item.name.toLowerCase());
+      if (food) {
+        acc.totalFiber   += food.fiber;
+        acc.totalProtein += food.protein;
+      }
+      return acc;
+    },
+    { totalKcal: 0, totalIron: 0, totalFiber: 0, totalProtein: 0 },
+  );
 
   return (
     <div className="space-y-5">
@@ -208,26 +219,26 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
         )}
       </div>
 
-      {/* Weekly target */}
+      {/* Today's nutrient summary */}
       <div className="rounded-3xl bg-sky/8 p-5 ring-1 ring-sky/15">
-        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky">Weekly Nutrient Target</div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky">Today's Intake</div>
         <div className="mt-2 flex items-end gap-2">
           <span className="font-display text-3xl font-medium tabular-nums">
-            {Math.min(15000, 11850 + totalKcal).toLocaleString()}
+            {totalKcal > 0 ? totalKcal.toLocaleString() : "0"}
           </span>
-          <span className="mb-1 text-sm text-ink/45">/ 15,000 kcal</span>
+          <span className="mb-1 text-sm text-ink/45">/ 2,200 kcal goal</span>
         </div>
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-sky/15">
           <div
             className="h-full rounded-full bg-sky transition-all duration-700"
-            style={{ width: `${Math.min(100, ((11850 + totalKcal) / 15000) * 100)}%` }}
+            style={{ width: `${Math.min(100, (totalKcal / 2200) * 100)}%` }}
           />
         </div>
         <div className="mt-4 grid grid-cols-3 gap-3 text-center">
           {[
-            { l: "Iron",  v: "9.4mg", c: "coral"   as const },
-            { l: "Fiber", v: "28g",   c: "emerald"  as const },
-            { l: "Sugar", v: "42g",   c: "amber"    as const },
+            { l: "Iron",    v: totalIron    > 0 ? `${totalIron.toFixed(1)}mg`    : "—", c: "coral"   as const },
+            { l: "Fiber",   v: totalFiber   > 0 ? `${totalFiber.toFixed(1)}g`    : "—", c: "emerald" as const },
+            { l: "Protein", v: totalProtein > 0 ? `${Math.round(totalProtein)}g` : "—", c: "amber"   as const },
           ].map((s) => (
             <div key={s.l} className="rounded-xl bg-white/60 p-2.5 ring-1 ring-ink/5">
               <div className={cn(

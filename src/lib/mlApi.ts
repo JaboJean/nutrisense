@@ -76,6 +76,15 @@ export async function predictRisk(
       protein += food.protein;
       vitC    += food.vitC;
       matched++;
+    } else {
+      // Food not in local DB — parse what we can from the meta string
+      const kcalMatch = log.meta?.match(/(\d+(?:\.\d+)?)\s*kcal/i);
+      const ironMatch = log.meta?.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
+      if (kcalMatch || ironMatch) {
+        if (kcalMatch) kcal += parseFloat(kcalMatch[1]);
+        if (ironMatch) iron += parseFloat(ironMatch[1]);
+        matched++;
+      }
     }
   }
   if (matched === 0) return baseline();
