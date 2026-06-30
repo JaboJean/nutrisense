@@ -62,7 +62,7 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
               autoFocus
               value={query}
               onChange={(e) => { setQuery(e.target.value); setSelected(null); }}
-              placeholder="Search Spinach, Chicken, Lentils…"
+              placeholder="Search Ugali, Isombe, Brochettes…"
               className="w-full bg-transparent text-sm placeholder:text-ink/35 focus:outline-none"
             />
             {query && (
