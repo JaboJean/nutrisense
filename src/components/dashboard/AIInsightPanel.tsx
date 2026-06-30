@@ -1,42 +1,111 @@
 import { Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SHAP_BY_DISEASE } from "@/data/mock";
+import type { Prediction, ShapEntry } from "@/lib/mlApi";
 
-const shap = SHAP_BY_DISEASE.anemia;
+type Props = { prediction?: Prediction | null };
 
-export function AIInsightPanel() {
+type DiseaseKey = "anemia" | "diabetes" | "overweight";
+
+const DISEASE_LABELS: Record<DiseaseKey, string> = {
+  anemia:     "Anemia",
+  diabetes:   "Type 2 Diabetes",
+  overweight: "Overweight",
+};
+
+const DISEASE_INSIGHTS: Record<DiseaseKey, {
+  title: (score: number) => string;
+  body:  (shap: ShapEntry[]) => string;
+  fix:   string;
+}> = {
+  anemia: {
+    title: (s) => `Your anemia risk is at ${s}% — iron intake is the main driver.`,
+    body:  (shap) => {
+      const topBad = shap.filter((e) => e.v < 0).sort((a, b) => a.v - b.v)[0];
+      return `${topBad ? `Low ${topBad.f.toLowerCase()} is pulling your score up. ` : ""}Add iron-rich staples — ibishyimbo, isombe, or doodo — paired with a citrus source to boost absorption.`;
+    },
+    fix: "+1 serving Ibishyimbo or Isombe",
+  },
+  diabetes: {
+    title: (s) => `Your diabetes risk is at ${s}% — glycemic load is elevated.`,
+    body:  (shap) => {
+      const topBad = shap.filter((e) => e.v < 0).sort((a, b) => a.v - b.v)[0];
+      return `${topBad ? `${topBad.f} is the main risk factor. ` : ""}Switch to sorghum ugali or amashaza peas, which have lower glycemic impact than refined starches.`;
+    },
+    fix: "Swap maize ugali → sorghum ugali",
+  },
+  overweight: {
+    title: (s) => `Your overweight risk is at ${s}% — caloric balance needs attention.`,
+    body:  (_shap) =>
+      "Total caloric load is higher than your target. Replace one starchy side dish with a low-calorie green like doodo or sweet potato leaves — same volume, far fewer calories.",
+    fix:  "Replace one starchy side with leafy greens",
+  },
+};
+
+const DEFAULT_STATE = {
+  key:   "anemia" as DiseaseKey,
+  score: 45,
+  shap:  SHAP_BY_DISEASE.anemia,
+};
+
+export function AIInsightPanel({ prediction }: Props) {
+  const now = new Date();
+  const timeLabel = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+  // Pick the highest-risk disease from live prediction, or fall back to default
+  const scores = prediction?.scores;
+  const topKey: DiseaseKey = scores
+    ? (Object.entries(scores)
+        .filter(([k]) => k !== "overall")
+        .sort(([, a], [, b]) => (b as number) - (a as number))[0][0] as DiseaseKey)
+    : DEFAULT_STATE.key;
+
+  const topScore = scores?.[topKey] ?? DEFAULT_STATE.score;
+  const shapData = prediction?.shap?.[topKey] ?? SHAP_BY_DISEASE[topKey] ?? DEFAULT_STATE.shap;
+
+  const insight   = DISEASE_INSIGHTS[topKey];
+  const reduction = Math.round(topScore * 0.13);
+  const isLive    = !!prediction;
+
   return (
     <div className="relative overflow-hidden rounded-[32px] bg-emerald-deep p-8 text-mint shadow-[0_30px_80px_-40px_rgba(15,118,110,0.7)]">
       <div className="absolute -top-24 -right-12 size-72 rounded-full bg-sky/20 blur-3xl" />
       <div className="absolute -bottom-24 -left-12 size-72 rounded-full bg-emerald-300/10 blur-3xl" />
 
+      {/* Header */}
       <div className="relative flex items-center gap-3">
         <div className="grid size-10 place-items-center rounded-2xl bg-mint/10 backdrop-blur-sm ring-1 ring-mint/20">
           <Brain className="size-4" />
         </div>
         <div>
           <div className="text-[10px] uppercase tracking-[0.2em] text-mint/60">AI Insight</div>
-          <div className="text-sm font-medium">Daily Intelligence · 09:42</div>
+          <div className="text-sm font-medium">
+            {isLive ? `Live · ${DISEASE_LABELS[topKey]}` : `Baseline · ${timeLabel}`}
+          </div>
         </div>
+        {isLive && (
+          <span className="ml-auto rounded-full bg-mint/10 px-2.5 py-0.5 text-[10px] font-semibold text-mint ring-1 ring-mint/20">
+            LIVE
+          </span>
+        )}
       </div>
 
+      {/* Insight text */}
       <h3 className="relative mt-6 font-display text-2xl font-medium leading-snug">
-        "Your iron intake has been below recommended levels for 5 consecutive days."
+        "{insight.title(topScore)}"
       </h3>
       <p className="relative mt-3 max-w-[58ch] text-[15px] leading-relaxed text-mint/75">
-        To keep your anemia risk from creeping up, add 150g of <span className="text-mint font-semibold">spinach</span> or
-        a side of <span className="text-mint font-semibold">lentils</span> at lunch. Pair with a citrus or tomato
-        source to boost vitamin C absorption.
+        {insight.body(shapData)}
       </p>
 
       {/* SHAP explainability */}
       <div className="relative mt-7 rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
         <div className="mb-4 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-mint/60">
-          <span>What influences your anemia risk</span>
+          <span>What influences your {DISEASE_LABELS[topKey].toLowerCase()} risk</span>
           <span>SHAP · explainable AI</span>
         </div>
         <div className="space-y-3">
-          {shap.map((s) => {
+          {shapData.map((s) => {
             const pos = s.v >= 0;
             const mag = Math.min(95, Math.abs(s.v) * 180);
             return (
@@ -54,7 +123,10 @@ export function AIInsightPanel() {
                     }}
                   />
                 </div>
-                <span className={cn("text-right font-mono text-[11px] font-semibold tabular-nums", pos ? "text-emerald-200" : "text-coral")}>
+                <span className={cn(
+                  "text-right font-mono text-[11px] font-semibold tabular-nums",
+                  pos ? "text-emerald-200" : "text-coral",
+                )}>
                   {pos ? "+" : ""}{s.v.toFixed(2)}
                 </span>
               </div>
@@ -63,19 +135,19 @@ export function AIInsightPanel() {
         </div>
       </div>
 
+      {/* Action cards */}
       <div className="relative mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-          <div className="text-[10px] uppercase tracking-widest text-mint/50">Impact on Risk</div>
+          <div className="text-[10px] uppercase tracking-widest text-mint/50">Potential reduction</div>
           <div className="mt-1 flex items-baseline justify-between">
-            <span className="font-display text-xl font-medium tabular-nums">−6.2%</span>
+            <span className="font-display text-xl font-medium tabular-nums">−{reduction}%</span>
             <span className="text-xs text-mint/60">if you act today</span>
           </div>
         </div>
         <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-          <div className="text-[10px] uppercase tracking-widest text-mint/50">Suggested Correction</div>
-          <div className="mt-1 flex items-baseline justify-between">
-            <span className="font-display text-xl font-medium">+150g Spinach</span>
-            <span className="text-xs text-mint/60">at lunch</span>
+          <div className="text-[10px] uppercase tracking-widest text-mint/50">Suggested action</div>
+          <div className="mt-1">
+            <span className="font-display text-sm font-medium leading-snug">{insight.fix}</span>
           </div>
         </div>
       </div>

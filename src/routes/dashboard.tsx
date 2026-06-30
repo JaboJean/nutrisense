@@ -158,7 +158,7 @@ function Dashboard() {
 
             <section className="grid gap-8 lg:grid-cols-5">
               <div className="lg:col-span-3 space-y-6">
-                <AIInsightPanel />
+                <AIInsightPanel prediction={prediction} />
                 <PhotoCapture onAdd={addItem} />
                 <TrendChart />
               </div>
@@ -198,7 +198,7 @@ function Dashboard() {
 
         {active === "risk" && (
           <div className="pb-16">
-            <RiskEngineSection />
+            <RiskEngineSection prediction={prediction} />
           </div>
         )}
 
