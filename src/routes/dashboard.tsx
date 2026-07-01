@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, Flame, History, Home, LineChart as LineIcon, LogOut, Plus, Search, Sparkles, User } from "lucide-react";
+import { Activity, Flame, History, Home, LogOut, Plus, Search, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useFoodLogs } from "@/hooks/useFoodLogs";
@@ -48,11 +48,16 @@ function Dashboard() {
   const [profileOpen, setProfileOpen]   = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<LogItem | null>(null);
   const [prediction, setPrediction]     = useState<Prediction | null>(null);
+  const [predicting, setPredicting]     = useState(false);
 
   // Re-run ML prediction whenever the food log or profile changes
   useEffect(() => {
     if (logsLoading) return;
-    predictRisk(logItems, profile).then(setPrediction);
+    setPredicting(true);
+    predictRisk(logItems, profile)
+      .then(setPrediction)
+      .catch(console.error)
+      .finally(() => setPredicting(false));
   }, [logItems, logsLoading, profile]);
 
   useEffect(() => {
@@ -80,7 +85,7 @@ function Dashboard() {
 
   const BOTTOM_NAV = [
     { icon: Home,     label: "Home",    tab: "overview" as TabKey },
-    { icon: LineIcon, label: "Trends",  tab: "trends"   as TabKey },
+    { icon: Activity, label: "Risk",    tab: "risk"     as TabKey },
     { icon: Plus,     label: "Log",     fab: true                 },
     { icon: History,  label: "History", tab: "logs"     as TabKey },
     { icon: User,     label: "Profile", profile: true             },
@@ -125,11 +130,12 @@ function Dashboard() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <button className="grid size-9 place-items-center rounded-full nv-glass text-ink/60 hover:text-emerald-deep transition-colors">
+            <button
+              onClick={() => setActive("logs")}
+              className="grid size-9 place-items-center rounded-full nv-glass text-ink/60 hover:text-emerald-deep transition-colors"
+              title="Food Lab"
+            >
               <Search className="size-4" />
-            </button>
-            <button className="grid size-9 place-items-center rounded-full nv-glass text-ink/60 hover:text-emerald-deep transition-colors">
-              <Bell className="size-4" />
             </button>
             <button
               onClick={() => setSheetOpen(true)}
@@ -153,8 +159,8 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection score={healthScore} name={displayName} logItems={logItems} scores={prediction?.scores} />
-            <RiskGauges scores={prediction?.scores} shap={prediction?.shap} />
+            <HeroSection score={healthScore} name={displayName} logItems={logItems} scores={prediction?.scores} predicting={predicting} />
+            <RiskGauges scores={prediction?.scores} shap={prediction?.shap} predicting={predicting} />
 
             <section className="grid gap-8 lg:grid-cols-5">
               <div className="lg:col-span-3 space-y-6">

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Droplet, Flame, Zap } from "lucide-react";
+import { Droplet, Flame, Loader2, Zap } from "lucide-react";
 import { Ring } from "@/components/Ring";
 import { Particles } from "@/components/Particles";
 import { FOOD_DATABASE, type LogItem } from "@/data/mock";
@@ -10,6 +10,7 @@ type Props = {
   name?: string;
   logItems: LogItem[];
   scores?: RiskScores;
+  predicting?: boolean;
 };
 
 function getGreeting() {
@@ -33,7 +34,7 @@ const RISK_LABELS: Record<string, string> = {
   overweight: "Overweight",
 };
 
-export function HeroSection({ score, name, logItems, scores }: Props) {
+export function HeroSection({ score, name, logItems, scores, predicting }: Props) {
   const { kcal, iron, protein } = useMemo(() => {
     return logItems.reduce(
       (acc, log) => {
@@ -147,6 +148,11 @@ export function HeroSection({ score, name, logItems, scores }: Props) {
             {score}
           </span>
           <span className="mt-1 text-xs font-medium text-ink/45">out of 100</span>
+          {predicting && (
+            <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-deep">
+              <Loader2 className="size-3 animate-spin" /> Updating…
+            </span>
+          )}
         </Ring>
       </div>
     </section>
