@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { FOOD_DATABASE, SHAP_BY_DISEASE, type LogItem } from "@/data/mock";
+import type { Prediction } from "@/lib/mlApi";
 
 type Props = {
   item: LogItem | null;
   onClose: () => void;
+  prediction?: Prediction | null;
 };
 
 const DISEASE_COLORS = {
@@ -48,10 +50,19 @@ function getMealImpact(food: typeof FOOD_DATABASE[0]) {
   ] as const;
 }
 
-export function MealDetailSheet({ item, onClose }: Props) {
+export function MealDetailSheet({ item, onClose, prediction }: Props) {
   const food = item
     ? FOOD_DATABASE.find((f) => f.name === item.name) ?? null
     : null;
+
+  // Pick the highest-risk disease from live prediction for SHAP context
+  const topDiseaseKey = prediction?.scores
+    ? (Object.entries(prediction.scores)
+        .filter(([k]) => k !== "overall")
+        .sort(([, a], [, b]) => (b as number) - (a as number))[0][0] as "anemia" | "diabetes" | "overweight")
+    : "anemia";
+  const shapData = prediction?.shap?.[topDiseaseKey] ?? SHAP_BY_DISEASE[topDiseaseKey] ?? SHAP_BY_DISEASE.anemia;
+  const diseaseLabel = topDiseaseKey === "anemia" ? "Anemia" : topDiseaseKey === "diabetes" ? "Diabetes" : "Overweight";
 
   const open = item !== null;
 
@@ -149,9 +160,11 @@ export function MealDetailSheet({ item, onClose }: Props) {
 
               {/* Top SHAP features for context */}
               <div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40 mb-3">Key risk drivers (today's diet)</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40 mb-3">
+                  Key risk drivers — {diseaseLabel} (today's diet)
+                </div>
                 <div className="space-y-2">
-                  {SHAP_BY_DISEASE.anemia.slice(0, 3).map((s) => {
+                  {shapData.slice(0, 3).map((s) => {
                     const pos = s.v >= 0;
                     const mag = Math.min(90, Math.abs(s.v) * 170);
                     return (

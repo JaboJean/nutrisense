@@ -183,7 +183,7 @@ function Dashboard() {
               <div className="flex items-center gap-4">
                 <span>v0.1 · Capstone Preview</span>
                 <span className="inline-flex items-center gap-1">
-                  <Flame className="size-3" /> 7 day streak
+                  <Flame className="size-3" /> {logItems.length} meal{logItems.length !== 1 ? "s" : ""} today
                 </span>
                 <button
                   onClick={handleLogout}
@@ -215,7 +215,7 @@ function Dashboard() {
 
         {active === "trends" && (
           <div className="pb-16">
-            <TrendsSection />
+            <TrendsSection prediction={prediction} logItems={logItems} />
           </div>
         )}
       </main>
@@ -273,7 +273,7 @@ function Dashboard() {
         onSave={async (p) => { await updateProfile(p); setProfileOpen(false); }}
         onLogout={handleLogout}
       />
-      <MealDetailSheet item={selectedMeal} onClose={() => setSelectedMeal(null)} />
+      <MealDetailSheet item={selectedMeal} onClose={() => setSelectedMeal(null)} prediction={prediction} />
     </div>
   );
 }
