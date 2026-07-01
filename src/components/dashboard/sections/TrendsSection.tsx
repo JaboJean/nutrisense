@@ -1,52 +1,60 @@
 import { Activity, Droplet, Flame, TrendingUp } from "lucide-react";
 import { TrendChart } from "@/components/dashboard/TrendChart";
-import { TREND_7D } from "@/data/mock";
+import { TREND_7D, type LogItem } from "@/data/mock";
+import type { Prediction } from "@/lib/mlApi";
 
-const latest = TREND_7D[TREND_7D.length - 1];
-const prev = TREND_7D[0];
-const scoreDelta = latest.score - prev.score;
-const ironDelta = latest.iron - prev.iron;
+type Props = {
+  prediction?: Prediction | null;
+  logItems?: LogItem[];
+};
 
-const STAT_CARDS = [
-  {
-    label: "Health Score",
-    value: latest.score,
-    unit: "pts",
-    delta: `${scoreDelta > 0 ? "+" : ""}${scoreDelta} this week`,
-    positive: scoreDelta >= 0,
-    icon: TrendingUp,
-    color: "emerald",
-  },
-  {
-    label: "Daily Iron",
-    value: latest.iron,
-    unit: "mg",
-    delta: `${ironDelta > 0 ? "+" : ""}${ironDelta}mg vs Mon`,
-    positive: ironDelta >= 0,
-    icon: Activity,
-    color: "coral",
-  },
-  {
-    label: "Avg Hydration",
-    value: 1.8,
-    unit: "L",
-    delta: "Optimal range",
-    positive: true,
-    icon: Droplet,
-    color: "sky",
-  },
-  {
-    label: "7-day Streak",
-    value: 7,
-    unit: "days",
-    delta: "Keep it up!",
-    positive: true,
-    icon: Flame,
-    color: "amber",
-  },
-] as const;
+export function TrendsSection({ prediction, logItems = [] }: Props) {
+  const todayScore = prediction ? Math.round(100 - prediction.scores.overall) : null;
+  const todayIron = logItems.reduce((acc, item) => {
+    const m = item.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
+    return acc + (m ? parseFloat(m[1]) : 0);
+  }, 0);
+  const todayMeals = logItems.length;
 
-export function TrendsSection() {
+  const STAT_CARDS = [
+    {
+      label: "Health Score",
+      value: todayScore !== null ? `${todayScore}` : "—",
+      unit: "pts",
+      delta: todayScore !== null ? "Live · based on today's log" : "Log meals to calculate",
+      positive: true,
+      icon: TrendingUp,
+      color: "emerald",
+    },
+    {
+      label: "Daily Iron",
+      value: todayIron > 0 ? `${todayIron.toFixed(1)}` : "—",
+      unit: "mg",
+      delta: todayIron > 0 ? `${((todayIron / 18) * 100).toFixed(0)}% of 18mg goal` : "No meals logged yet",
+      positive: todayIron >= 9,
+      icon: Activity,
+      color: "coral",
+    },
+    {
+      label: "Meals Today",
+      value: `${todayMeals}`,
+      unit: "logged",
+      delta: todayMeals === 0 ? "Add your first meal" : todayMeals >= 3 ? "Great consistency!" : "Keep logging",
+      positive: todayMeals >= 3,
+      icon: Flame,
+      color: "amber",
+    },
+    {
+      label: "Hydration",
+      value: "—",
+      unit: "L",
+      delta: "Tracking coming soon",
+      positive: true,
+      icon: Droplet,
+      color: "sky",
+    },
+  ] as const;
+
   return (
     <div className="space-y-10">
       <div>
@@ -79,6 +87,7 @@ export function TrendsSection() {
                 {s.value}
                 <span className="text-sm font-normal text-ink/40 ml-0.5">{s.unit}</span>
               </div>
+
               <div className={`mt-1 text-[11px] font-medium ${s.positive ? "text-emerald-deep" : "text-coral"}`}>
                 {s.delta}
               </div>
@@ -88,11 +97,19 @@ export function TrendsSection() {
       </div>
 
       {/* Full-width trend chart */}
-      <TrendChart fullWidth />
+      <div>
+        <TrendChart fullWidth />
+        <p className="mt-2 text-center text-[11px] text-ink/35 italic">
+          * Chart shows illustrative trend data — historical tracking accumulates as you log meals each day.
+        </p>
+      </div>
 
       {/* Weekly breakdown table */}
       <div className="rounded-[28px] nv-glass p-6 overflow-x-auto">
-        <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40 mb-4">Day-by-day breakdown</div>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Day-by-day breakdown</div>
+          <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink/35">Illustrative</span>
+        </div>
         <table className="w-full text-sm min-w-[400px]">
           <thead>
             <tr className="border-b border-ink/5">

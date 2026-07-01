@@ -23,6 +23,7 @@ export interface RiskScores {
 export interface ShapEntry {
   f: string;
   v: number;
+  label?: string;
 }
 
 export interface Prediction {
