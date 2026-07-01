@@ -19,9 +19,14 @@ export function PredictionPipeline() {
             From your plate to a personalized prognosis.
           </h3>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-full bg-emerald-deep/10 px-4 py-2 text-sm font-semibold text-emerald-deep ring-1 ring-emerald-deep/20">
+        <a
+          href="https://jeanjabo-nutrisense-api.hf.space/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full bg-emerald-deep/10 px-4 py-2 text-sm font-semibold text-emerald-deep ring-1 ring-emerald-deep/20 hover:bg-emerald-deep/20 transition-colors"
+        >
           <Compass className="size-4" /> See live model
-        </button>
+        </a>
       </div>
 
       <ol className="relative mt-8 grid gap-6 sm:grid-cols-4">
