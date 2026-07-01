@@ -187,14 +187,22 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
                 )}
                 onClick={() => onMealClick?.(f)}
               >
-                <div className={cn(
-                  "grid size-12 shrink-0 place-items-center rounded-xl text-2xl ring-1 ring-ink/5",
-                  f.tone === "emerald" && "bg-gradient-to-br from-mint to-emerald-100",
-                  f.tone === "amber"   && "bg-gradient-to-br from-amber/15 to-amber/5",
-                  f.tone === "sky"     && "bg-gradient-to-br from-sky/15 to-sky/5",
-                )}>
-                  <span aria-hidden>{f.glyph}</span>
-                </div>
+                {f.img ? (
+                  <img
+                    src={f.img}
+                    alt={f.name}
+                    className="size-12 shrink-0 rounded-xl object-cover ring-1 ring-ink/5"
+                  />
+                ) : (
+                  <div className={cn(
+                    "grid size-12 shrink-0 place-items-center rounded-xl text-2xl ring-1 ring-ink/5",
+                    f.tone === "emerald" && "bg-gradient-to-br from-mint to-emerald-100",
+                    f.tone === "amber"   && "bg-gradient-to-br from-amber/15 to-amber/5",
+                    f.tone === "sky"     && "bg-gradient-to-br from-sky/15 to-sky/5",
+                  )}>
+                    <span aria-hidden>{f.glyph}</span>
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[13px] font-semibold text-ink">{f.name}</div>
                   <div className="truncate text-[11px] text-ink/50">{f.meta}</div>

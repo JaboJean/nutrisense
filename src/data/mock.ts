@@ -10,6 +10,7 @@ export type LogItem = {
   tone: FoodTone;
   glyph: string;
   meal: string;
+  img?: string;
 };
 
 export type FoodEntry = {

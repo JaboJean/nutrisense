@@ -102,8 +102,14 @@ export function PhotoCapture({ onAdd }: Props) {
       tone:  result.tone,
       glyph: result.glyph,
       meal:  "Lunch",
+      img:   imgUrl ?? undefined,
     });
-    reset();
+    // Don't revoke imgUrl — it's now referenced by the log item
+    setImgUrl(null);
+    setImgFile(null);
+    setResult(null);
+    setErrMsg(null);
+    setStage("idle");
   }
 
   function reset() {
