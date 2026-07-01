@@ -90,9 +90,19 @@ export function RiskGauges({ scores, shap }: Props) {
                   </span>
                 </div>
               </div>
-              <Ring value={value} size={64} stroke={6} color={r.color} track={`${r.color}22`}>
-                <span className="text-[10px] font-semibold text-ink/60">{value}</span>
-              </Ring>
+              <div className="flex flex-col items-center gap-2">
+                <Ring value={value} size={64} stroke={6} color={r.color} track={`${r.color}22`}>
+                  <span className="text-[10px] font-semibold text-ink/60">{value}</span>
+                </Ring>
+                <span className={cn(
+                  "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                  dynBadge.badgeTone === "coral" && "bg-coral/10 text-coral",
+                  dynBadge.badgeTone === "amber" && "bg-amber/10 text-amber",
+                  dynBadge.badgeTone === "sky"   && "bg-sky/10 text-sky",
+                )}>
+                  {dynBadge.badge}
+                </span>
+              </div>
             </div>
 
             {/* Progress bar */}
@@ -119,14 +129,6 @@ export function RiskGauges({ scores, shap }: Props) {
               </div>
             )}
 
-            <span className={cn(
-              "absolute right-5 top-5 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-              dynBadge.badgeTone === "coral" && "bg-coral/10 text-coral",
-              dynBadge.badgeTone === "amber" && "bg-amber/10 text-amber",
-              dynBadge.badgeTone === "sky"   && "bg-sky/10 text-sky",
-            )}>
-              {dynBadge.badge}
-            </span>
           </article>
         );
       })}
