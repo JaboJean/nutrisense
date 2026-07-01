@@ -45,6 +45,33 @@ type Props = {
   shap?:   { anemia: ShapEntry[]; diabetes: ShapEntry[]; overweight: ShapEntry[] };
 };
 
+function generateNote(key: string, score: number | undefined, shap: ShapEntry[] | undefined): string {
+  if (score === undefined) {
+    return RISKS.find((r) => r.key === key)?.note ?? "";
+  }
+  const topBad  = shap?.filter((s) => s.v < 0).sort((a, b) => a.v - b.v)[0];
+  const topGood = shap?.filter((s) => s.v > 0).sort((a, b) => b.v - a.v)[0];
+  const badF  = topBad  ? topBad.f.toLowerCase()  : null;
+  const goodF = topGood ? topGood.f.toLowerCase() : null;
+
+  if (key === "anemia") {
+    if (score < 15) return `Iron levels are well managed${goodF ? ` — ${goodF} is your top protector` : ""}. Keep up your current diet.`;
+    if (score < 40) return `Iron intake needs a boost${badF ? ` — ${badF} is the main risk factor` : ""}. Add Ibishyimbo or Isombe to today's meals.`;
+    return `High anemia risk${badF ? ` driven by low ${badF}` : ""}. Prioritise iron-rich foods like Isombe and Doodo at every meal.`;
+  }
+  if (key === "diabetes") {
+    if (score < 15) return `Glycemic load is low${goodF ? ` — ${goodF} is stabilising glucose` : ""}. Good fiber balance today.`;
+    if (score < 40) return `Moderate glycemic load${badF ? ` — ${badF} is the main factor` : ""}. Consider swapping maize Ugali for Sorghum Ugali.`;
+    return `Elevated glucose risk${badF ? ` — ${badF} is the key driver` : ""}. Reduce refined starches and increase fiber-rich legumes.`;
+  }
+  if (key === "overweight") {
+    if (score < 20) return `Caloric balance is aligned with your profile${goodF ? ` — ${goodF} is a protective factor` : ""}. Keep it up.`;
+    if (score < 45) return `Caloric load is above target${badF ? ` — ${badF} is contributing` : ""}. Replace one starchy side with leafy greens like Doodo.`;
+    return `High caloric surplus${badF ? ` — ${badF} is the main driver` : ""}. Reduce portion sizes of starchy staples significantly.`;
+  }
+  return RISKS.find((r) => r.key === key)?.note ?? "";
+}
+
 function badgeForScore(score: number): { badge: string; badgeTone: "coral" | "amber" | "sky" } {
   if (score >= 60) return { badge: "HIGH",    badgeTone: "coral" };
   if (score >= 35) return { badge: "MONITOR", badgeTone: "amber" };
@@ -115,7 +142,9 @@ export function RiskGauges({ scores, shap }: Props) {
               </div>
             </div>
 
-            <p className="relative mt-4 text-[13px] leading-relaxed text-ink/65">{r.note}</p>
+            <p className="relative mt-4 text-[13px] leading-relaxed text-ink/65">
+              {generateNote(r.key, dynVal, shap?.[r.key as keyof typeof shap])}
+            </p>
 
             {/* Expand toggle */}
             <button className="relative mt-4 inline-flex items-center gap-1 text-xs font-semibold text-emerald-deep transition-all">
