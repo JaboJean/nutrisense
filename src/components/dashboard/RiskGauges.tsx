@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Ring } from "@/components/Ring";
 import { RISKS, SHAP_BY_DISEASE } from "@/data/mock";
@@ -41,8 +41,9 @@ function ShapBar({ shap }: { shap: { f: string; v: number }[] }) {
 }
 
 type Props = {
-  scores?: RiskScores;
-  shap?:   { anemia: ShapEntry[]; diabetes: ShapEntry[]; overweight: ShapEntry[] };
+  scores?:     RiskScores;
+  shap?:       { anemia: ShapEntry[]; diabetes: ShapEntry[]; overweight: ShapEntry[] };
+  predicting?: boolean;
 };
 
 function generateNote(key: string, score: number | undefined, shap: ShapEntry[] | undefined): string {
@@ -78,11 +79,19 @@ function badgeForScore(score: number): { badge: string; badgeTone: "coral" | "am
   return               { badge: "LOW",     badgeTone: "sky"   };
 }
 
-export function RiskGauges({ scores, shap }: Props) {
+export function RiskGauges({ scores, shap, predicting }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <section className="grid gap-5 sm:grid-cols-3">
+    <section className="space-y-3">
+      {predicting && (
+        <div className="flex items-center justify-end">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-deep/10 px-3 py-1 text-[10px] font-semibold text-emerald-deep ring-1 ring-emerald-deep/15">
+            <Loader2 className="size-3 animate-spin" /> AI recalculating…
+          </span>
+        </div>
+      )}
+      <div className="grid gap-5 sm:grid-cols-3">
       {RISKS.map((r, i) => {
         const isOpen  = expanded === r.key;
         const dynVal  = scores?.[r.key as keyof RiskScores];
@@ -90,6 +99,9 @@ export function RiskGauges({ scores, shap }: Props) {
         const dynBadge = dynVal !== undefined ? badgeForScore(dynVal) : { badge: r.badge, badgeTone: r.badgeTone };
         const shapData = shap?.[r.key as keyof typeof shap] ?? SHAP_BY_DISEASE[r.key] ?? [];
         const trendUp  = dynVal !== undefined ? dynVal > 40 : r.trendUp;
+        const trendText = dynVal !== undefined
+          ? dynVal >= 60 ? "High risk" : dynVal >= 35 ? "Needs attention" : "Stable"
+          : r.trend;
         return (
           <article
             key={r.key}
@@ -113,7 +125,7 @@ export function RiskGauges({ scores, shap }: Props) {
                   <span className="font-display text-4xl font-medium tracking-tighter text-ink tabular-nums">{value}%</span>
                   <span className={cn("inline-flex items-center gap-0.5 text-xs font-semibold", trendUp ? "text-coral" : "text-emerald-deep")}>
                     {trendUp ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}
-                    {r.trend}
+                    {trendText}
                   </span>
                 </div>
               </div>
@@ -161,6 +173,7 @@ export function RiskGauges({ scores, shap }: Props) {
           </article>
         );
       })}
+      </div>
     </section>
   );
 }
