@@ -39,8 +39,9 @@ export function useFoodLogs(user: User | null) {
 
   async function addLog(item: LogItem) {
     if (!user) return;
-    // Optimistic — show immediately, reconcile ID after DB responds
-    setLogs((prev) => [item, ...prev]);
+    // Optimistic — stamp logged_at now so today-filter sees it immediately
+    const optimistic = { ...item, logged_at: item.logged_at ?? new Date().toISOString() };
+    setLogs((prev) => [optimistic, ...prev]);
 
     const { data, error } = await supabase
       .from("food_logs")

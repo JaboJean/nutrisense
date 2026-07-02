@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Activity, Flame, History, Home, LogOut, Plus, Search, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,6 +48,20 @@ function Dashboard() {
   const { user, profile, loaded: authLoaded, displayName, logout, updateProfile } = useAuth();
   const { logs: logItems, loading: logsLoading, addLog, removeLog } = useFoodLogs(user);
 
+  // Only today's logs feed the ML and hero stats
+  const todayItems = useMemo(() => {
+    const now = new Date();
+    return logItems.filter((l) => {
+      if (!l.logged_at) return false;
+      const d = new Date(l.logged_at);
+      return (
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth()    === now.getMonth()    &&
+        d.getDate()     === now.getDate()
+      );
+    });
+  }, [logItems]);
+
   const { tab: active } = Route.useSearch();
   const setActive = (tab: TabKey) => navigate({ to: "/dashboard", search: { tab }, replace: true });
   const [sheetOpen, setSheetOpen]       = useState(false);
@@ -56,19 +70,19 @@ function Dashboard() {
   const [prediction, setPrediction]     = useState<Prediction | null>(null);
   const [predicting, setPredicting]     = useState(false);
 
-  // Re-run ML prediction whenever the food log or profile changes
+  // Re-run ML prediction whenever today's food log or profile changes
   useEffect(() => {
     if (logsLoading) return;
-    if (logItems.length === 0) {
+    if (todayItems.length === 0) {
       setPrediction(null);
       return;
     }
     setPredicting(true);
-    predictRisk(logItems, profile)
+    predictRisk(todayItems, profile)
       .then(setPrediction)
       .catch(console.error)
       .finally(() => setPredicting(false));
-  }, [logItems, logsLoading, profile]);
+  }, [todayItems, logsLoading, profile]);
 
   useEffect(() => {
     if (authLoaded && !user) navigate({ to: "/login" });
@@ -169,7 +183,7 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection score={healthScore} name={displayName} logItems={logItems} scores={prediction?.scores} predicting={predicting} hasLogs={logItems.length > 0} />
+            <HeroSection score={healthScore} name={displayName} logItems={todayItems} scores={prediction?.scores} predicting={predicting} hasLogs={todayItems.length > 0} />
             <RiskGauges scores={prediction?.scores} shap={prediction?.shap} predicting={predicting} />
 
             <section className="grid gap-8 lg:grid-cols-5">
@@ -180,7 +194,7 @@ function Dashboard() {
               </div>
               <div className="lg:col-span-2">
                 <FoodLog
-                  logItems={logItems}
+                  logItems={todayItems}
                   onAdd={addItem}
                   onRemove={removeItem}
                   onOpenLogger={() => setSheetOpen(true)}

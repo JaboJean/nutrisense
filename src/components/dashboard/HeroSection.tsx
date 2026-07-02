@@ -44,9 +44,15 @@ export function HeroSection({ score, name, logItems, scores, predicting, hasLogs
         const ironMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
         if (kcalMatch) acc.kcal += parseFloat(kcalMatch[1]);
         if (ironMatch) acc.iron += parseFloat(ironMatch[1]);
-        // Protein is not stored in meta, look it up from the database
-        const food = FOOD_DATABASE.find((f) => f.name.toLowerCase() === log.name.toLowerCase());
-        if (food) acc.protein += food.protein;
+        // Protein: parse from meta first (photo-logged items store it there),
+        // then fall back to the local food database
+        const proteinMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*g\s*protein/i);
+        if (proteinMatch) {
+          acc.protein += parseFloat(proteinMatch[1]);
+        } else {
+          const food = FOOD_DATABASE.find((f) => f.name.toLowerCase() === log.name.toLowerCase());
+          if (food) acc.protein += food.protein;
+        }
         return acc;
       },
       { kcal: 0, iron: 0, protein: 0 },

@@ -68,6 +68,16 @@ const PORTION_OPTIONS = [
   { label: "3×",  value: 3   },
 ];
 
+const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack"] as const;
+
+function autoMeal(): string {
+  const h = new Date().getHours();
+  if (h < 10) return "Breakfast";
+  if (h < 14) return "Lunch";
+  if (h < 18) return "Snack";
+  return "Dinner";
+}
+
 export function PhotoCapture({ onAdd }: Props) {
   const fileRef             = useRef<HTMLInputElement>(null);
   const cameraRef           = useRef<HTMLInputElement>(null);
@@ -78,6 +88,7 @@ export function PhotoCapture({ onAdd }: Props) {
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [servings, setServings] = useState(1);
+  const [meal, setMeal]         = useState<string>(autoMeal());
 
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) return;
@@ -103,24 +114,26 @@ export function PhotoCapture({ onAdd }: Props) {
 
   function handleAddToLog() {
     if (!result) return;
-    const scaledKcal = Math.round(result.kcal * servings);
-    const scaledIron = parseFloat((result.iron * servings).toFixed(1));
+    const scaledKcal    = Math.round(result.kcal    * servings);
+    const scaledIron    = parseFloat((result.iron    * servings).toFixed(1));
+    const scaledProtein = parseFloat((result.protein * servings).toFixed(1));
     onAdd({
-      id:    `photo-${Date.now()}`,
-      name:  result.name,
-      meta:  `Photo · ${scaledKcal} kcal · ${scaledIron}mg iron`,
-      tag:   result.tag,
-      tone:  result.tone,
-      glyph: result.glyph,
-      meal:  "Lunch",
-      img:   imgUrl ?? undefined,
+      id:        `photo-${Date.now()}`,
+      name:      result.name,
+      meta:      `Photo · ${scaledKcal} kcal · ${scaledIron}mg iron · ${scaledProtein}g protein`,
+      tag:       result.tag,
+      tone:      result.tone,
+      glyph:     result.glyph,
+      meal,
+      img:       imgUrl ?? undefined,
+      logged_at: new Date().toISOString(),
     });
-    // Don't revoke imgUrl — it's now referenced by the log item
     setImgUrl(null);
     setImgFile(null);
     setResult(null);
     setErrMsg(null);
     setServings(1);
+    setMeal(autoMeal());
     setStage("idle");
   }
 
@@ -131,6 +144,7 @@ export function PhotoCapture({ onAdd }: Props) {
     setResult(null);
     setErrMsg(null);
     setServings(1);
+    setMeal(autoMeal());
     setStage("idle");
   }
 
@@ -276,6 +290,27 @@ export function PhotoCapture({ onAdd }: Props) {
                   )}
                 >
                   {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Meal type */}
+          <div>
+            <div className="mb-1.5 text-[10px] uppercase tracking-widest text-ink/40">Meal type</div>
+            <div className="flex gap-1.5">
+              {MEAL_TYPES.map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMeal(m)}
+                  className={cn(
+                    "flex-1 rounded-xl py-1.5 text-xs font-semibold transition-all",
+                    meal === m
+                      ? "bg-emerald-deep text-mint shadow-sm"
+                      : "bg-ink/5 text-ink/50 hover:bg-ink/10",
+                  )}
+                >
+                  {m}
                 </button>
               ))}
             </div>
