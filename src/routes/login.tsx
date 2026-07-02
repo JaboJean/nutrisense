@@ -9,8 +9,8 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-const DEMO_EMAIL    = "demo@nutrisense.ai";
-const DEMO_PASSWORD = "demo123";
+const DEMO_EMAIL    = import.meta.env.VITE_DEMO_EMAIL    as string | undefined ?? "demo@nutrisense.ai";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD as string | undefined ?? "Demo@N5!sense";
 const DEMO_PROFILE  = {
   name: "Jean Jacques", age: 24, sex: "male" as const,
   weightKg: 72, heightCm: 175,

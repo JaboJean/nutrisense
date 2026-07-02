@@ -12,6 +12,26 @@ export const Route = createFileRoute("/signup")({
 
 const STEPS = ["Account", "Personal", "Body"] as const;
 
+const PWD_RULES = [
+  { label: "8+ characters",         test: (p: string) => p.length >= 8           },
+  { label: "Uppercase letter (A-Z)", test: (p: string) => /[A-Z]/.test(p)        },
+  { label: "Number (0-9)",           test: (p: string) => /[0-9]/.test(p)        },
+  { label: "Special character",      test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+] as const;
+
+function getPasswordScore(pwd: string): number {
+  return PWD_RULES.filter((r) => r.test(pwd)).length;
+}
+
+const STRENGTH_LABELS = ["Too short", "Weak", "Fair", "Good", "Strong"] as const;
+const STRENGTH_COLORS = [
+  "bg-ink/15",
+  "bg-coral",
+  "bg-amber",
+  "bg-sky",
+  "bg-emerald-deep",
+] as const;
+
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" className="size-5 shrink-0">
@@ -54,7 +74,8 @@ function SignupPage() {
     ? getBMI(Number(weight), Number(height))
     : null;
 
-  const step0Ok = name.trim().length > 1 && email.includes("@") && password.length >= 6;
+  const pwdScore = getPasswordScore(password);
+  const step0Ok  = name.trim().length > 1 && email.includes("@") && pwdScore >= 3;
   const step1Ok = Number(age) >= 10 && sex !== "";
   const step2Ok = Number(weight) >= 20 && Number(height) >= 100;
   const stepOk  = [step0Ok, step1Ok, step2Ok][step];
@@ -235,11 +256,8 @@ function SignupPage() {
                     className={inputCls}
                   />
                 </label>
-                <label className="block">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className={labelCls.replace("mb-1.5", "")}>Password</span>
-                    <span className="text-[10px] text-ink/35">min 6 characters</span>
-                  </div>
+                <div className="block">
+                  <span className={labelCls}>Password</span>
                   <div className="relative">
                     <input
                       type={showPwd ? "text" : "password"}
@@ -257,7 +275,46 @@ function SignupPage() {
                       {showPwd ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
                   </div>
-                </label>
+
+                  {/* Strength meter — only shows once user starts typing */}
+                  {password.length > 0 && (
+                    <div className="mt-2.5 space-y-2">
+                      {/* Bar */}
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={i}
+                            className={cn(
+                              "h-1 flex-1 rounded-full transition-all duration-300",
+                              i <= pwdScore ? STRENGTH_COLORS[pwdScore] : "bg-ink/10",
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className={cn(
+                          "text-[11px] font-semibold",
+                          pwdScore <= 1 ? "text-coral" : pwdScore === 2 ? "text-amber" : pwdScore === 3 ? "text-sky" : "text-emerald-deep",
+                        )}>
+                          {STRENGTH_LABELS[pwdScore]}
+                        </span>
+                        <span className="text-[10px] text-ink/35">{pwdScore}/4 rules met</span>
+                      </div>
+                      {/* Requirement checklist */}
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                        {PWD_RULES.map((r) => {
+                          const ok = r.test(password);
+                          return (
+                            <div key={r.label} className={cn("flex items-center gap-1.5 text-[10px]", ok ? "text-emerald-deep" : "text-ink/35")}>
+                              <Check className={cn("size-3 shrink-0", ok ? "opacity-100" : "opacity-30")} />
+                              {r.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
@@ -365,7 +422,7 @@ function SignupPage() {
             {/* Validation hint when button is disabled */}
             {!stepOk && !error && (
               <p className="text-[11px] text-ink/35">
-                {step === 0 && "Fill in all fields — password must be at least 6 characters."}
+                {step === 0 && "Fill in all fields — password needs 8+ characters and 3 of the 4 rules."}
                 {step === 1 && (!age || Number(age) < 10 ? "Enter your age (10–100)." : "Select your biological sex.")}
                 {step === 2 && (!weight || Number(weight) < 20
                   ? "Enter your weight in kg."
