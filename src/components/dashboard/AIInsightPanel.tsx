@@ -1,4 +1,4 @@
-import { Brain } from "lucide-react";
+import { Brain, Salad } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SHAP_BY_DISEASE } from "@/data/mock";
 import type { Prediction, ShapEntry } from "@/lib/mlApi";
@@ -51,6 +51,35 @@ const DEFAULT_STATE = {
 export function AIInsightPanel({ prediction }: Props) {
   const now = new Date();
   const timeLabel = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+  if (!prediction) {
+    return (
+      <div className="relative overflow-hidden rounded-[32px] bg-emerald-deep p-8 text-mint shadow-[0_30px_80px_-40px_rgba(15,118,110,0.7)]">
+        <div className="absolute -top-24 -right-12 size-72 rounded-full bg-sky/20 blur-3xl" />
+        <div className="absolute -bottom-24 -left-12 size-72 rounded-full bg-emerald-300/10 blur-3xl" />
+        <div className="relative flex items-center gap-3">
+          <div className="grid size-10 place-items-center rounded-2xl bg-mint/10 ring-1 ring-mint/20">
+            <Brain className="size-4" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-mint/60">AI Insight</div>
+            <div className="text-sm font-medium">Waiting for data · {timeLabel}</div>
+          </div>
+        </div>
+        <div className="relative mt-10 flex flex-col items-center gap-4 py-6 text-center">
+          <div className="grid size-16 place-items-center rounded-full bg-mint/10 ring-1 ring-mint/20">
+            <Salad className="size-7 text-mint/60" />
+          </div>
+          <div>
+            <h3 className="font-display text-xl font-medium text-mint">No meals logged yet</h3>
+            <p className="mt-2 max-w-[36ch] text-sm text-mint/55 leading-relaxed">
+              Log your first meal above and the AI will instantly analyse your personal disease risk with SHAP explanations.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Pick the highest-risk disease from live prediction, or fall back to default
   const scores = prediction?.scores;

@@ -11,6 +11,7 @@ type Props = {
   logItems: LogItem[];
   scores?: RiskScores;
   predicting?: boolean;
+  hasLogs?: boolean;
 };
 
 function getGreeting() {
@@ -34,7 +35,7 @@ const RISK_LABELS: Record<string, string> = {
   overweight: "Overweight",
 };
 
-export function HeroSection({ score, name, logItems, scores, predicting }: Props) {
+export function HeroSection({ score, name, logItems, scores, predicting, hasLogs }: Props) {
   const { kcal, iron, protein } = useMemo(() => {
     return logItems.reduce(
       (acc, log) => {
@@ -143,11 +144,17 @@ export function HeroSection({ score, name, logItems, scores, predicting }: Props
       <div className="md:col-span-2 relative grid place-items-center">
         <Particles />
         <div className="absolute inset-x-12 top-8 -z-10 h-[220px] rounded-full bg-mint/60 blur-3xl" />
-        <Ring value={score} label="Nutrition Score">
-          <span className="font-display text-7xl font-medium tracking-tighter text-ink tabular-nums">
-            {score}
+        <Ring value={hasLogs ? score : 0} label="Nutrition Score">
+          {hasLogs ? (
+            <span className="font-display text-7xl font-medium tracking-tighter text-ink tabular-nums">
+              {score}
+            </span>
+          ) : (
+            <span className="font-display text-5xl font-medium tracking-tighter text-ink/25">—</span>
+          )}
+          <span className="mt-1 text-xs font-medium text-ink/45">
+            {hasLogs ? "out of 100" : "log a meal"}
           </span>
-          <span className="mt-1 text-xs font-medium text-ink/45">out of 100</span>
           {predicting && (
             <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-deep">
               <Loader2 className="size-3 animate-spin" /> Updating…

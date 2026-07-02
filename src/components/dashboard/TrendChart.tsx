@@ -17,9 +17,27 @@ const PERIODS = [
   { key: "90d", label: "90d", data: TREND_90D, domain: [50, 95]  as [number,number] },
 ] as const;
 
-export function TrendChart({ fullWidth = false }: { fullWidth?: boolean }) {
+export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: boolean; logCount?: number }) {
   const [periodKey, setPeriodKey] = useState<"7d" | "30d" | "90d">("7d");
   const period = PERIODS.find((p) => p.key === periodKey)!;
+
+  if (logCount === 0) {
+    return (
+      <div className={cn("rounded-[32px] nv-glass p-7", fullWidth && "w-full")}>
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Nutrition trend</div>
+          <h4 className="font-display text-xl font-medium">Vital Score Evolution</h4>
+        </div>
+        <div className="mt-5 flex h-60 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink/8 text-center">
+          <span className="text-3xl">📈</span>
+          <div>
+            <p className="text-sm font-medium text-ink/50">No trend data yet</p>
+            <p className="mt-0.5 text-xs text-ink/30">Log meals daily to see your score evolve over time</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("rounded-[32px] nv-glass p-7", fullWidth && "w-full")}>

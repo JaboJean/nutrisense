@@ -82,6 +82,25 @@ function badgeForScore(score: number): { badge: string; badgeTone: "coral" | "am
 export function RiskGauges({ scores, shap, predicting }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  if (!scores) {
+    return (
+      <section className="grid gap-5 sm:grid-cols-3">
+        {RISKS.map((r) => (
+          <div key={r.key} className="flex flex-col items-center justify-center gap-3 rounded-[28px] nv-glass p-8 text-center">
+            <div className="grid size-12 place-items-center rounded-full bg-ink/5">
+              <span className="text-2xl">🍽️</span>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink/40">{r.label}</div>
+              <div className="mt-1 font-display text-2xl font-medium text-ink/20">—%</div>
+              <p className="mt-2 text-[12px] text-ink/35">Log meals to see your {r.label.toLowerCase()} risk</p>
+            </div>
+          </div>
+        ))}
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-3">
       {predicting && (

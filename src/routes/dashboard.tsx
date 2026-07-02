@@ -53,6 +53,10 @@ function Dashboard() {
   // Re-run ML prediction whenever the food log or profile changes
   useEffect(() => {
     if (logsLoading) return;
+    if (logItems.length === 0) {
+      setPrediction(null);
+      return;
+    }
     setPredicting(true);
     predictRisk(logItems, profile)
       .then(setPrediction)
@@ -159,14 +163,14 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection score={healthScore} name={displayName} logItems={logItems} scores={prediction?.scores} predicting={predicting} />
+            <HeroSection score={healthScore} name={displayName} logItems={logItems} scores={prediction?.scores} predicting={predicting} hasLogs={logItems.length > 0} />
             <RiskGauges scores={prediction?.scores} shap={prediction?.shap} predicting={predicting} />
 
             <section className="grid gap-8 lg:grid-cols-5">
               <div className="lg:col-span-3 space-y-6">
                 <AIInsightPanel prediction={prediction} />
                 <PhotoCapture onAdd={addItem} />
-                <TrendChart />
+                <TrendChart logCount={logItems.length} />
               </div>
               <div className="lg:col-span-2">
                 <FoodLog
