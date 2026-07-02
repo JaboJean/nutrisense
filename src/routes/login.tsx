@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Eye, EyeOff, Loader2, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -9,12 +9,6 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-const DEMO_EMAIL    = import.meta.env.VITE_DEMO_EMAIL    as string | undefined ?? "demo@nutrisense.ai";
-const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD as string | undefined ?? "Demo@N5!sense";
-const DEMO_PROFILE  = {
-  name: "Jean Jacques", age: 24, sex: "male" as const,
-  weightKg: 72, heightCm: 175,
-};
 
 function GoogleIcon() {
   return (
@@ -28,7 +22,7 @@ function GoogleIcon() {
 }
 
 function LoginPage() {
-  const { user, loaded, login, loginWithGoogle, register } = useAuth();
+  const { user, loaded, login, loginWithGoogle } = useAuth();
 
   const [email,         setEmail]         = useState("");
   const [password,      setPassword]      = useState("");
@@ -61,21 +55,6 @@ function LoginPage() {
     // Page redirects to Google — no need to reset state
   }
 
-  async function handleDemoLogin() {
-    setLoading(true);
-    setError(null);
-    // Try login first; if no demo account exists, create one
-    let result: true | string = await login(DEMO_EMAIL, DEMO_PASSWORD);
-    if (result !== true) {
-      result = await register(DEMO_EMAIL, DEMO_PASSWORD, DEMO_PROFILE);
-    }
-    if (result === true) {
-      window.location.href = "/dashboard";
-    } else {
-      setError("Demo login failed. Please try signing up.");
-      setLoading(false);
-    }
-  }
 
   const inputCls = "w-full rounded-2xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm focus:border-emerald-deep/40 focus:outline-none focus:ring-2 focus:ring-emerald-deep/15 transition-all";
 
@@ -144,17 +123,6 @@ function LoginPage() {
           >
             {googleLoading ? <Loader2 className="size-5 animate-spin text-ink/40" /> : <GoogleIcon />}
             Continue with Google
-          </button>
-
-          {/* Demo access */}
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            disabled={loading || googleLoading}
-            className="mb-6 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-deep/30 bg-emerald-deep/4 py-3 text-sm font-semibold text-emerald-deep hover:bg-emerald-deep/8 transition-colors"
-          >
-            <Zap className="size-4" />
-            Try demo — instant access, no sign-up needed
           </button>
 
           <div className="flex items-center gap-3 mb-6">
