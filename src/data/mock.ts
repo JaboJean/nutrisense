@@ -11,6 +11,7 @@ export type LogItem = {
   glyph: string;
   meal: string;
   img?: string;
+  logged_at?: string;
 };
 
 export type FoodEntry = {

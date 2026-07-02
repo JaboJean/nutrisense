@@ -98,10 +98,7 @@ export function TrendsSection({ prediction, logItems = [] }: Props) {
 
       {/* Full-width trend chart */}
       <div>
-        <TrendChart fullWidth />
-        <p className="mt-2 text-center text-[11px] text-ink/35 italic">
-          * Chart shows illustrative trend data — historical tracking accumulates as you log meals each day.
-        </p>
+        <TrendChart fullWidth logItems={logItems} />
       </div>
 
       {/* Weekly breakdown table */}

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Area,
   AreaChart,
@@ -9,19 +8,38 @@ import {
   YAxis,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { TREND_7D, TREND_30D, TREND_90D } from "@/data/mock";
+import type { LogItem } from "@/data/mock";
 
-const PERIODS = [
-  { key: "7d",  label: "7d",  data: TREND_7D,  domain: [60, 100] as [number,number] },
-  { key: "30d", label: "30d", data: TREND_30D, domain: [55, 95]  as [number,number] },
-  { key: "90d", label: "90d", data: TREND_90D, domain: [50, 95]  as [number,number] },
-] as const;
+type DayPoint = { d: string; kcal: number; iron: number };
 
-export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: boolean; logCount?: number }) {
-  const [periodKey, setPeriodKey] = useState<"7d" | "30d" | "90d">("7d");
-  const period = PERIODS.find((p) => p.key === periodKey)!;
+function buildDailyTrend(logItems: LogItem[]): DayPoint[] {
+  const byDate: Record<string, { kcal: number; iron: number }> = {};
 
-  if (logCount === 0) {
+  for (const log of logItems) {
+    const date = log.logged_at ? log.logged_at.split("T")[0] : null;
+    if (!date) continue;
+    if (!byDate[date]) byDate[date] = { kcal: 0, iron: 0 };
+    const kcalMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*kcal/i);
+    const ironMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
+    if (kcalMatch) byDate[date].kcal += parseFloat(kcalMatch[1]);
+    if (ironMatch) byDate[date].iron += parseFloat(ironMatch[1]);
+  }
+
+  return Object.entries(byDate)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-30)
+    .map(([date, v]) => ({
+      d:    new Date(date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      kcal: Math.round(v.kcal),
+      iron: parseFloat(v.iron.toFixed(1)),
+    }));
+}
+
+export function TrendChart({ fullWidth = false, logItems = [] }: { fullWidth?: boolean; logItems?: LogItem[] }) {
+  const data = buildDailyTrend(logItems);
+  const uniqueDays = data.length;
+
+  if (uniqueDays < 2) {
     return (
       <div className={cn("rounded-[32px] nv-glass p-7", fullWidth && "w-full")}>
         <div>
@@ -31,7 +49,9 @@ export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: bo
         <div className="mt-5 flex h-60 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-ink/8 text-center">
           <span className="text-3xl">📈</span>
           <div>
-            <p className="text-sm font-medium text-ink/50">No trend data yet</p>
+            <p className="text-sm font-medium text-ink/50">
+              {uniqueDays === 0 ? "No trend data yet" : "Log meals on another day to see your trend"}
+            </p>
             <p className="mt-0.5 text-xs text-ink/30">Log meals daily to see your score evolve over time</p>
           </div>
         </div>
@@ -39,40 +59,25 @@ export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: bo
     );
   }
 
+  const maxKcal = Math.max(...data.map((d) => d.kcal), 500);
+
   return (
     <div className={cn("rounded-[32px] nv-glass p-7", fullWidth && "w-full")}>
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Nutrition trend</div>
-          <h4 className="font-display text-xl font-medium">Vital Score Evolution</h4>
-        </div>
-        <div className="flex gap-1 rounded-full bg-ink/5 p-1 text-[11px] font-medium">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setPeriodKey(p.key)}
-              className={cn(
-                "rounded-full px-2.5 py-1 transition-all duration-200",
-                periodKey === p.key
-                  ? "bg-white text-emerald-deep shadow-sm"
-                  : "text-ink/50 hover:text-ink",
-              )}
-            >
-              {p.label}
-            </button>
-          ))}
+          <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Nutrition trend · {uniqueDays} days</div>
+          <h4 className="font-display text-xl font-medium">Daily Intake History</h4>
         </div>
       </div>
 
       <div className={cn("mt-5", fullWidth ? "h-80" : "h-60")}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            key={periodKey}
-            data={period.data}
+            data={data}
             margin={{ left: -20, right: 8, top: 8, bottom: 0 }}
           >
             <defs>
-              <linearGradient id="gScore" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="gKcal" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#0F766E" stopOpacity={0.4} />
                 <stop offset="100%" stopColor="#0F766E" stopOpacity={0} />
               </linearGradient>
@@ -86,10 +91,10 @@ export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: bo
               dataKey="d"
               tickLine={false}
               axisLine={false}
-              interval={periodKey === "30d" ? 4 : 0}
               tick={{ fill: "#13272499", fontSize: 11, fontWeight: 500 }}
+              interval={data.length > 14 ? Math.floor(data.length / 7) : 0}
             />
-            <YAxis hide domain={period.domain} />
+            <YAxis hide domain={[0, maxKcal * 1.2]} />
             <RTooltip
               cursor={{ stroke: "#0F766E", strokeOpacity: 0.2 }}
               contentStyle={{
@@ -100,12 +105,12 @@ export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: bo
                 backdropFilter: "blur(12px)",
               }}
               formatter={(value: number, name: string) => [
-                name === "score" ? `${value} pts` : `${value} mg`,
-                name === "score" ? "Health Score" : "Iron",
+                name === "kcal" ? `${value} kcal` : `${value} mg`,
+                name === "kcal" ? "Calories" : "Iron",
               ]}
             />
             <Area type="monotone" dataKey="iron"  stroke="#38BDF8" strokeWidth={2}   fill="url(#gIron)"  isAnimationActive />
-            <Area type="monotone" dataKey="score" stroke="#0F766E" strokeWidth={2.5} fill="url(#gScore)" isAnimationActive />
+            <Area type="monotone" dataKey="kcal"  stroke="#0F766E" strokeWidth={2.5} fill="url(#gKcal)"  isAnimationActive />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -113,7 +118,7 @@ export function TrendChart({ fullWidth = false, logCount = 0 }: { fullWidth?: bo
       <div className="mt-4 flex items-center gap-4 text-[11px] text-ink/45">
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-2.5 rounded-full bg-emerald-deep" />
-          Health Score
+          Calories (kcal)
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block size-2.5 rounded-full bg-sky" />

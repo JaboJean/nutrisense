@@ -176,7 +176,7 @@ function Dashboard() {
               <div className="lg:col-span-3 space-y-6">
                 <AIInsightPanel prediction={prediction} />
                 <PhotoCapture onAdd={addItem} />
-                <TrendChart logCount={logItems.length} />
+                <TrendChart logItems={logItems} />
               </div>
               <div className="lg:col-span-2">
                 <FoodLog

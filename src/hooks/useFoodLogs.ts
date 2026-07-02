@@ -23,13 +23,14 @@ export function useFoodLogs(user: User | null) {
     if (data) {
       setLogs(
         data.map((row) => ({
-          id:    row.id   as string,
-          name:  row.name as string,
-          meta:  (row.meta  ?? "")        as string,
-          tag:   (row.tag   ?? "neutral") as string,
-          tone:  (row.tone  ?? "emerald") as FoodTone,
-          glyph: (row.glyph ?? "🍽️")     as string,
-          meal:  (row.meal  ?? "Lunch")   as string,
+          id:        row.id        as string,
+          name:      row.name      as string,
+          meta:      (row.meta  ?? "")        as string,
+          tag:       (row.tag   ?? "neutral") as string,
+          tone:      (row.tone  ?? "emerald") as FoodTone,
+          glyph:     (row.glyph ?? "🍽️")     as string,
+          meal:      (row.meal  ?? "Lunch")   as string,
+          logged_at: row.logged_at as string | undefined,
         })),
       );
     }
