@@ -7,14 +7,15 @@ export type { UserProfile };
 export type { User };
 
 export interface UseAuthReturn {
-  user:          User | null;
-  profile:       UserProfile | null;
-  loaded:        boolean;
-  displayName:   string;
-  register:      (email: string, password: string, p: UserProfile) => Promise<true | string>;
-  login:         (email: string, password: string)                 => Promise<true | string>;
-  logout:        ()                                                => Promise<void>;
-  updateProfile: (p: UserProfile)                                  => Promise<true | string>;
+  user:            User | null;
+  profile:         UserProfile | null;
+  loaded:          boolean;
+  displayName:     string;
+  register:        (email: string, password: string, p: UserProfile) => Promise<true | string>;
+  login:           (email: string, password: string)                 => Promise<true | string>;
+  loginWithGoogle: ()                                                => Promise<void>;
+  logout:          ()                                                => Promise<void>;
+  updateProfile:   (p: UserProfile)                                  => Promise<true | string>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -93,6 +94,13 @@ export function useAuth(): UseAuthReturn {
     return true;
   }
 
+  async function loginWithGoogle(): Promise<void> {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+  }
+
   async function logout(): Promise<void> {
     await supabase.auth.signOut();
     setUser(null);
@@ -120,5 +128,5 @@ export function useAuth(): UseAuthReturn {
     user?.email?.split("@")[0] ??
     "User";
 
-  return { user, profile, loaded, displayName, register, login, logout, updateProfile };
+  return { user, profile, loaded, displayName, register, login, loginWithGoogle, logout, updateProfile };
 }
