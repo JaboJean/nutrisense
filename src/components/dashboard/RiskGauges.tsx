@@ -9,14 +9,17 @@ function ShapBar({ shap }: { shap: { f: string; v: number }[] }) {
   return (
     <div className="animate-nv-expand mt-4 space-y-2.5 border-t border-white/10 pt-4">
       <div className="flex items-center justify-between text-[9px] uppercase tracking-[0.18em] opacity-50">
-        <span>Feature influence</span>
-        <span>SHAP</span>
+        <span>What's driving your risk</span>
+        <span className="flex items-center gap-2">
+          <span className="text-emerald-300">↓ lowers</span>
+          <span className="text-rose-300">↑ raises</span>
+        </span>
       </div>
       {shap.map((s) => {
         const pos = s.v >= 0;
         const mag = Math.min(90, Math.abs(s.v) * 180);
         return (
-          <div key={s.f} className="grid grid-cols-[120px_1fr_40px] items-center gap-2 text-[11px]">
+          <div key={s.f} className="grid grid-cols-[120px_1fr_48px] items-center gap-2 text-[11px]">
             <span className="truncate opacity-75">{s.f}</span>
             <div className="relative h-2 rounded-full bg-white/10">
               <div className="absolute inset-y-0 left-1/2 w-px bg-white/20" />
@@ -31,7 +34,7 @@ function ShapBar({ shap }: { shap: { f: string; v: number }[] }) {
               />
             </div>
             <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", pos ? "text-emerald-300" : "text-rose-300")}>
-              {pos ? "+" : ""}{s.v.toFixed(2)}
+              {pos ? "↓" : "↑"} {Math.abs(s.v).toFixed(2)}
             </span>
           </div>
         );
@@ -66,9 +69,9 @@ function generateNote(key: string, score: number | undefined, shap: ShapEntry[] 
     return `Elevated glucose risk${badF ? ` — ${badF} is the key driver` : ""}. Reduce refined starches and increase fiber-rich legumes.`;
   }
   if (key === "overweight") {
-    if (score < 20) return `Caloric balance is aligned with your profile${goodF ? ` — ${goodF} is a protective factor` : ""}. Keep it up.`;
-    if (score < 45) return `Caloric load is above target${badF ? ` — ${badF} is contributing` : ""}. Replace one starchy side with leafy greens like Doodo.`;
-    return `High caloric surplus${badF ? ` — ${badF} is the main driver` : ""}. Reduce portion sizes of starchy staples significantly.`;
+    if (score < 20) return `This meal's caloric profile is well balanced${goodF ? ` — ${goodF} is a protective factor` : ""}. Keep it up.`;
+    if (score < 45) return `This meal's caloric density is a contributing factor${badF ? ` — ${badF} is the main driver` : ""}. Balance energy-dense meals with leafy greens like Doodo.`;
+    return `This meal is very high in calories${badF ? ` — ${badF} is the main driver` : ""}. Reduce portion size or pair with low-calorie vegetables.`;
   }
   return RISKS.find((r) => r.key === key)?.note ?? "";
 }

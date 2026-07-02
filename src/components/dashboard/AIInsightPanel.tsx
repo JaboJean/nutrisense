@@ -122,8 +122,11 @@ export function AIInsightPanel({ prediction }: Props) {
       {/* SHAP explainability */}
       <div className="relative mt-7 rounded-2xl bg-white/5 p-5 ring-1 ring-white/10">
         <div className="mb-4 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-mint/60">
-          <span>What influences your {DISEASE_LABELS[topKey].toLowerCase()} risk</span>
-          <span>SHAP · explainable AI</span>
+          <span>What's driving your {DISEASE_LABELS[topKey].toLowerCase()} risk</span>
+          <span className="flex items-center gap-2">
+            <span className="text-emerald-300">↓ lowers</span>
+            <span className="text-coral">↑ raises</span>
+          </span>
         </div>
         <div className="space-y-3">
           {shapData.map((s) => {
@@ -148,7 +151,7 @@ export function AIInsightPanel({ prediction }: Props) {
                   "text-right font-mono text-[11px] font-semibold tabular-nums",
                   pos ? "text-emerald-200" : "text-coral",
                 )}>
-                  {pos ? "+" : ""}{s.v.toFixed(2)}
+                  {pos ? "↓" : "↑"} {Math.abs(s.v).toFixed(2)}
                 </span>
               </div>
             );

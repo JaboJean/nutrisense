@@ -58,7 +58,7 @@ function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; predi
                 />
               </div>
               <span className={cn("text-right font-mono text-[10px] font-semibold tabular-nums", pos ? "text-emerald-deep" : "text-coral")}>
-                {pos ? "+" : ""}{s.v.toFixed(2)}
+                {pos ? "↓" : "↑"} {Math.abs(s.v).toFixed(2)}
               </span>
             </div>
           );

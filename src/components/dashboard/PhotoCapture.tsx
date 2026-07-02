@@ -60,6 +60,14 @@ type Stage = "idle" | "preview" | "analyzing" | "result" | "error";
 
 type Props = { onAdd: (item: LogItem) => void };
 
+const PORTION_OPTIONS = [
+  { label: "½×",  value: 0.5 },
+  { label: "1×",  value: 1   },
+  { label: "1½×", value: 1.5 },
+  { label: "2×",  value: 2   },
+  { label: "3×",  value: 3   },
+];
+
 export function PhotoCapture({ onAdd }: Props) {
   const fileRef             = useRef<HTMLInputElement>(null);
   const cameraRef           = useRef<HTMLInputElement>(null);
@@ -69,6 +77,7 @@ export function PhotoCapture({ onAdd }: Props) {
   const [result, setResult] = useState<FoodResult | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [servings, setServings] = useState(1);
 
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) return;
@@ -94,10 +103,12 @@ export function PhotoCapture({ onAdd }: Props) {
 
   function handleAddToLog() {
     if (!result) return;
+    const scaledKcal = Math.round(result.kcal * servings);
+    const scaledIron = parseFloat((result.iron * servings).toFixed(1));
     onAdd({
       id:    `photo-${Date.now()}`,
       name:  result.name,
-      meta:  `Photo · ${result.kcal} kcal · ${result.iron}mg iron`,
+      meta:  `Photo · ${scaledKcal} kcal · ${scaledIron}mg iron`,
       tag:   result.tag,
       tone:  result.tone,
       glyph: result.glyph,
@@ -109,6 +120,7 @@ export function PhotoCapture({ onAdd }: Props) {
     setImgFile(null);
     setResult(null);
     setErrMsg(null);
+    setServings(1);
     setStage("idle");
   }
 
@@ -118,6 +130,7 @@ export function PhotoCapture({ onAdd }: Props) {
     setImgFile(null);
     setResult(null);
     setErrMsg(null);
+    setServings(1);
     setStage("idle");
   }
 
@@ -247,13 +260,34 @@ export function PhotoCapture({ onAdd }: Props) {
             </div>
           </div>
 
-          {/* Nutrient chips */}
+          {/* Portion selector */}
+          <div>
+            <div className="mb-1.5 text-[10px] uppercase tracking-widest text-ink/40">Portion size</div>
+            <div className="flex gap-1.5">
+              {PORTION_OPTIONS.map((p) => (
+                <button
+                  key={p.value}
+                  onClick={() => setServings(p.value)}
+                  className={cn(
+                    "flex-1 rounded-xl py-1.5 text-xs font-semibold transition-all",
+                    servings === p.value
+                      ? "bg-emerald-deep text-mint shadow-sm"
+                      : "bg-ink/5 text-ink/50 hover:bg-ink/10",
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Nutrient chips — scaled by servings */}
           <div className="grid grid-cols-4 gap-2">
             {[
-              { l: "kcal",    v: result.kcal,              c: "amber"   as const },
-              { l: "protein", v: `${result.protein}g`,      c: "sky"     as const },
-              { l: "iron",    v: `${result.iron}mg`,        c: "coral"   as const },
-              { l: "fiber",   v: `${result.fiber}g`,        c: "emerald" as const },
+              { l: "kcal",    v: Math.round(result.kcal    * servings),                      c: "amber"   as const },
+              { l: "protein", v: `${(result.protein * servings).toFixed(1)}g`,               c: "sky"     as const },
+              { l: "iron",    v: `${(result.iron    * servings).toFixed(1)}mg`,              c: "coral"   as const },
+              { l: "fiber",   v: `${(result.fiber   * servings).toFixed(1)}g`,               c: "emerald" as const },
             ].map((n) => (
               <div key={n.l} className="rounded-xl bg-white/70 p-2 text-center ring-1 ring-ink/5">
                 <div className={cn(
