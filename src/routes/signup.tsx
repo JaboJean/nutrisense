@@ -66,7 +66,7 @@ function SignupPage() {
   // Only redirect if already logged in BEFORE the user started registering
   useEffect(() => {
     if (loaded && user && !registering.current) {
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/dashboard", search: { tab: "overview" } });
     }
   }, [loaded, user, navigate]);
 

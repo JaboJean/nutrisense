@@ -19,7 +19,7 @@ function LandingPage() {
 
   useEffect(() => {
     if (authLoaded && user) {
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/dashboard", search: { tab: "overview" } });
     }
   }, [authLoaded, user, navigate]);
 

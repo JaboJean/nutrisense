@@ -1,18 +1,14 @@
-import { Brain, Info } from "lucide-react";
+import { Brain, Info, Salad } from "lucide-react";
 import { RiskGauges } from "@/components/dashboard/RiskGauges";
 import { PredictionPipeline } from "@/components/dashboard/PredictionPipeline";
-import { SHAP_BY_DISEASE, RISKS } from "@/data/mock";
+import { RISKS } from "@/data/mock";
 import { cn } from "@/lib/utils";
 import type { Prediction } from "@/lib/mlApi";
 
-function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; prediction?: Prediction | null }) {
-  const liveScore = prediction?.scores?.[risk.key as keyof typeof prediction.scores];
-  const displayScore = liveScore ?? risk.value;
-  const liveBadge = liveScore !== undefined
-    ? liveScore >= 60 ? "HIGH" : liveScore >= 35 ? "MONITOR" : "LOW"
-    : risk.badge;
-
-  const shap = prediction?.shap?.[risk.key as keyof typeof prediction.shap] ?? SHAP_BY_DISEASE[risk.key] ?? [];
+function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; prediction: Prediction }) {
+  const liveScore = prediction.scores[risk.key as keyof typeof prediction.scores];
+  const liveBadge = liveScore >= 60 ? "HIGH" : liveScore >= 35 ? "MONITOR" : "LOW";
+  const shap = prediction.shap[risk.key as keyof typeof prediction.shap] ?? [];
   const topPositive = shap.filter((s) => s.v > 0).sort((a, b) => b.v - a.v)[0];
   const topNegative = shap.filter((s) => s.v < 0).sort((a, b) => a.v - b.v)[0];
 
@@ -27,7 +23,7 @@ function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; predi
         </div>
         <div>
           <div className="font-display text-base font-semibold text-ink">{risk.label}</div>
-          <div className="text-[11px] text-ink/45">{displayScore}% risk · {liveBadge}</div>
+          <div className="text-[11px] text-ink/45">{liveScore}% risk · {liveBadge}</div>
         </div>
       </div>
 
@@ -35,17 +31,15 @@ function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; predi
         <div className="rounded-xl bg-emerald-deep/5 p-3 ring-1 ring-emerald-deep/10">
           <div className="text-[9px] uppercase tracking-widest text-emerald-deep/60 mb-1">Top protector</div>
           <div className="text-[12px] font-semibold text-emerald-deep">{topPositive?.f ?? "—"}</div>
-          <div className="text-[10px] text-emerald-deep/50">{topPositive?.label}</div>
         </div>
         <div className="rounded-xl bg-coral/5 p-3 ring-1 ring-coral/10">
           <div className="text-[9px] uppercase tracking-widest text-coral/60 mb-1">Top risk factor</div>
           <div className="text-[12px] font-semibold text-coral">{topNegative?.f ?? "—"}</div>
-          <div className="text-[10px] text-coral/50">{topNegative?.label}</div>
         </div>
       </div>
 
       <div className="space-y-2">
-        {shap.map((s) => {
+        {shap.length > 0 ? shap.map((s) => {
           const pos = s.v >= 0;
           const mag = Math.min(90, Math.abs(s.v) * 180);
           return (
@@ -68,7 +62,9 @@ function DiseaseSummaryCard({ risk, prediction }: { risk: typeof RISKS[0]; predi
               </span>
             </div>
           );
-        })}
+        }) : (
+          <p className="text-[12px] text-ink/35 text-center py-3">No feature data for this disease</p>
+        )}
       </div>
     </div>
   );
@@ -97,11 +93,23 @@ export function RiskEngineSection({ prediction }: Props) {
 
       <div>
         <div className="mb-4 text-[10px] uppercase tracking-[0.18em] text-ink/40">Feature breakdown per disease</div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {RISKS.map((r) => (
-            <DiseaseSummaryCard key={r.key} risk={r} prediction={prediction} />
-          ))}
-        </div>
+        {prediction ? (
+          <div className="grid gap-5 md:grid-cols-3">
+            {RISKS.map((r) => (
+              <DiseaseSummaryCard key={r.key} risk={r} prediction={prediction} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-dashed border-ink/8 py-16 text-center">
+            <div className="grid size-14 place-items-center rounded-full bg-ink/5">
+              <Salad className="size-6 text-ink/30" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-ink/50">No predictions yet</p>
+              <p className="mt-1 text-xs text-ink/30">Log meals to see your real SHAP feature breakdown</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <PredictionPipeline />

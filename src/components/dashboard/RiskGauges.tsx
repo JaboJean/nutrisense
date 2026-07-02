@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowDownRight, ArrowUpRight, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Ring } from "@/components/Ring";
-import { RISKS, SHAP_BY_DISEASE } from "@/data/mock";
+import { RISKS } from "@/data/mock";
 import type { RiskScores, ShapEntry } from "@/lib/mlApi";
 
 function ShapBar({ shap }: { shap: { f: string; v: number }[] }) {
@@ -116,7 +116,7 @@ export function RiskGauges({ scores, shap, predicting }: Props) {
         const dynVal  = scores?.[r.key as keyof RiskScores];
         const value   = dynVal !== undefined ? dynVal : r.value;
         const dynBadge = dynVal !== undefined ? badgeForScore(dynVal) : { badge: r.badge, badgeTone: r.badgeTone };
-        const shapData = shap?.[r.key as keyof typeof shap] ?? SHAP_BY_DISEASE[r.key] ?? [];
+        const shapData = shap?.[r.key as keyof typeof shap] ?? [];
         const trendUp  = dynVal !== undefined ? dynVal > 40 : r.trendUp;
         const trendText = dynVal !== undefined
           ? dynVal >= 60 ? "High risk" : dynVal >= 35 ? "Needs attention" : "Stable"

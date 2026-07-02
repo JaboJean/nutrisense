@@ -20,12 +20,17 @@ import { FoodLabSection } from "@/components/dashboard/sections/FoodLabSection";
 import { TrendsSection } from "@/components/dashboard/sections/TrendsSection";
 import { FoodLog } from "@/components/dashboard/FoodLog";
 
+type TabKey = "overview" | "risk" | "logs" | "trends";
+
+const VALID_TABS: TabKey[] = ["overview", "risk", "logs", "trends"];
+
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard · Nutrisense-AI" }] }),
+  validateSearch: (search: Record<string, unknown>): { tab: TabKey } => ({
+    tab: VALID_TABS.includes(search.tab as TabKey) ? (search.tab as TabKey) : "overview",
+  }),
   component: Dashboard,
 });
-
-type TabKey = "overview" | "risk" | "logs" | "trends";
 
 const NAV_TABS: { k: TabKey; l: string }[] = [
   { k: "overview", l: "Overview"    },
@@ -43,7 +48,8 @@ function Dashboard() {
   const { user, profile, loaded: authLoaded, displayName, logout, updateProfile } = useAuth();
   const { logs: logItems, loading: logsLoading, addLog, removeLog } = useFoodLogs(user);
 
-  const [active, setActive]             = useState<TabKey>("overview");
+  const { tab: active } = Route.useSearch();
+  const setActive = (tab: TabKey) => navigate({ to: "/dashboard", search: { tab }, replace: true });
   const [sheetOpen, setSheetOpen]       = useState(false);
   const [profileOpen, setProfileOpen]   = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<LogItem | null>(null);

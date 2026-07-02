@@ -1,6 +1,5 @@
 import { Brain, Salad } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SHAP_BY_DISEASE } from "@/data/mock";
 import type { Prediction, ShapEntry } from "@/lib/mlApi";
 
 type Props = { prediction?: Prediction | null };
@@ -42,11 +41,6 @@ const DISEASE_INSIGHTS: Record<DiseaseKey, {
   },
 };
 
-const DEFAULT_STATE = {
-  key:   "anemia" as DiseaseKey,
-  score: 45,
-  shap:  SHAP_BY_DISEASE.anemia,
-};
 
 export function AIInsightPanel({ prediction }: Props) {
   const now = new Date();
@@ -81,20 +75,18 @@ export function AIInsightPanel({ prediction }: Props) {
     );
   }
 
-  // Pick the highest-risk disease from live prediction, or fall back to default
-  const scores = prediction?.scores;
-  const topKey: DiseaseKey = scores
-    ? (Object.entries(scores)
-        .filter(([k]) => k !== "overall")
-        .sort(([, a], [, b]) => (b as number) - (a as number))[0][0] as DiseaseKey)
-    : DEFAULT_STATE.key;
+  // Pick the highest-risk disease from live prediction
+  const scores = prediction.scores;
+  const topKey: DiseaseKey = (Object.entries(scores)
+    .filter(([k]) => k !== "overall")
+    .sort(([, a], [, b]) => (b as number) - (a as number))[0][0] as DiseaseKey);
 
-  const topScore = scores?.[topKey] ?? DEFAULT_STATE.score;
-  const shapData = prediction?.shap?.[topKey] ?? SHAP_BY_DISEASE[topKey] ?? DEFAULT_STATE.shap;
+  const topScore = scores[topKey];
+  const shapData = prediction.shap?.[topKey] ?? [];
 
   const insight   = DISEASE_INSIGHTS[topKey];
   const reduction = Math.round(topScore * 0.13);
-  const isLive    = !!prediction;
+  const isLive    = true;
 
   return (
     <div className="relative overflow-hidden rounded-[32px] bg-emerald-deep p-8 text-mint shadow-[0_30px_80px_-40px_rgba(15,118,110,0.7)]">
