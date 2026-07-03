@@ -1,7 +1,41 @@
 import { Activity, Droplet, Flame, TrendingUp } from "lucide-react";
 import { TrendChart } from "@/components/dashboard/TrendChart";
-import { TREND_7D, type LogItem } from "@/data/mock";
+import type { LogItem } from "@/data/mock";
 import type { Prediction } from "@/lib/mlApi";
+
+interface DayRow {
+  d: string;
+  meals: number;
+  kcal: number;
+  iron: number;
+  protein: number;
+}
+
+function buildDailyRows(logItems: LogItem[]): DayRow[] {
+  const byDate: Record<string, { kcal: number; iron: number; protein: number; meals: number }> = {};
+  for (const log of logItems) {
+    const date = log.logged_at ? log.logged_at.split("T")[0] : null;
+    if (!date) continue;
+    if (!byDate[date]) byDate[date] = { kcal: 0, iron: 0, protein: 0, meals: 0 };
+    byDate[date].meals++;
+    const kcalMatch    = log.meta.match(/(\d+(?:\.\d+)?)\s*kcal/i);
+    const ironMatch    = log.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
+    const proteinMatch = log.meta.match(/(\d+(?:\.\d+)?)\s*g\s*protein/i);
+    if (kcalMatch)    byDate[date].kcal    += parseFloat(kcalMatch[1]);
+    if (ironMatch)    byDate[date].iron    += parseFloat(ironMatch[1]);
+    if (proteinMatch) byDate[date].protein += parseFloat(proteinMatch[1]);
+  }
+  return Object.entries(byDate)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-7)
+    .map(([date, v]) => ({
+      d: new Date(date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+      meals:   v.meals,
+      kcal:    Math.round(v.kcal),
+      iron:    parseFloat(v.iron.toFixed(1)),
+      protein: Math.round(v.protein),
+    }));
+}
 
 type Props = {
   prediction?: Prediction | null;
@@ -101,44 +135,56 @@ export function TrendsSection({ prediction, logItems = [] }: Props) {
         <TrendChart fullWidth logItems={logItems} />
       </div>
 
-      {/* Weekly breakdown table */}
-      <div className="rounded-[28px] nv-glass p-6 overflow-x-auto">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Day-by-day breakdown</div>
-          <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink/35">Illustrative</span>
-        </div>
-        <table className="w-full text-sm min-w-[400px]">
-          <thead>
-            <tr className="border-b border-ink/5">
-              <th className="pb-3 text-left text-[10px] uppercase tracking-widest text-ink/40 font-medium">Day</th>
-              <th className="pb-3 text-right text-[10px] uppercase tracking-widest text-ink/40 font-medium">Score</th>
-              <th className="pb-3 text-right text-[10px] uppercase tracking-widest text-ink/40 font-medium">Iron (mg)</th>
-              <th className="pb-3 text-right text-[10px] uppercase tracking-widest text-ink/40 font-medium">Change</th>
-            </tr>
-          </thead>
-          <tbody>
-            {TREND_7D.map((row, i) => {
-              const delta = i === 0 ? 0 : row.score - TREND_7D[i - 1].score;
-              return (
-                <tr key={row.d} className="border-b border-ink/5 last:border-0">
-                  <td className="py-3 font-medium text-ink">{row.d}</td>
-                  <td className="py-3 text-right tabular-nums font-semibold text-ink">{row.score}</td>
-                  <td className="py-3 text-right tabular-nums text-ink/60">{row.iron}</td>
-                  <td className="py-3 text-right">
-                    {i === 0 ? (
-                      <span className="text-ink/30">—</span>
-                    ) : (
-                      <span className={`text-xs font-semibold ${delta >= 0 ? "text-emerald-deep" : "text-coral"}`}>
-                        {delta > 0 ? "+" : ""}{delta}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {/* Day-by-day breakdown table */}
+      {(() => {
+        const rows = buildDailyRows(logItems);
+        return (
+          <div className="rounded-[28px] nv-glass p-6 overflow-x-auto">
+            <div className="mb-4 text-[10px] uppercase tracking-[0.18em] text-ink/40">Day-by-day breakdown</div>
+            {rows.length === 0 ? (
+              <p className="py-8 text-center text-sm text-ink/35">
+                No meal history yet — log meals across multiple days to see the breakdown.
+              </p>
+            ) : (
+              <table className="w-full text-sm min-w-[480px]">
+                <thead>
+                  <tr className="border-b border-ink/5">
+                    <th className="pb-3 text-left   text-[10px] uppercase tracking-widest text-ink/40 font-medium">Day</th>
+                    <th className="pb-3 text-right  text-[10px] uppercase tracking-widest text-ink/40 font-medium">Meals</th>
+                    <th className="pb-3 text-right  text-[10px] uppercase tracking-widest text-ink/40 font-medium">Calories</th>
+                    <th className="pb-3 text-right  text-[10px] uppercase tracking-widest text-ink/40 font-medium">Iron (mg)</th>
+                    <th className="pb-3 text-right  text-[10px] uppercase tracking-widest text-ink/40 font-medium">Protein (g)</th>
+                    <th className="pb-3 text-right  text-[10px] uppercase tracking-widest text-ink/40 font-medium">Iron Δ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, i) => {
+                    const ironDelta = i === 0 ? null : parseFloat((row.iron - rows[i - 1].iron).toFixed(1));
+                    return (
+                      <tr key={row.d} className="border-b border-ink/5 last:border-0">
+                        <td className="py-3 font-medium text-ink">{row.d}</td>
+                        <td className="py-3 text-right tabular-nums text-ink/60">{row.meals}</td>
+                        <td className="py-3 text-right tabular-nums text-ink">{row.kcal > 0 ? row.kcal.toLocaleString() : "—"}</td>
+                        <td className="py-3 text-right tabular-nums text-ink/60">{row.iron > 0 ? row.iron : "—"}</td>
+                        <td className="py-3 text-right tabular-nums text-ink/60">{row.protein > 0 ? row.protein : "—"}</td>
+                        <td className="py-3 text-right">
+                          {ironDelta === null ? (
+                            <span className="text-ink/30">—</span>
+                          ) : (
+                            <span className={`text-xs font-semibold ${ironDelta >= 0 ? "text-emerald-deep" : "text-coral"}`}>
+                              {ironDelta > 0 ? "+" : ""}{ironDelta}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
