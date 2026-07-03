@@ -98,8 +98,6 @@ function Dashboard() {
 
   const addItem    = addLog;
   const removeItem = removeLog;
-  const healthScore = prediction ? Math.round(100 - prediction.scores.overall) : 72;
-
   async function handleLogout() {
     await logout();
     navigate({ to: "/" });
@@ -183,7 +181,7 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection score={healthScore} name={displayName} logItems={todayItems} scores={prediction?.scores} predicting={predicting} hasLogs={todayItems.length > 0} />
+            <HeroSection name={displayName} logItems={todayItems} scores={prediction?.scores} hasLogs={todayItems.length > 0} />
             <RiskGauges scores={prediction?.scores} shap={prediction?.shap} predicting={predicting} />
 
             <section className="grid gap-8 lg:grid-cols-5">

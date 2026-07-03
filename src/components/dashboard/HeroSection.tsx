@@ -1,16 +1,12 @@
 import { useMemo } from "react";
-import { Droplet, Flame, Loader2, Zap } from "lucide-react";
-import { Ring } from "@/components/Ring";
-import { Particles } from "@/components/Particles";
+import { Droplet, Flame, Zap } from "lucide-react";
 import { FOOD_DATABASE, type LogItem } from "@/data/mock";
 import type { RiskScores } from "@/lib/mlApi";
 
 type Props = {
-  score: number;
   name?: string;
   logItems: LogItem[];
   scores?: RiskScores;
-  predicting?: boolean;
   hasLogs?: boolean;
 };
 
@@ -35,7 +31,7 @@ const RISK_LABELS: Record<string, string> = {
   overweight: "Overweight",
 };
 
-export function HeroSection({ score, name, logItems, scores, predicting, hasLogs }: Props) {
+export function HeroSection({ name, logItems, scores, hasLogs }: Props) {
   const { kcal, iron, protein } = useMemo(() => {
     return logItems.reduce(
       (acc, log) => {
@@ -66,10 +62,9 @@ export function HeroSection({ score, name, logItems, scores, predicting, hasLogs
     : null;
 
   return (
-    <section className="animate-nv-rise relative grid items-center gap-10 md:grid-cols-5">
+    <section className="animate-nv-rise relative">
 
-      {/* ── Left: greeting + stats ── */}
-      <div className="md:col-span-3 space-y-6">
+      <div className="space-y-6">
 
         {/* Date pill */}
         <div className="inline-flex items-center gap-2 rounded-full nv-glass px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-deep">
@@ -146,28 +141,6 @@ export function HeroSection({ score, name, logItems, scores, predicting, hasLogs
         )}
       </div>
 
-      {/* ── Right: health score ring ── */}
-      <div className="md:col-span-2 relative grid place-items-center">
-        <Particles />
-        <div className="absolute inset-x-12 top-8 -z-10 h-[220px] rounded-full bg-mint/60 blur-3xl" />
-        <Ring value={hasLogs ? score : 0}>
-          {hasLogs ? (
-            <span className="font-display text-7xl font-medium tracking-tighter text-ink tabular-nums">
-              {score}
-            </span>
-          ) : (
-            <span className="font-display text-5xl font-medium tracking-tighter text-ink/25">—</span>
-          )}
-          <span className="mt-1 text-xs font-medium text-ink/45">
-            {hasLogs ? "out of 100" : "log a meal"}
-          </span>
-          {predicting && (
-            <span className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-deep">
-              <Loader2 className="size-3 animate-spin" /> Updating…
-            </span>
-          )}
-        </Ring>
-      </div>
     </section>
   );
 }
