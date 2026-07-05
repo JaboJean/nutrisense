@@ -755,6 +755,68 @@ NUTRITION_DB: dict[str, FoodMeta] = {
         "calcium": 130.0, "zinc": 0.7, "sodium": 25.0,
         "glyph": "🌿", "tone": "emerald", "tag": "Iron-Rich Greens",
     },
+
+    # ── KenyanFood13 classifier classes (FAO/USDA East Africa values) ──────────
+    "bhaji": {
+        "display": "Bhaji", "kcal": 200, "protein": 4.5, "fat": 12.0, "carb": 20.0,
+        "iron": 1.5, "vitC": 8.0, "vitA": 50.0, "fiber": 2.5, "sugar": 3.0,
+        "calcium": 60.0, "zinc": 0.8, "sodium": 350.0,
+        "glyph": "🧅", "tone": "amber", "tag": "Fried Snack",
+    },
+    "chapati": {
+        "display": "Chapati", "kcal": 310, "protein": 8.5, "fat": 9.0, "carb": 48.0,
+        "iron": 2.1, "vitC": 0.0, "vitA": 0.0, "fiber": 2.2, "sugar": 1.5,
+        "calcium": 25.0, "zinc": 0.9, "sodium": 220.0,
+        "glyph": "🫓", "tone": "amber", "tag": "Flatbread",
+    },
+    "githeri": {
+        "display": "Githeri", "kcal": 213, "protein": 10.8, "fat": 1.5, "carb": 40.5,
+        "iron": 3.1, "vitC": 4.0, "vitA": 12.0, "fiber": 8.2, "sugar": 2.0,
+        "calcium": 52.0, "zinc": 1.8, "sodium": 18.0,
+        "glyph": "🫘", "tone": "emerald", "tag": "High Iron",
+    },
+    "kachumbari": {
+        "display": "Kachumbari", "kcal": 35, "protein": 1.2, "fat": 0.3, "carb": 8.0,
+        "iron": 0.8, "vitC": 28.0, "vitA": 62.0, "fiber": 2.0, "sugar": 5.0,
+        "calcium": 25.0, "zinc": 0.2, "sodium": 12.0,
+        "glyph": "🍅", "tone": "emerald", "tag": "Vitamin C Rich",
+    },
+    "kukuchoma": {
+        "display": "Kuku Choma", "kcal": 215, "protein": 28.0, "fat": 11.0, "carb": 0.0,
+        "iron": 1.3, "vitC": 0.0, "vitA": 45.0, "fiber": 0.0, "sugar": 0.0,
+        "calcium": 18.0, "zinc": 2.2, "sodium": 95.0,
+        "glyph": "🍗", "tone": "sky", "tag": "Lean Protein",
+    },
+    "masalachips": {
+        "display": "Masala Chips", "kcal": 350, "protein": 4.5, "fat": 16.0, "carb": 47.0,
+        "iron": 1.2, "vitC": 18.0, "vitA": 0.0, "fiber": 3.5, "sugar": 2.5,
+        "calcium": 12.0, "zinc": 0.5, "sodium": 520.0,
+        "glyph": "🍟", "tone": "amber", "tag": "Street Food",
+    },
+    "mukimo": {
+        "display": "Mukimo", "kcal": 175, "protein": 4.8, "fat": 3.0, "carb": 33.0,
+        "iron": 2.2, "vitC": 16.0, "vitA": 85.0, "fiber": 4.5, "sugar": 3.0,
+        "calcium": 42.0, "zinc": 0.7, "sodium": 28.0,
+        "glyph": "🥔", "tone": "emerald", "tag": "Iron & Vitamin A",
+    },
+    "nyamachoma": {
+        "display": "Nyama Choma", "kcal": 242, "protein": 30.0, "fat": 13.0, "carb": 0.0,
+        "iron": 2.8, "vitC": 0.0, "vitA": 0.0, "fiber": 0.0, "sugar": 0.0,
+        "calcium": 20.0, "zinc": 5.0, "sodium": 85.0,
+        "glyph": "🍖", "tone": "sky", "tag": "High Protein",
+    },
+    "pilau": {
+        "display": "Pilau", "kcal": 285, "protein": 12.5, "fat": 9.0, "carb": 38.0,
+        "iron": 2.0, "vitC": 2.0, "vitA": 25.0, "fiber": 1.5, "sugar": 2.0,
+        "calcium": 30.0, "zinc": 1.8, "sodium": 380.0,
+        "glyph": "🍛", "tone": "amber", "tag": "Spiced Rice",
+    },
+    "sukumawiki": {
+        "display": "Sukuma Wiki", "kcal": 55, "protein": 3.5, "fat": 2.8, "carb": 6.5,
+        "iron": 2.9, "vitC": 62.0, "vitA": 380.0, "fiber": 3.2, "sugar": 1.5,
+        "calcium": 165.0, "zinc": 0.6, "sodium": 25.0,
+        "glyph": "🥬", "tone": "emerald", "tag": "Iron-Rich Greens",
+    },
 }
 
 _FALLBACK: FoodMeta = {

@@ -13,9 +13,10 @@ from torchvision import transforms
 from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 import timm
 
-MODEL_DIR = Path(os.getenv("MODEL_DIR", Path(__file__).parent / "models"))
-MODEL_PATH = MODEL_DIR / "food_finetuned_model.pth"
+MODEL_DIR    = Path(os.getenv("MODEL_DIR", Path(__file__).parent))
+MODEL_PATH   = MODEL_DIR / "food_finetuned_model.pth"
 CLASSES_PATH = MODEL_DIR / "class_names.txt"
+HF_REPO      = "JeanJabo/nutrisense-api"
 
 _TRANSFORM = transforms.Compose([
     transforms.Resize(256),
@@ -25,14 +26,39 @@ _TRANSFORM = transforms.Compose([
 ])
 
 
+def _ensure_model() -> None:
+    """XET/LFS files are not included in the Docker build context.
+    Download from HuggingFace Hub on first startup."""
+    if MODEL_PATH.exists():
+        return
+    print(f"Downloading food_finetuned_model.pth from {HF_REPO} ...")
+    from huggingface_hub import hf_hub_download
+    hf_hub_download(
+        repo_id=HF_REPO,
+        repo_type="space",
+        filename="food_finetuned_model.pth",
+        local_dir=str(MODEL_DIR),
+    )
+    print("Download complete.")
+
+
 class FoodPredictor:
     def __init__(self) -> None:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        with open(CLASSES_PATH) as f:
-            self.classes = [l.strip() for l in f if l.strip()]
+        if CLASSES_PATH.exists():
+            with open(CLASSES_PATH) as f:
+                self.classes = [line.strip() for line in f if line.strip()]
+        else:
+            self.classes = [
+                "bhaji", "chapati", "githeri", "kachumbari", "kukuchoma",
+                "mandazi", "masalachips", "matoke", "mukimo", "nyamachoma",
+                "pilau", "sukumawiki", "ugali",
+            ]
 
-        ckpt = torch.load(MODEL_PATH, map_location=self.device, weights_only=False)
+        _ensure_model()
+
+        ckpt  = torch.load(MODEL_PATH, map_location=self.device, weights_only=False)
         state = ckpt.get("state", ckpt)
         state = {k.replace("module.", ""): v for k, v in state.items()}
 
@@ -47,7 +73,7 @@ class FoodPredictor:
 
     @torch.inference_mode()
     def classify(self, image_bytes: bytes) -> tuple[str, float]:
-        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        img    = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         tensor = _TRANSFORM(img).unsqueeze(0).to(self.device)
         logits = self.model(tensor)
         probs  = F.softmax(logits, dim=1)[0]

@@ -11,8 +11,23 @@ import shap
 
 from nutrition_db import get as get_nutrition
 
-MODEL_DIR   = Path(os.getenv("MODEL_DIR", Path(__file__).parent / "models"))
+MODEL_DIR   = Path(os.getenv("MODEL_DIR", Path(__file__).parent))
 BUNDLE_PATH = MODEL_DIR / "nutrisense_model.joblib"
+HF_REPO     = "JeanJabo/nutrisense-api"
+
+
+def _ensure_bundle():
+    """Download the model bundle from HuggingFace Hub if not present locally."""
+    if not BUNDLE_PATH.exists():
+        print(f"Downloading nutrisense_model.joblib from {HF_REPO} ...")
+        from huggingface_hub import hf_hub_download
+        hf_hub_download(
+            repo_id=HF_REPO,
+            repo_type="space",
+            filename="nutrisense_model.joblib",
+            local_dir=str(MODEL_DIR),
+        )
+        print("Download complete.")
 
 FEATURES = [
     "age", "sex",
@@ -42,6 +57,7 @@ FEATURE_LABELS = {
 
 class RiskPredictor:
     def __init__(self) -> None:
+        _ensure_bundle()
         bundle = joblib.load(BUNDLE_PATH)
         self.models     = bundle["models"]       # {disease: Pipeline}
         self.explainers = bundle["explainers"]   # {disease: TreeExplainer}
