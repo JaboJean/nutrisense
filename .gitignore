@@ -20,11 +20,11 @@ dist-ssr
 .wrangler/
 .dev.vars
 
-# ML model binaries (large files – copy manually from _output_/)
-api/models/*.pth
-api/models/*.joblib
-api/models/*.pkl
-api/models/*.pt
+# ML model binaries — large files, downloaded at runtime from HuggingFace
+*.pth
+*.joblib
+*.pkl
+*.pt
 
 # Python
 __pycache__/
@@ -38,6 +38,13 @@ data/dhs/
 *.sav
 *.sas7bdat
 *.dat
+
+# TanStack router cache
+.tanstack/
+
+# Kaggle notebook auto-generated output files
+ML/outputs/results/__results___files/
+ML/outputs/results/__huggingface_repos__.json
 
 # Editor directories and files
 .vscode/*
