@@ -19,6 +19,7 @@ import { RiskEngineSection } from "@/components/dashboard/sections/RiskEngineSec
 import { FoodLabSection } from "@/components/dashboard/sections/FoodLabSection";
 import { TrendsSection } from "@/components/dashboard/sections/TrendsSection";
 import { FoodLog } from "@/components/dashboard/FoodLog";
+import { OnboardingFlow } from "@/components/dashboard/OnboardingFlow";
 
 type TabKey = "overview" | "risk" | "logs" | "trends";
 
@@ -93,6 +94,16 @@ function Dashboard() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="size-6 rounded-full border-2 border-emerald-deep/20 border-t-emerald-deep animate-spin" />
       </div>
+    );
+  }
+
+  if (authLoaded && user && !profile) {
+    return (
+      <OnboardingFlow
+        onComplete={async (p) => {
+          await updateProfile(p);
+        }}
+      />
     );
   }
 
