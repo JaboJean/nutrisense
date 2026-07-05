@@ -49,7 +49,7 @@ export function useAuth(): UseAuthReturn {
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
     if (data) {
       setProfile({
         name:     data.name      ?? "",
