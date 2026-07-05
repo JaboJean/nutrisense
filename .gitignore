@@ -32,6 +32,13 @@ __pycache__/
 .venv/
 *.egg-info/
 
+# DHS microdata — confidential, must not be redistributed
+data/dhs/
+*.dta
+*.sav
+*.sas7bdat
+*.dat
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
