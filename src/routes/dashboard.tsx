@@ -192,7 +192,7 @@ function Dashboard() {
 
         {active === "overview" && (
           <div className="space-y-14">
-            <HeroSection name={displayName} logItems={todayItems} scores={prediction?.scores} hasLogs={todayItems.length > 0} />
+            <HeroSection name={displayName} logItems={todayItems} scores={prediction?.scores} profile={profile} />
             <RiskGauges scores={prediction?.scores} shap={prediction?.shap} predicting={predicting} />
 
             <section className="grid gap-8 lg:grid-cols-5">
@@ -254,7 +254,7 @@ function Dashboard() {
 
         {active === "trends" && (
           <div className="pb-16">
-            <TrendsSection prediction={prediction} logItems={logItems} />
+            <TrendsSection prediction={prediction} logItems={logItems} profile={profile} />
           </div>
         )}
       </main>

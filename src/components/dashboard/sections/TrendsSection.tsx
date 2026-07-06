@@ -2,6 +2,7 @@ import { Activity, Droplet, Flame, TrendingUp } from "lucide-react";
 import { TrendChart } from "@/components/dashboard/TrendChart";
 import type { LogItem } from "@/data/mock";
 import type { Prediction } from "@/lib/mlApi";
+import { type UserProfile, getGoals } from "@/hooks/useProfile";
 
 interface DayRow {
   d: string;
@@ -40,9 +41,11 @@ function buildDailyRows(logItems: LogItem[]): DayRow[] {
 type Props = {
   prediction?: Prediction | null;
   logItems?: LogItem[];
+  profile?: UserProfile | null;
 };
 
-export function TrendsSection({ prediction, logItems = [] }: Props) {
+export function TrendsSection({ prediction, logItems = [], profile }: Props) {
+  const { ironGoal } = getGoals(profile ?? null);
   const todayScore = prediction ? Math.round(100 - prediction.scores.overall) : null;
   const todayIron = logItems.reduce((acc, item) => {
     const m = item.meta.match(/(\d+(?:\.\d+)?)\s*mg\s*iron/i);
@@ -64,8 +67,8 @@ export function TrendsSection({ prediction, logItems = [] }: Props) {
       label: "Daily Iron",
       value: todayIron > 0 ? `${todayIron.toFixed(1)}` : "—",
       unit: "mg",
-      delta: todayIron > 0 ? `${((todayIron / 18) * 100).toFixed(0)}% of 18mg goal` : "No meals logged yet",
-      positive: todayIron >= 9,
+      delta: todayIron > 0 ? `${((todayIron / ironGoal) * 100).toFixed(0)}% of ${ironGoal}mg goal` : "No meals logged yet",
+      positive: todayIron >= ironGoal / 2,
       icon: Activity,
       color: "coral",
     },
@@ -95,7 +98,7 @@ export function TrendsSection({ prediction, logItems = [] }: Props) {
         <div className="text-[10px] uppercase tracking-[0.18em] text-ink/40">Progress over time</div>
         <h2 className="font-display text-3xl font-medium tracking-tight text-ink">Nutrition Trends</h2>
         <p className="mt-2 max-w-[56ch] text-[15px] text-ink/55">
-          Track how your health score and key nutrients evolve as you log meals. Switch between 7, 30, and 90 day windows.
+          Track how your health score and key nutrients evolve as you log meals each day.
         </p>
       </div>
 

@@ -3,7 +3,7 @@ import { Particles } from "@/components/Particles";
 
 const STEPS = [
   { icon: <Utensils className="size-4" />, label: "Food Data", sub: "Local + global database" },
-  { icon: <Activity className="size-4" />, label: "Nutrient Analysis", sub: "32 micronutrients tracked" },
+  { icon: <Activity className="size-4" />, label: "Nutrient Analysis", sub: "12 key nutrients tracked" },
   { icon: <Brain className="size-4" />, label: "AI Model", sub: "Gradient boosted + SHAP" },
   { icon: <Heart className="size-4" />, label: "Health Prediction", sub: "Risk + recommendation" },
 ];

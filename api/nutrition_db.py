@@ -828,4 +828,9 @@ _FALLBACK: FoodMeta = {
 
 
 def get(class_name: str) -> FoodMeta:
-    return NUTRITION_DB.get(class_name, _FALLBACK)
+    if class_name in NUTRITION_DB:
+        return NUTRITION_DB[class_name]
+    # Display names like "Sukuma Wiki" become "sukuma_wiki" after normalisation;
+    # strip underscores to also match compact keys like "sukumawiki", "kukuchoma".
+    no_underscore = class_name.replace("_", "")
+    return NUTRITION_DB.get(no_underscore, _FALLBACK)

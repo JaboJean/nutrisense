@@ -2,12 +2,13 @@ import { useMemo } from "react";
 import { Droplet, Flame, Zap } from "lucide-react";
 import { FOOD_DATABASE, type LogItem } from "@/data/mock";
 import type { RiskScores } from "@/lib/mlApi";
+import { type UserProfile, getGoals } from "@/hooks/useProfile";
 
 type Props = {
   name?: string;
   logItems: LogItem[];
   scores?: RiskScores;
-  hasLogs?: boolean;
+  profile?: UserProfile | null;
 };
 
 function getGreeting() {
@@ -31,7 +32,9 @@ const RISK_LABELS: Record<string, string> = {
   overweight: "Overweight",
 };
 
-export function HeroSection({ name, logItems, scores, hasLogs }: Props) {
+export function HeroSection({ name, logItems, scores, profile }: Props) {
+  const { kcalGoal, ironGoal, proteinGoal } = getGoals(profile ?? null);
+
   const { kcal, iron, protein } = useMemo(() => {
     return logItems.reduce(
       (acc, log) => {
@@ -97,7 +100,7 @@ export function HeroSection({ name, logItems, scores, hasLogs }: Props) {
             <div className="mt-2 font-display text-2xl font-medium tabular-nums text-ink">
               {kcal > 0 ? kcal.toLocaleString() : "—"}
             </div>
-            <div className="mt-0.5 text-[11px] text-ink/35">/ 2,200 goal</div>
+            <div className="mt-0.5 text-[11px] text-ink/35">/ {kcalGoal.toLocaleString()} goal</div>
           </div>
 
           <div className="rounded-2xl nv-glass p-4">
@@ -108,7 +111,7 @@ export function HeroSection({ name, logItems, scores, hasLogs }: Props) {
               {iron > 0 ? `${iron.toFixed(1)}` : "—"}
               {iron > 0 && <span className="text-base font-normal text-ink/45"> mg</span>}
             </div>
-            <div className="mt-0.5 text-[11px] text-ink/35">/ 18mg goal</div>
+            <div className="mt-0.5 text-[11px] text-ink/35">/ {ironGoal}mg goal</div>
           </div>
 
           <div className="rounded-2xl nv-glass p-4">
@@ -119,7 +122,7 @@ export function HeroSection({ name, logItems, scores, hasLogs }: Props) {
               {protein > 0 ? `${Math.round(protein)}` : "—"}
               {protein > 0 && <span className="text-base font-normal text-ink/45"> g</span>}
             </div>
-            <div className="mt-0.5 text-[11px] text-ink/35">/ 50g goal</div>
+            <div className="mt-0.5 text-[11px] text-ink/35">/ {proteinGoal}g goal</div>
           </div>
         </div>
 
