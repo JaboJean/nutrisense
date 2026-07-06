@@ -104,6 +104,14 @@ export function PhotoCapture({ onAdd }: Props) {
     setErrMsg(null);
     try {
       const food = await classifyFood(imgFile);
+      if (food.confidence < 0.45) {
+        setErrMsg(
+          `Couldn't identify the food with enough certainty (${Math.round(food.confidence * 100)}% confidence). ` +
+          "Try a clearer photo with the food centred and well-lit."
+        );
+        setStage("error");
+        return;
+      }
       setResult(food);
       setStage("result");
     } catch (e) {

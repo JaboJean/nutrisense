@@ -122,7 +122,7 @@ class RiskPredictor:
         scores, shap_out = {}, {}
         for disease, pipe in self.models.items():
             prob = float(pipe.predict_proba(X)[0, 1])
-            scores[disease] = round(prob * 100)
+            scores[disease] = max(1, round(prob * 100))
 
             # SHAP on the scaled input
             scaler  = pipe.named_steps["scaler"]
