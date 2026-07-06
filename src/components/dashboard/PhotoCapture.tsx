@@ -56,7 +56,7 @@ async function classifyFood(file: File): Promise<FoodResult> {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Stage = "idle" | "preview" | "analyzing" | "result" | "error";
+type Stage = "idle" | "preview" | "analyzing" | "result" | "low-confidence" | "error";
 
 type Props = { onAdd: (item: LogItem) => void };
 
@@ -105,11 +105,8 @@ export function PhotoCapture({ onAdd }: Props) {
     try {
       const food = await classifyFood(imgFile);
       if (food.confidence < 0.45) {
-        setErrMsg(
-          `Couldn't identify the food with enough certainty (${Math.round(food.confidence * 100)}% confidence). ` +
-          "Try a clearer photo with the food centred and well-lit."
-        );
-        setStage("error");
+        setResult(food);
+        setStage("low-confidence");
         return;
       }
       setResult(food);
@@ -357,6 +354,46 @@ export function PhotoCapture({ onAdd }: Props) {
             <button
               onClick={reset}
               className="rounded-2xl bg-ink/5 px-4 py-2.5 text-sm font-semibold text-ink/50 hover:bg-ink/10 transition-colors"
+            >
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Low confidence — show best guess, let user confirm or discard ── */}
+      {stage === "low-confidence" && result && imgUrl && (
+        <div className="space-y-3 animate-nv-rise">
+          <div className="relative overflow-hidden rounded-2xl">
+            <img src={imgUrl} alt="Result" className="h-32 w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-amber/80 to-transparent flex items-end p-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{result.glyph}</span>
+                <div>
+                  <div className="text-sm font-bold text-white">{result.name}?</div>
+                  <div className="text-[10px] text-white/70">
+                    {Math.round(result.confidence * 100)}% confidence · best guess
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl bg-amber/8 px-4 py-3 ring-1 ring-amber/20">
+            <p className="text-xs font-semibold text-amber">Low confidence result</p>
+            <p className="mt-0.5 text-xs text-ink/55">
+              The model isn't sure. If this looks right, log it — otherwise discard and log manually.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setStage("result")}
+              className="rounded-2xl bg-emerald-deep py-2.5 text-sm font-semibold text-mint transition-colors hover:opacity-90"
+            >
+              Looks right
+            </button>
+            <button
+              onClick={reset}
+              className="rounded-2xl bg-ink/5 py-2.5 text-sm font-semibold text-ink/60 transition-colors hover:bg-ink/10"
             >
               Discard
             </button>
