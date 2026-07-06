@@ -99,13 +99,13 @@ class RiskPredictor:
             totals["zinc_mg"]     += n["zinc"]
             totals["sodium_mg"]   += n["sodium"]
 
-        # The model was trained on full-day nutrient totals (mean ~1850 kcal/day).
-        # Fewer logged meals = lower totals = the model reads it as extreme deficiency.
-        # Scale up to an estimated daily intake so single-meal inputs are comparable
-        # to the training distribution. Cap at 3× to avoid over-extrapolating.
-        DAILY_KCAL = 1850.0
-        logged_kcal = totals["energy_kcal"]
-        scale = min(3.0, DAILY_KCAL / logged_kcal) if logged_kcal > 0 else 1.0
+        # The model was trained on full-day nutrient totals (3 meals/day assumption).
+        # Scale up proportionally when fewer than 3 meals are logged so that:
+        #   - Anemia: single-meal iron (2mg) isn't read as extreme daily deficiency
+        #   - Overweight/Diabetes: actual calorie/sugar differences are preserved
+        #     (calorie-ratio scaling would collapse everyone to the same energy value)
+        n_meals = max(1, len(logs))
+        scale = max(1.0, 3.0 / n_meals)  # 1 meal→3×, 2 meals→1.5×, 3+→1×
         if scale > 1.0:
             for k in totals:
                 totals[k] *= scale
