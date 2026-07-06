@@ -48,6 +48,7 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
         tag:   food.tag,
         tone:  food.tone,
         glyph: food.glyph,
+        img:   food.img,
         meal,
       });
     });
@@ -151,14 +152,22 @@ export function LogMealSheet({ open, onOpenChange, onAdd }: Props) {
                           : "bg-white/60 ring-ink/5 hover:ring-emerald-deep/20 hover:bg-white/80",
                       )}
                     >
-                      <div className={cn(
-                        "grid size-10 shrink-0 place-items-center rounded-xl text-xl ring-1 ring-ink/5",
-                        food.tone === "emerald" && "bg-gradient-to-br from-mint to-emerald-100",
-                        food.tone === "amber"   && "bg-gradient-to-br from-amber/15 to-amber/5",
-                        food.tone === "sky"     && "bg-gradient-to-br from-sky/15 to-sky/5",
-                      )}>
-                        {food.glyph}
-                      </div>
+                      {food.img ? (
+                        <img
+                          src={food.img}
+                          alt={food.name}
+                          className="size-10 shrink-0 rounded-xl object-cover ring-1 ring-ink/5"
+                        />
+                      ) : (
+                        <div className={cn(
+                          "grid size-10 shrink-0 place-items-center rounded-xl text-xl ring-1 ring-ink/5",
+                          food.tone === "emerald" && "bg-gradient-to-br from-mint to-emerald-100",
+                          food.tone === "amber"   && "bg-gradient-to-br from-amber/15 to-amber/5",
+                          food.tone === "sky"     && "bg-gradient-to-br from-sky/15 to-sky/5",
+                        )}>
+                          {food.glyph}
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="text-[13px] font-semibold text-ink">{food.name}</div>
                         <div className="text-[11px] text-ink/50">{food.kcal} kcal · {food.iron}mg iron · {food.protein}g protein</div>

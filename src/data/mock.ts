@@ -27,6 +27,7 @@ export type FoodEntry = {
   tone: FoodTone;
   tag: string;
   note: string;
+  img?: string;
 };
 
 export type ShapEntry = { f: string; v: number; label: string };
@@ -96,35 +97,35 @@ export const SHAP_BY_DISEASE: Record<string, ShapEntry[]> = {
 // ── Food database ─────────────────────────────────────────────────────────────
 export const FOOD_DATABASE: FoodEntry[] = [
   // Rwandan staples
-  { id: "ugali",       name: "Ugali",               category: "Rwandan Staples", kcal: 194, protein: 4.4,  iron: 0.6, fiber: 2.4, vitC: 0,  glyph: "🫕", tone: "amber",   tag: "Staple Grain",     note: "Maize stiff porridge — the most consumed staple in Rwanda" },
-  { id: "isombe",      name: "Isombe",              category: "Rwandan Staples", kcal: 145, protein: 7.0,  iron: 3.2, fiber: 4.8, vitC: 22, glyph: "🌿", tone: "emerald", tag: "Iron-Rich Greens",  note: "Cassava leaves with groundnuts — excellent iron and vitamin A source" },
-  { id: "ibishyimbo",  name: "Ibishyimbo",          category: "Rwandan Staples", kcal: 191, protein: 13.1, iron: 4.4, fiber: 9.6, vitC: 2,  glyph: "🫘", tone: "emerald", tag: "High Iron",         note: "Cooked kidney beans — highest plant iron source in Rwandan diet" },
-  { id: "matoke",      name: "Matoke",              category: "Rwandan Staples", kcal: 134, protein: 2.0,  iron: 0.9, fiber: 3.9, vitC: 21, glyph: "🍌", tone: "amber",   tag: "Plantain",          note: "Steamed green banana — good fiber and vitamin C" },
-  { id: "ibirayi",     name: "Ibirayi",             category: "Rwandan Staples", kcal: 129, protein: 2.4,  iron: 0.9, fiber: 4.5, vitC: 29, glyph: "🍠", tone: "emerald", tag: "Vitamin A",         note: "Sweet potato — very high in vitamin A, great for eye health" },
-  { id: "umutsima",    name: "Umutsima",            category: "Rwandan Staples", kcal: 170, protein: 3.6,  iron: 1.6, fiber: 3.0, vitC: 0,  glyph: "🫕", tone: "amber",   tag: "Staple Porridge",   note: "Cassava and maize porridge — common daily meal" },
+  { id: "ugali",       name: "Ugali",               category: "Rwandan Staples", kcal: 194, protein: 4.4,  iron: 0.6, fiber: 2.4, vitC: 0,  glyph: "🫕", tone: "amber",   tag: "Staple Grain",     note: "Maize stiff porridge — the most consumed staple in Rwanda",              img: "/foods/ugali.jpg" },
+  { id: "isombe",      name: "Isombe",              category: "Rwandan Staples", kcal: 145, protein: 7.0,  iron: 3.2, fiber: 4.8, vitC: 22, glyph: "🌿", tone: "emerald", tag: "Iron-Rich Greens",  note: "Cassava leaves with groundnuts — excellent iron and vitamin A source",    img: "/foods/isombe.jpg" },
+  { id: "ibishyimbo",  name: "Ibishyimbo",          category: "Rwandan Staples", kcal: 191, protein: 13.1, iron: 4.4, fiber: 9.6, vitC: 2,  glyph: "🫘", tone: "emerald", tag: "High Iron",         note: "Cooked kidney beans — highest plant iron source in Rwandan diet",        img: "/foods/ibishyimbo.jpg" },
+  { id: "matoke",      name: "Matoke",              category: "Rwandan Staples", kcal: 134, protein: 2.0,  iron: 0.9, fiber: 3.9, vitC: 21, glyph: "🍌", tone: "amber",   tag: "Plantain",          note: "Steamed green banana — good fiber and vitamin C",                        img: "/foods/matoke.jpg" },
+  { id: "ibirayi",     name: "Ibirayi",             category: "Rwandan Staples", kcal: 129, protein: 2.4,  iron: 0.9, fiber: 4.5, vitC: 29, glyph: "🍠", tone: "emerald", tag: "Vitamin A",         note: "Sweet potato — very high in vitamin A, great for eye health",            img: "/foods/ibirayi.jpg" },
+  { id: "umutsima",    name: "Umutsima",            category: "Rwandan Staples", kcal: 170, protein: 3.6,  iron: 1.6, fiber: 3.0, vitC: 0,  glyph: "🫕", tone: "amber",   tag: "Staple Porridge",   note: "Cassava and maize porridge — common daily meal",                         img: "/foods/umutsima.jpg" },
   { id: "agatogo",     name: "Agatogo",             category: "Rwandan Staples", kcal: 210, protein: 10.4, iron: 2.0, fiber: 4.4, vitC: 16, glyph: "🍲", tone: "emerald", tag: "Balanced Meal",     note: "Green banana and bean stew — balanced protein and carbs" },
-  { id: "brochettes",  name: "Brochettes",          category: "Rwandan Staples", kcal: 165, protein: 21.0, iron: 2.5, fiber: 0,   vitC: 0,  glyph: "🍢", tone: "sky",     tag: "Lean Protein",      note: "Grilled goat or beef skewers — high protein and iron" },
-  { id: "amashaza",    name: "Amashaza",            category: "Rwandan Staples", kcal: 177, protein: 12.5, iron: 2.7, fiber: 8.3, vitC: 1,  glyph: "🫛", tone: "emerald", tag: "High Iron",         note: "Dried peas — good plant protein and iron for daily workers" },
-  { id: "sambaza",     name: "Sambaza",             category: "Rwandan Staples", kcal: 148, protein: 17.6, iron: 1.4, fiber: 0,   vitC: 0,  glyph: "🐟", tone: "sky",     tag: "Calcium-Rich",      note: "Small Lake Kivu fish — exceptional calcium source" },
-  { id: "tilapia",     name: "Tilapia",             category: "Rwandan Staples", kcal: 154, protein: 31.4, iron: 0.8, fiber: 0,   vitC: 0,  glyph: "🐠", tone: "sky",     tag: "Lean Protein",      note: "Grilled Nile tilapia — high protein, low fat" },
-  { id: "ikivuguto",   name: "Ikivuguto",           category: "Rwandan Staples", kcal: 130, protein: 9.0,  iron: 0.3, fiber: 0,   vitC: 3,  glyph: "🥛", tone: "sky",     tag: "Calcium-Rich",      note: "Fermented milk — high calcium, traditional probiotic" },
+  { id: "brochettes",  name: "Brochettes",          category: "Rwandan Staples", kcal: 165, protein: 21.0, iron: 2.5, fiber: 0,   vitC: 0,  glyph: "🍢", tone: "sky",     tag: "Lean Protein",      note: "Grilled goat or beef skewers — high protein and iron",                   img: "/foods/brochettes.jpg" },
+  { id: "amashaza",    name: "Amashaza",            category: "Rwandan Staples", kcal: 177, protein: 12.5, iron: 2.7, fiber: 8.3, vitC: 1,  glyph: "🫛", tone: "emerald", tag: "High Iron",         note: "Dried peas — good plant protein and iron for daily workers",             img: "/foods/amashaza.jpg" },
+  { id: "sambaza",     name: "Sambaza",             category: "Rwandan Staples", kcal: 148, protein: 17.6, iron: 1.4, fiber: 0,   vitC: 0,  glyph: "🐟", tone: "sky",     tag: "Calcium-Rich",      note: "Small Lake Kivu fish — exceptional calcium source",                      img: "/foods/sambaza.jpg" },
+  { id: "tilapia",     name: "Tilapia",             category: "Rwandan Staples", kcal: 154, protein: 31.4, iron: 0.8, fiber: 0,   vitC: 0,  glyph: "🐠", tone: "sky",     tag: "Lean Protein",      note: "Grilled Nile tilapia — high protein, low fat",                           img: "/foods/tilapia.jpg" },
+  { id: "ikivuguto",   name: "Ikivuguto",           category: "Rwandan Staples", kcal: 130, protein: 9.0,  iron: 0.3, fiber: 0,   vitC: 3,  glyph: "🥛", tone: "sky",     tag: "Calcium-Rich",      note: "Fermented milk — high calcium, traditional probiotic",                   img: "/foods/milk.jpg" },
   { id: "inshyushyu",  name: "Inshyushyu",          category: "Rwandan Staples", kcal: 156, protein: 4.4,  iron: 2.4, fiber: 3.6, vitC: 0,  glyph: "🌾", tone: "amber",   tag: "High Iron",         note: "Millet porridge — good iron and fiber" },
-  { id: "sorghumugali",name: "Sorghum Ugali",       category: "Rwandan Staples", kcal: 166, protein: 5.6,  iron: 3.6, fiber: 3.0, vitC: 0,  glyph: "🫕", tone: "emerald", tag: "High Iron Grain",   note: "Sorghum stiff porridge — higher iron than maize ugali" },
-  { id: "cassava",     name: "Cassava",             category: "Rwandan Staples", kcal: 240, protein: 2.1,  iron: 0.5, fiber: 2.7, vitC: 30, glyph: "🌽", tone: "amber",   tag: "Starchy Staple",    note: "Boiled cassava — high energy, good vitamin C" },
-  { id: "doodo",       name: "Doodo",               category: "Rwandan Staples", kcal: 23,  protein: 2.5,  iron: 2.3, fiber: 2.2, vitC: 43, glyph: "🥬", tone: "emerald", tag: "Iron-Rich Greens",  note: "Amaranth leaves — excellent iron and vitamin C combination" },
-  { id: "groundnuts",  name: "Groundnuts",          category: "Rwandan Staples", kcal: 170, protein: 7.7,  iron: 1.4, fiber: 2.6, vitC: 0,  glyph: "🥜", tone: "amber",   tag: "Plant Protein",     note: "Roasted peanuts — high fat and protein, common snack" },
-  { id: "avocado",     name: "Avocado",             category: "Rwandan Staples", kcal: 160, protein: 2.0,  iron: 0.6, fiber: 6.7, vitC: 10, glyph: "🥑", tone: "emerald", tag: "Healthy Fats",      note: "Widely grown in Rwanda — healthy fats and fiber" },
-  { id: "mandazi",     name: "Mandazi",             category: "Rwandan Staples", kcal: 181, protein: 3.3,  iron: 1.1, fiber: 0.9, vitC: 0,  glyph: "🫓", tone: "amber",   tag: "Fried Dough",       note: "Common breakfast street food — high energy, low nutrients" },
-  { id: "sptleaves",   name: "Sweet Potato Leaves", category: "Rwandan Staples", kcal: 43,  protein: 4.8,  iron: 2.6, fiber: 3.8, vitC: 35, glyph: "🌿", tone: "emerald", tag: "Iron-Rich Greens",  note: "Ikijumba — underused but rich in iron, vitamin A and C" },
+  { id: "sorghumugali",name: "Sorghum Ugali",       category: "Rwandan Staples", kcal: 166, protein: 5.6,  iron: 3.6, fiber: 3.0, vitC: 0,  glyph: "🫕", tone: "emerald", tag: "High Iron Grain",   note: "Sorghum stiff porridge — higher iron than maize ugali",                  img: "/foods/ugali.jpg" },
+  { id: "cassava",     name: "Cassava",             category: "Rwandan Staples", kcal: 240, protein: 2.1,  iron: 0.5, fiber: 2.7, vitC: 30, glyph: "🌽", tone: "amber",   tag: "Starchy Staple",    note: "Boiled cassava — high energy, good vitamin C",                           img: "/foods/cassava.jpg" },
+  { id: "doodo",       name: "Doodo",               category: "Rwandan Staples", kcal: 23,  protein: 2.5,  iron: 2.3, fiber: 2.2, vitC: 43, glyph: "🥬", tone: "emerald", tag: "Iron-Rich Greens",  note: "Amaranth leaves — excellent iron and vitamin C combination",              img: "/foods/doodo.jpg" },
+  { id: "groundnuts",  name: "Groundnuts",          category: "Rwandan Staples", kcal: 170, protein: 7.7,  iron: 1.4, fiber: 2.6, vitC: 0,  glyph: "🥜", tone: "amber",   tag: "Plant Protein",     note: "Roasted peanuts — high fat and protein, common snack",                   img: "/foods/groundnuts.jpg" },
+  { id: "avocado",     name: "Avocado",             category: "Rwandan Staples", kcal: 160, protein: 2.0,  iron: 0.6, fiber: 6.7, vitC: 10, glyph: "🥑", tone: "emerald", tag: "Healthy Fats",      note: "Widely grown in Rwanda — healthy fats and fiber",                        img: "/foods/avocado.jpg" },
+  { id: "mandazi",     name: "Mandazi",             category: "Rwandan Staples", kcal: 181, protein: 3.3,  iron: 1.1, fiber: 0.9, vitC: 0,  glyph: "🫓", tone: "amber",   tag: "Fried Dough",       note: "Common breakfast street food — high energy, low nutrients",              img: "/foods/mandazi.jpg" },
+  { id: "sptleaves",   name: "Sweet Potato Leaves", category: "Rwandan Staples", kcal: 43,  protein: 4.8,  iron: 2.6, fiber: 3.8, vitC: 35, glyph: "🌿", tone: "emerald", tag: "Iron-Rich Greens",  note: "Ikijumba — underused but rich in iron, vitamin A and C",                 img: "/foods/sweet-potato.jpg" },
   // General foods
-  { id: "spinach",  name: "Spinach",         category: "Vegetables", kcal: 23,  protein: 2.9, iron: 2.7, fiber: 2.2, vitC: 28, glyph: "🥬", tone: "emerald", tag: "High Iron",       note: "Top plant source of iron — pair with Vit C to boost absorption" },
-  { id: "eggs",     name: "Eggs",            category: "Protein",    kcal: 155, protein: 13,  iron: 1.8, fiber: 0,   vitC: 0,  glyph: "🥚", tone: "sky",     tag: "Complete Protein",note: "All essential amino acids + iron + B12" },
-  { id: "chicken",  name: "Grilled Chicken", category: "Protein",    kcal: 165, protein: 31,  iron: 1.3, fiber: 0,   vitC: 0,  glyph: "🍗", tone: "amber",   tag: "Lean Protein",    note: "High protein, low fat — heme iron for easy absorption" },
-  { id: "rice",     name: "Brown Rice",      category: "Grains",     kcal: 216, protein: 5,   iron: 1.0, fiber: 3.5, vitC: 0,  glyph: "🍚", tone: "amber",   tag: "Complex Carb",    note: "Whole grain — slower glucose release than white rice" },
-  { id: "sweetpot", name: "Sweet Potato",    category: "Tubers",     kcal: 103, protein: 2.3, iron: 0.7, fiber: 3.8, vitC: 22, glyph: "🍠", tone: "emerald", tag: "Low GI",          note: "Rich in vitamin A and complex carbohydrates" },
-  { id: "yogurt",   name: "Greek Yogurt",    category: "Dairy",      kcal: 100, protein: 17,  iron: 0.1, fiber: 0,   vitC: 0,  glyph: "🥛", tone: "sky",     tag: "Calcium",         note: "High protein dairy — calcium and B12 source" },
-  { id: "banana",   name: "Banana",          category: "Fruits",     kcal: 89,  protein: 1.1, iron: 0.3, fiber: 2.6, vitC: 9,  glyph: "🍌", tone: "amber",   tag: "Energy",          note: "Natural sugars + potassium for sustained energy" },
-  { id: "oatmeal",  name: "Oatmeal",         category: "Grains",     kcal: 150, protein: 5.3, iron: 2.1, fiber: 4,   vitC: 0,  glyph: "🌾", tone: "emerald", tag: "High Fiber",      note: "Beta-glucan fiber slows glucose — great breakfast base" },
+  { id: "spinach",  name: "Spinach",         category: "Vegetables", kcal: 23,  protein: 2.9, iron: 2.7, fiber: 2.2, vitC: 28, glyph: "🥬", tone: "emerald", tag: "High Iron",        note: "Top plant source of iron — pair with Vit C to boost absorption", img: "/foods/sukuma-wiki.jpg" },
+  { id: "eggs",     name: "Eggs",            category: "Protein",    kcal: 155, protein: 13,  iron: 1.8, fiber: 0,   vitC: 0,  glyph: "🥚", tone: "sky",     tag: "Complete Protein", note: "All essential amino acids + iron + B12",                          img: "/foods/eggs.jpg" },
+  { id: "chicken",  name: "Grilled Chicken", category: "Protein",    kcal: 165, protein: 31,  iron: 1.3, fiber: 0,   vitC: 0,  glyph: "🍗", tone: "amber",   tag: "Lean Protein",     note: "High protein, low fat — heme iron for easy absorption",          img: "/foods/chicken.jpg" },
+  { id: "rice",     name: "Brown Rice",      category: "Grains",     kcal: 216, protein: 5,   iron: 1.0, fiber: 3.5, vitC: 0,  glyph: "🍚", tone: "amber",   tag: "Complex Carb",     note: "Whole grain — slower glucose release than white rice",            img: "/foods/pilau.jpg" },
+  { id: "sweetpot", name: "Sweet Potato",    category: "Tubers",     kcal: 103, protein: 2.3, iron: 0.7, fiber: 3.8, vitC: 22, glyph: "🍠", tone: "emerald", tag: "Low GI",           note: "Rich in vitamin A and complex carbohydrates",                    img: "/foods/sweet-potato.jpg" },
+  { id: "yogurt",   name: "Greek Yogurt",    category: "Dairy",      kcal: 100, protein: 17,  iron: 0.1, fiber: 0,   vitC: 0,  glyph: "🥛", tone: "sky",     tag: "Calcium",          note: "High protein dairy — calcium and B12 source",                    img: "/foods/yogurt.jpg" },
+  { id: "banana",   name: "Banana",          category: "Fruits",     kcal: 89,  protein: 1.1, iron: 0.3, fiber: 2.6, vitC: 9,  glyph: "🍌", tone: "amber",   tag: "Energy",           note: "Natural sugars + potassium for sustained energy",                img: "/foods/banana.jpg" },
+  { id: "oatmeal",  name: "Oatmeal",         category: "Grains",     kcal: 150, protein: 5.3, iron: 2.1, fiber: 4,   vitC: 0,  glyph: "🌾", tone: "emerald", tag: "High Fiber",       note: "Beta-glucan fiber slows glucose — great breakfast base",         img: "/foods/oatmeal.jpg" },
 ];
 
 // ── Today's food log (initial state) ──────────────────────────────────────────
@@ -162,19 +163,19 @@ export const TREND_90D = Array.from({ length: 13 }, (_, i) => ({
 export const RECOMMENDATIONS = [
   {
     n: "Ibishyimbo",         b: "+4.4mg Iron · −8% Anemia risk", a: "Daily staple",     s: 96, g: "🫘",
-    img: "/beans.jpg",
+    img: "/foods/ibishyimbo.jpg",
   },
   {
     n: "Isombe",             b: "Iron + Vitamin A · greens",      a: "Cassava leaves",   s: 93, g: "🌿",
-    img: "/isombe.jpg",
+    img: "/foods/isombe.jpg",
   },
   {
     n: "Sorghum Ugali",      b: "+3.6mg Iron · high fiber",       a: "Swap maize ugali", s: 90, g: "🫕",
-    img: "/ugali.jpg",
+    img: "/foods/ugali.jpg",
   },
   {
     n: "Sweet Potato Leaves",b: "Iron + Vit C + Vit A combo",     a: "Ikijumba greens", s: 86, g: "🌿",
-    img: "/sweet-potato.jpg",
+    img: "/foods/sweet-potato.jpg",
   },
 ];
 

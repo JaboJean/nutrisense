@@ -33,6 +33,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
       tag: food.tag,
       tone: food.tone,
       glyph: food.glyph,
+      img: food.img,
       meal: "Snack",
     });
   }
@@ -45,6 +46,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
       tag: food.tag,
       tone: food.tone,
       glyph: food.glyph,
+      img: food.img,
       meal: "Snack",
     });
     setQuery("");

@@ -29,6 +29,7 @@ export function useFoodLogs(user: User | null) {
           tag:       (row.tag   ?? "neutral") as string,
           tone:      (row.tone  ?? "emerald") as FoodTone,
           glyph:     (row.glyph ?? "🍽️")     as string,
+          img:       (row.img   ?? undefined) as string | undefined,
           meal:      (row.meal  ?? "Lunch")   as string,
           logged_at: row.logged_at as string | undefined,
         })),
@@ -52,6 +53,7 @@ export function useFoodLogs(user: User | null) {
         tag:     item.tag,
         tone:    item.tone,
         glyph:   item.glyph,
+        img:     item.img ?? null,
         meal:    item.meal,
       })
       .select()
