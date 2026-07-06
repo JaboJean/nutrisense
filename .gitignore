@@ -39,6 +39,9 @@ data/dhs/
 *.sas7bdat
 *.dat
 
+# Raw food images — web-ready copies are in public/foods/
+data/Nutr/
+
 # TanStack router cache
 .tanstack/
 
