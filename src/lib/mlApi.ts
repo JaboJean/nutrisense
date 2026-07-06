@@ -59,12 +59,13 @@ export async function predictRisk(
     });
     if (!res.ok) throw new Error(`Risk API error ${res.status}`);
     const data = await res.json() as Prediction;
-    // Cap at 97 — XGBoost can output extreme probabilities near 1.0 on boundary inputs;
-    // displaying 100% implies certainty the model doesn't claim.
+    // Cap at 90 — XGBoost produces overconfident probabilities without calibration;
+    // daily-scaling in the API reduces saturation, but we still bound the top end
+    // so the display never implies near-certainty the model doesn't earn.
     for (const k of ["anemia", "diabetes", "overweight"] as const) {
-      data.scores[k] = Math.min(97, data.scores[k]);
+      data.scores[k] = Math.min(90, data.scores[k]);
     }
-    data.scores.overall = Math.min(97, data.scores.overall);
+    data.scores.overall = Math.min(90, data.scores.overall);
     return data;
   }
 

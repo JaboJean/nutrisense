@@ -412,8 +412,10 @@ function SignupPage() {
 
             {error && (
               <div className="rounded-2xl bg-coral/8 px-4 py-3 text-sm text-coral ring-1 ring-coral/20">
-                {error}
-                {error.includes("already exists") && (
+                {error.toLowerCase().includes("rate limit") || error.includes("429")
+                  ? "Too many signup attempts for this email. Wait a few minutes, or use a different email address."
+                  : error}
+                {error.includes("already") && (
                   <span> <Link to="/login" className="font-bold underline">Sign in instead</Link></span>
                 )}
               </div>

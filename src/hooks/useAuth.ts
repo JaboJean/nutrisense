@@ -27,7 +27,7 @@ export function useAuth(): UseAuthReturn {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const u = session?.user ?? null;
       setUser(u);
-      if (u) await fetchProfile(u.id);
+      if (u) await fetchProfile(u.id, u.user_metadata as Record<string, unknown>);
       setLoaded(true);
     });
 
@@ -35,7 +35,7 @@ export function useAuth(): UseAuthReturn {
       async (_event, session) => {
         const u = session?.user ?? null;
         setUser(u);
-        if (u) await fetchProfile(u.id);
+        if (u) await fetchProfile(u.id, u.user_metadata as Record<string, unknown>);
         else setProfile(null);
         setLoaded(true);
       },
@@ -44,7 +44,7 @@ export function useAuth(): UseAuthReturn {
     return () => subscription.unsubscribe();
   }, []);
 
-  async function fetchProfile(userId: string): Promise<void> {
+  async function fetchProfile(userId: string, meta?: Record<string, unknown>): Promise<void> {
     const { data } = await supabase
       .from("profiles")
       .select("*")
@@ -58,6 +58,26 @@ export function useAuth(): UseAuthReturn {
         weightKg: data.weight_kg ?? 0,
         heightCm: data.height_cm ?? 0,
       });
+      return;
+    }
+    // Bootstrap from user_metadata written at signup (email-confirmation flow)
+    if (meta?.age) {
+      const p: UserProfile = {
+        name:     String(meta.name     ?? ""),
+        age:      Number(meta.age),
+        sex:      (meta.sex as "male" | "female") ?? "male",
+        weightKg: Number(meta.weight_kg ?? 0),
+        heightCm: Number(meta.height_cm ?? 0),
+      };
+      await supabase.from("profiles").upsert({
+        id:        userId,
+        name:      p.name,
+        age:       p.age,
+        sex:       p.sex,
+        weight_kg: p.weightKg,
+        height_cm: p.heightCm,
+      });
+      setProfile(p);
     }
   }
 
@@ -69,22 +89,37 @@ export function useAuth(): UseAuthReturn {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name: p.name } },
+      // Store full profile in user_metadata so fetchProfile can bootstrap
+      // the DB row after email confirmation when no session exists yet.
+      options: {
+        data: {
+          name:      p.name,
+          age:       p.age,
+          sex:       p.sex,
+          weight_kg: p.weightKg,
+          height_cm: p.heightCm,
+        },
+      },
     });
     if (error) return error.message;
     if (!data.user) return "Signup failed — please try again.";
 
-    const { error: pe } = await supabase.from("profiles").upsert({
-      id:        data.user.id,
-      name:      p.name,
-      age:       p.age,
-      sex:       p.sex,
-      weight_kg: p.weightKg,
-      height_cm: p.heightCm,
-    });
-    if (pe) return pe.message;
+    if (data.session) {
+      // Email confirmation is disabled — session is live, write the row now.
+      const { error: pe } = await supabase.from("profiles").upsert({
+        id:        data.user.id,
+        name:      p.name,
+        age:       p.age,
+        sex:       p.sex,
+        weight_kg: p.weightKg,
+        height_cm: p.heightCm,
+      });
+      if (pe) return pe.message;
+      setProfile(p);
+    }
+    // No session means email confirmation is required.
+    // Profile data is in user_metadata and will be written by fetchProfile on first login.
 
-    setProfile(p);
     return true;
   }
 
