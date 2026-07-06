@@ -222,7 +222,7 @@ function Dashboard() {
               <div className="flex items-center gap-4">
                 <span>v0.1 · Capstone Preview</span>
                 <span className="inline-flex items-center gap-1">
-                  <Flame className="size-3" /> {logItems.length} meal{logItems.length !== 1 ? "s" : ""} today
+                  <Flame className="size-3" /> {todayItems.length} meal{todayItems.length !== 1 ? "s" : ""} today
                 </span>
                 <button
                   onClick={handleLogout}

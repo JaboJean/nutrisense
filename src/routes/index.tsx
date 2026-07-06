@@ -203,7 +203,7 @@ function LandingPage() {
             { v: "40+",  l: "food classes recognised" },
             { v: "SHAP", l: "explainable predictions" },
             { v: "<1s",  l: "inference time" },
-            { v: "NHANES", l: "training dataset" },
+            { v: "DHS Rwanda", l: "training dataset" },
           ].map((s) => (
             <div key={s.l} className="text-center">
               <div className="font-display text-2xl font-bold text-emerald-deep">{s.v}</div>
@@ -239,8 +239,8 @@ function LandingPage() {
                 bg:    "bg-coral/8",
                 tc:    "text-coral",
                 title: "Disease Risk Engine",
-                desc:  "Three independent XGBoost binary classifiers — trained on NHANES population data — predict your personal risk for anemia, Type 2 diabetes, and overweight.",
-                tags:  ["XGBoost", "NHANES data", "3 classifiers"],
+                desc:  "Three independent XGBoost binary classifiers — trained on Rwanda DHS 2019-20 population data — predict your personal risk for anemia, Type 2 diabetes, and overweight.",
+                tags:  ["XGBoost", "Rwanda DHS data", "3 classifiers"],
               },
               {
                 icon: Brain,
@@ -334,7 +334,7 @@ function LandingPage() {
               <p className="mt-5 text-ink/55 leading-relaxed">
                 Nutrisense-AI is a BSc Software Engineering capstone project at African Leadership University, Rwanda.
                 It combines a fine-tuned Vision Transformer for food image classification with three XGBoost risk classifiers
-                trained on the NHANES population health dataset.
+                trained on the Rwanda DHS 2019-20 population health dataset.
               </p>
               <p className="mt-3 text-ink/55 leading-relaxed">
                 SHAP TreeExplainer makes every prediction interpretable — showing users not just their risk score, but the exact
@@ -352,7 +352,7 @@ function LandingPage() {
               {[
                 { v: "ViT-Base/16",  l: "Image model",         c: "bg-emerald-deep/8 text-emerald-deep" },
                 { v: "XGBoost",      l: "Risk classifiers",    c: "bg-coral/8 text-coral"               },
-                { v: "NHANES",       l: "Health dataset",      c: "bg-sky/8 text-sky"                   },
+                { v: "DHS Rwanda",   l: "Health dataset",      c: "bg-sky/8 text-sky"                   },
                 { v: "SHAP",         l: "Explainability",      c: "bg-amber/8 text-amber"               },
                 { v: "Food-41",      l: "Image dataset",       c: "bg-emerald-deep/8 text-emerald-deep" },
                 { v: "React 19",     l: "Frontend",            c: "bg-sky/8 text-sky"                   },

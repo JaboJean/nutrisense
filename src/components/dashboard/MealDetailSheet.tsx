@@ -189,7 +189,7 @@ export function MealDetailSheet({ item, onClose, prediction }: Props) {
                     );
                   })}
                 </div>
-                <p className="mt-2 text-[10px] text-ink/35 italic">SHAP values reflect population-level feature importance from your anemia risk model.</p>
+                <p className="mt-2 text-[10px] text-ink/35 italic">SHAP values reflect population-level feature importance from your {topDiseaseKey} risk model.</p>
               </div>
             </div>
           </>

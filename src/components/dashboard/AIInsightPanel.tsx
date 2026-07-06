@@ -19,10 +19,8 @@ const DISEASE_INSIGHTS: Record<DiseaseKey, {
 }> = {
   anemia: {
     title: (s) => `Your anemia risk is at ${s}% — iron intake is the main driver.`,
-    body:  (shap) => {
-      const topBad = shap.filter((e) => e.v < 0).sort((a, b) => a.v - b.v)[0];
-      return `${topBad ? `Low ${topBad.f.toLowerCase()} is pulling your score up. ` : ""}Add iron-rich staples — ibishyimbo, isombe, or doodo — paired with a citrus source to boost absorption.`;
-    },
+    body:  (_shap) =>
+      "Add iron-rich staples — ibishyimbo, isombe, or doodo — paired with a citrus source to boost absorption. See the SHAP breakdown below for the key dietary drivers.",
     fix: "+1 serving Ibishyimbo or Isombe",
   },
   diabetes: {

@@ -59,19 +59,19 @@ function generateNote(key: string, score: number | undefined, shap: ShapEntry[] 
   const goodF = topGood ? topGood.f.toLowerCase() : null;
 
   if (key === "anemia") {
-    if (score < 15) return `Iron levels are well managed${goodF ? ` — ${goodF} is your top protector` : ""}. Keep up your current diet.`;
-    if (score < 40) return `Iron intake needs a boost${badF ? ` — ${badF} is the main risk factor` : ""}. Add Ibishyimbo or Isombe to today's meals.`;
-    return `High anemia risk${badF ? ` driven by low ${badF}` : ""}. Prioritise iron-rich foods like Isombe and Doodo at every meal.`;
+    if (score < 15) return `Iron levels are well managed${goodF ? ` — ${goodF} is a top protective factor` : ""}. Keep up your current diet.`;
+    if (score < 40) return `Iron intake needs a boost. Add Ibishyimbo or Isombe to today's meals. Expand below to see the SHAP driver breakdown.`;
+    return `High anemia risk detected. Prioritise iron-rich foods like Isombe and Doodo at every meal. Expand below to see the SHAP driver breakdown.`;
   }
   if (key === "diabetes") {
     if (score < 15) return `Glycemic load is low${goodF ? ` — ${goodF} is stabilising glucose` : ""}. Good fiber balance today.`;
-    if (score < 40) return `Moderate glycemic load${badF ? ` — ${badF} is the main factor` : ""}. Consider swapping maize Ugali for Sorghum Ugali.`;
-    return `Elevated glucose risk${badF ? ` — ${badF} is the key driver` : ""}. Reduce refined starches and increase fiber-rich legumes.`;
+    if (score < 40) return `Moderate glycemic load. Consider swapping maize Ugali for Sorghum Ugali. Expand below to see what's driving it.`;
+    return `Elevated glucose risk. Reduce refined starches and increase fiber-rich legumes. Expand below to see the SHAP driver breakdown.`;
   }
   if (key === "overweight") {
-    if (score < 20) return `This meal's caloric profile is well balanced${goodF ? ` — ${goodF} is a protective factor` : ""}. Keep it up.`;
-    if (score < 45) return `This meal's caloric density is a contributing factor${badF ? ` — ${badF} is the main driver` : ""}. Balance energy-dense meals with leafy greens like Doodo.`;
-    return `This meal is very high in calories${badF ? ` — ${badF} is the main driver` : ""}. Reduce portion size or pair with low-calorie vegetables.`;
+    if (score < 20) return `Caloric profile is well balanced${goodF ? ` — ${goodF} is a protective factor` : ""}. Keep it up.`;
+    if (score < 45) return `Caloric density is a contributing factor. Balance energy-dense meals with leafy greens like Doodo. Expand to see drivers.`;
+    return `High caloric load detected. Reduce portion size or pair with low-calorie vegetables. Expand below to see the SHAP driver breakdown.`;
   }
   return RISKS.find((r) => r.key === key)?.note ?? "";
 }
