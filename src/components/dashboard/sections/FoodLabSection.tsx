@@ -35,7 +35,11 @@ export function FoodLabSection({ logItems, onAdd, onRemove, onOpenLogger }: Prop
             <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
               {FOOD_DATABASE.map((food) => (
                 <div key={food.id} className="flex items-center gap-3 rounded-2xl bg-white/50 p-3 ring-1 ring-ink/5">
-                  <span className="text-xl shrink-0">{food.glyph}</span>
+                  {food.img ? (
+                    <img src={food.img} alt={food.name} className="size-9 shrink-0 rounded-xl object-cover ring-1 ring-ink/5" />
+                  ) : (
+                    <span className="text-xl shrink-0">{food.glyph}</span>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[12px] font-semibold text-ink truncate">{food.name}</span>
@@ -99,7 +103,7 @@ export function FoodLabSection({ logItems, onAdd, onRemove, onOpenLogger }: Prop
                 <button
                   onClick={() => {
                     const food = FOOD_DATABASE.find((f) => f.name === r.n);
-                    if (food) onAdd({ id: `log-${Date.now()}`, name: food.name, meta: `Recommended · ${food.kcal} kcal · ${food.iron}mg Iron`, tag: food.tag, tone: food.tone, glyph: food.glyph, meal: "Lunch" });
+                    if (food) onAdd({ id: `log-${Date.now()}`, name: food.name, meta: `Recommended · ${food.kcal} kcal · ${food.iron}mg Iron`, tag: food.tag, tone: food.tone, glyph: food.glyph, img: food.img, meal: "Lunch" });
                   }}
                   className="mt-auto pt-3 w-full rounded-xl bg-emerald-deep/8 py-2 text-[11px] font-semibold text-emerald-deep hover:bg-emerald-deep/15 transition-colors"
                 >
