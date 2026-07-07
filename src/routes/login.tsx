@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowRight, Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in · Nutrisense-AI" }] }),
@@ -30,6 +31,10 @@ function LoginPage() {
   const [error,         setError]         = useState<string | null>(null);
   const [loading,       setLoading]       = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [forgotMode,    setForgotMode]    = useState(false);
+  const [forgotEmail,   setForgotEmail]   = useState("");
+  const [forgotSent,    setForgotSent]    = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   useEffect(() => {
     if (loaded && user) window.location.href = "/dashboard";
@@ -46,6 +51,16 @@ function LoginPage() {
       setError(result);
       setLoading(false);
     }
+  }
+
+  async function handleForgotPassword() {
+    if (!forgotEmail.includes("@")) return;
+    setForgotLoading(true);
+    await supabase.auth.resetPasswordForEmail(forgotEmail.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    setForgotSent(true);
   }
 
   async function handleGoogleLogin() {
@@ -95,7 +110,6 @@ function LoginPage() {
           </div>
         </div>
 
-        <p className="text-[11px] text-mint/30">BSc Software Engineering Capstone · ALU Rwanda</p>
       </div>
 
       {/* ── Right panel ── */}
@@ -146,7 +160,16 @@ function LoginPage() {
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-ink/40">Password</span>
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-ink/40">Password</span>
+                <button
+                  type="button"
+                  onClick={() => { setForgotMode(true); setForgotEmail(email); setError(null); }}
+                  className="text-[11px] font-semibold text-emerald-deep hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type={showPwd ? "text" : "password"}
@@ -207,6 +230,67 @@ function LoginPage() {
           </p>
         </div>
       </div>
+
+      {/* ── Forgot-password overlay ── */}
+      {forgotMode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/20 backdrop-blur-sm" onClick={() => { setForgotMode(false); setForgotSent(false); }} />
+          <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl space-y-4">
+            <button
+              onClick={() => { setForgotMode(false); setForgotSent(false); }}
+              className="absolute right-4 top-4 grid size-8 place-items-center rounded-full text-ink/40 hover:bg-ink/5 transition-colors"
+            >
+              ✕
+            </button>
+
+            {forgotSent ? (
+              <div className="text-center space-y-3 py-2">
+                <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-emerald-deep/10">
+                  <Check className="size-6 text-emerald-deep" />
+                </div>
+                <h2 className="font-display text-lg font-semibold text-ink">Check your email</h2>
+                <p className="text-sm text-ink/55">
+                  We sent a password-reset link to <strong>{forgotEmail}</strong>. Click it to set a new password.
+                </p>
+                <button
+                  onClick={() => { setForgotMode(false); setForgotSent(false); }}
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-deep px-5 py-2 text-sm font-semibold text-mint"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <h2 className="font-display text-lg font-semibold text-ink">Reset your password</h2>
+                  <p className="mt-1 text-sm text-ink/50">Enter your email and we'll send a reset link.</p>
+                </div>
+                <input
+                  autoFocus
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleForgotPassword()}
+                  placeholder="you@example.com"
+                  className="w-full rounded-2xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm focus:border-emerald-deep/40 focus:outline-none focus:ring-2 focus:ring-emerald-deep/15 transition-all"
+                />
+                <button
+                  onClick={handleForgotPassword}
+                  disabled={!forgotEmail.includes("@") || forgotLoading}
+                  className={cn(
+                    "flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold transition-all",
+                    forgotEmail.includes("@") && !forgotLoading
+                      ? "bg-emerald-deep text-mint shadow-[0_10px_28px_-12px_rgba(15,118,110,0.6)] hover:scale-[1.01]"
+                      : "cursor-not-allowed bg-ink/8 text-ink/30",
+                  )}
+                >
+                  {forgotLoading ? <><Loader2 className="size-4 animate-spin" /> Sending…</> : "Send reset link"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
