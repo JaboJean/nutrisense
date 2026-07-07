@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
 
     // Send password-setup email so the nutritionist can log in
     await adminClient.auth.resetPasswordForEmail(email, {
-      redirectTo: `${req.headers.get("origin") ?? "https://nutrisense-seven-omega.vercel.app"}/dashboard`,
+      redirectTo: `${req.headers.get("origin") ?? "https://nutrisense-seven-omega.vercel.app"}/reset-password`,
     });
 
     return new Response(
