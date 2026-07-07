@@ -33,12 +33,6 @@ function riskLabel(score: number) {
   return "LOW";
 }
 
-function overallColor(score: number) {
-  if (score >= 60) return "#F87171";
-  if (score >= 35) return "#FBBF24";
-  return "#38BDF8";
-}
-
 // ── sub-components ────────────────────────────────────────────────────────────
 
 function ScorePill({ score, label }: { score: number; label: string }) {
@@ -385,10 +379,11 @@ function NutritionistPortal() {
   const [selected, setSelected]       = useState<PatientRecord | null>(null);
   const [predictions, setPredictions] = useState<Record<string, Prediction>>({});
 
-  // Auth guard
+  // Auth guard — exact "nutritionist" role required
   useEffect(() => {
     if (!authLoaded) return;
-    if (!user)                              { navigate({ to: "/login"      }); return; }
+    if (!user)                                { navigate({ to: "/login" }); return; }
+    if (profile?.role === "admin")            { window.location.href = "/admin"; return; }
     if (profile && profile.role !== "nutritionist") { window.location.href = "/dashboard"; }
   }, [authLoaded, user, profile, navigate]);
 

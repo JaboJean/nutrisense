@@ -57,7 +57,6 @@ function SignupPage() {
   const [showPwd,  setShowPwd]  = useState(false);
   const [age,      setAge]      = useState("");
   const [sex,      setSex]      = useState<"male" | "female" | "">("");
-  const [role,     setRole]     = useState<"patient" | "nutritionist">("patient");
   const [weight,   setWeight]   = useState("");
   const [height,   setHeight]   = useState("");
   const [error,         setError]         = useState<string | null>(null);
@@ -101,13 +100,13 @@ function SignupPage() {
       sex:      sex as "male" | "female",
       weightKg: Number(weight),
       heightCm: Number(height),
-      role,
+      role:     "patient",
     });
 
     if (result === true) {
       setDone(true);
       setTimeout(() => {
-        window.location.href = role === "nutritionist" ? "/nutritionist" : "/dashboard";
+        window.location.href = "/dashboard";
       }, 1400);
     } else {
       registering.current = false;
@@ -354,30 +353,6 @@ function SignupPage() {
                     ))}
                   </div>
                 </div>
-                <div>
-                  <span className={labelCls}>I am a</span>
-                  <div className="flex gap-3">
-                    {([
-                      { v: "patient"      as const, l: "Patient",      d: "Track my own nutrition" },
-                      { v: "nutritionist" as const, l: "Nutritionist", d: "Monitor my patients"    },
-                    ]).map((r) => (
-                      <button
-                        key={r.v}
-                        type="button"
-                        onClick={() => setRole(r.v)}
-                        className={cn(
-                          "flex-1 rounded-2xl py-3 px-3 text-left transition-all",
-                          role === r.v
-                            ? "bg-emerald-deep text-mint shadow-[0_6px_16px_-8px_rgba(15,118,110,0.6)]"
-                            : "border border-ink/10 bg-ink/[0.02] text-ink/55 hover:border-emerald-deep/30",
-                        )}
-                      >
-                        <div className="text-sm font-semibold">{r.l}</div>
-                        <div className={cn("text-[10px] mt-0.5", role === r.v ? "text-mint/70" : "text-ink/35")}>{r.d}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </>
             )}
 
@@ -499,6 +474,18 @@ function SignupPage() {
               Sign in
             </Link>
           </p>
+
+          <div className="mt-4 rounded-2xl border border-ink/8 bg-ink/[0.02] px-4 py-3 text-center">
+            <p className="text-[12px] text-ink/50">
+              Are you a registered nutritionist or dietitian?
+            </p>
+            <a
+              href="/apply-nutritionist"
+              className="mt-1 inline-block text-[12px] font-semibold text-emerald-deep hover:underline"
+            >
+              Apply for clinician access →
+            </a>
+          </div>
         </div>
       </div>
     </div>

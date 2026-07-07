@@ -88,7 +88,8 @@ function Dashboard() {
   useEffect(() => {
     if (!authLoaded) return;
     if (!user) { navigate({ to: "/login" }); return; }
-    if (profile?.role === "nutritionist") { window.location.href = "/nutritionist"; }
+    if (profile?.role === "nutritionist")         { window.location.href = "/nutritionist"; return; }
+    if (profile?.role === "admin")                { window.location.href = "/admin"; return; }
   }, [authLoaded, user, profile, navigate]);
 
   if (!authLoaded || !user) {
@@ -106,6 +107,31 @@ function Dashboard() {
           await updateProfile(p);
         }}
       />
+    );
+  }
+
+  if (authLoaded && user && profile?.role === "pending_nutritionist") {
+    return (
+      <div className="flex min-h-screen items-center justify-center nv-mesh px-6">
+        <div className="w-full max-w-sm text-center space-y-5">
+          <div className="mx-auto grid size-20 place-items-center rounded-3xl bg-amber/10 ring-2 ring-amber/20">
+            <span className="text-4xl">⏳</span>
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-ink">Application under review</h1>
+            <p className="mt-2 text-sm text-ink/55 leading-relaxed">
+              Your clinician application is being reviewed. Once an admin verifies your credentials
+              you'll automatically gain access to the Nutritionist Portal.
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-2 rounded-full border border-ink/12 px-5 py-2.5 text-sm font-semibold text-ink/60 hover:text-coral transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
     );
   }
 

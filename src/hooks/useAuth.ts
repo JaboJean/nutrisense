@@ -57,7 +57,7 @@ export function useAuth(): UseAuthReturn {
         sex:      data.sex       ?? "male",
         weightKg: data.weight_kg ?? 0,
         heightCm: data.height_cm ?? 0,
-        role:     (data.role     ?? "patient") as "patient" | "nutritionist",
+        role:     (data.role     ?? "patient") as UserProfile["role"],
       });
       return;
     }
@@ -69,7 +69,7 @@ export function useAuth(): UseAuthReturn {
         sex:      (meta.sex as "male" | "female") ?? "male",
         weightKg: Number(meta.weight_kg ?? 0),
         heightCm: Number(meta.height_cm ?? 0),
-        role:     (meta.role as "patient" | "nutritionist") ?? "patient",
+        role:     (meta.role as UserProfile["role"]) ?? "patient",
       };
       await supabase.from("profiles").upsert({
         id:        userId,
