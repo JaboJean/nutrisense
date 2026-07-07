@@ -338,7 +338,9 @@ function PatientDetailSheet({
                   <div className="space-y-1.5">
                     {patient.recentLogs.slice(0, 8).map((log) => (
                       <div key={log.id} className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-ink/3 transition-colors">
-                        <span className="text-base shrink-0">{log.glyph}</span>
+                        {log.img
+                          ? <img src={log.img} alt={log.name} className="size-7 rounded-lg object-cover shrink-0" />
+                          : <span className="text-base shrink-0">{log.glyph}</span>}
                         <span className="text-sm text-ink/70 truncate flex-1">{log.name}</span>
                         {log.logged_at && (
                           <span className="text-[10px] text-ink/35 shrink-0">
