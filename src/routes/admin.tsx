@@ -305,7 +305,7 @@ function AdminPortal() {
 
       {/* Top bar */}
       <header className="sticky top-0 z-40 nv-glass border-b border-emerald-deep/10">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
           <div className="flex items-center gap-2.5">
             <div className="grid size-9 place-items-center rounded-2xl bg-emerald-deep shadow-[0_8px_24px_-12px_rgba(15,118,110,0.7)]">
               <Sparkles className="size-4 text-mint" />
@@ -332,7 +332,7 @@ function AdminPortal() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-5 pt-12 sm:px-8">
+      <main className="mx-auto max-w-6xl px-5 pt-12 sm:px-8">
 
         <div className="mb-8">
           <h1 className="font-display text-3xl font-semibold text-ink">Nutritionist Management</h1>
@@ -340,7 +340,7 @@ function AdminPortal() {
         </div>
 
         {/* Stats */}
-        <div className="mb-8 grid grid-cols-3 gap-4">
+        <div className="mb-8 grid grid-cols-3 gap-4 max-w-2xl">
           {[
             { label: "Active nutritionists", value: active.length,  tone: "emerald" },
             { label: "Pending review",       value: pending.length, tone: "amber"   },
@@ -399,7 +399,7 @@ function AdminPortal() {
               </button>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {active.map((app) => (
                 <NutritionistCard key={app.id} app={app} onRevoke={handleRevoke} busy={busy} />
               ))}
@@ -414,7 +414,7 @@ function AdminPortal() {
               <p className="text-sm text-ink/40">No pending applications.</p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {pending.map((app) => (
                 <PendingCard key={app.id} app={app} onApprove={handleApprove} onReject={handleReject} busy={busy} />
               ))}
