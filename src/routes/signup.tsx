@@ -178,7 +178,6 @@ function SignupPage() {
           </div>
         </div>
 
-        <p className="text-[11px] text-mint/30">BSc Software Engineering Capstone · ALU Rwanda</p>
       </div>
 
       {/* ── Right panel ── */}
