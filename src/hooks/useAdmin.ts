@@ -6,6 +6,7 @@ export type NutritionistApplication = {
   id: string;
   user_id: string;
   full_name: string;
+  email: string;
   credential_no: string;
   institution: string;
   note: string | null;
@@ -33,6 +34,46 @@ export function useAdmin(user: User | null) {
     setLoading(false);
   }
 
+  async function createNutritionist(params: {
+    name: string;
+    email: string;
+    credential_no: string;
+    institution: string;
+  }): Promise<true | string> {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) return "Not authenticated.";
+
+    const { data, error } = await supabase.functions.invoke("create-nutritionist", {
+      body: params,
+    });
+
+    if (error) return error.message;
+    if (data?.error) return data.error as string;
+    await load();
+    return true;
+  }
+
+  async function revokeNutritionist(application: NutritionistApplication): Promise<true | string> {
+    const { error: roleErr } = await supabase
+      .from("profiles")
+      .update({ role: "patient" })
+      .eq("id", application.user_id);
+    if (roleErr) return roleErr.message;
+
+    const { error: appErr } = await supabase
+      .from("nutritionist_applications")
+      .update({ status: "rejected" })
+      .eq("id", application.id);
+    if (appErr) return appErr.message;
+
+    setApplications((prev) =>
+      prev.map((a) => (a.id === application.id ? { ...a, status: "rejected" } : a)),
+    );
+    return true;
+  }
+
+  // Kept for self-application flow (approve/reject pending requests)
   async function approve(application: NutritionistApplication): Promise<true | string> {
     const { error: roleErr } = await supabase
       .from("profiles")
@@ -71,5 +112,8 @@ export function useAdmin(user: User | null) {
     return true;
   }
 
-  return { applications, loading, approve, reject, reload: load };
+  const active  = applications.filter((a) => a.status === "approved");
+  const pending = applications.filter((a) => a.status === "pending");
+
+  return { applications, active, pending, loading, createNutritionist, revokeNutritionist, approve, reject, reload: load };
 }
