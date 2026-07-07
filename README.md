@@ -2,7 +2,7 @@
 
 **Personal disease risk intelligence, calibrated for East Africa.**
 
-Nutrisense-AI lets users photograph their meals, tracks nutritional intake in real time, and predicts personalised risk scores for anemia, type 2 diabetes, and overweight — powered by a Vision Transformer food classifier and XGBoost risk models trained on Rwanda DHS 2019-20 population data.
+Most nutrition apps were built for Western diets and have never heard of Isombe, Ibishyimbo, or Matoke. Nutrisense-AI is built differently: it lets Rwandan users photograph their everyday meals, tracks nutritional intake in real time, and predicts personalised risk scores for anemia, type 2 diabetes, and overweight — using machine learning models trained directly on Rwanda DHS 2019-20 population data, so the predictions reflect East African realities, not Western averages.
 
 > **Live app →** [nutrisense-ai.vercel.app](https://nutrisense-ai.vercel.app)
 > **ML API →** [huggingface.co/spaces/JeanJabo/nutrisense-api](https://huggingface.co/spaces/JeanJabo/nutrisense-api)
