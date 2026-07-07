@@ -6,6 +6,7 @@ export type UserProfile = {
   sex: "male" | "female";
   weightKg: number;
   heightCm: number;
+  role?: "patient" | "nutritionist";
 };
 
 export function getBMI(weightKg: number, heightCm: number): number {

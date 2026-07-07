@@ -86,8 +86,10 @@ function Dashboard() {
   }, [todayItems, logsLoading, profile]);
 
   useEffect(() => {
-    if (authLoaded && !user) navigate({ to: "/login" });
-  }, [authLoaded, user, navigate]);
+    if (!authLoaded) return;
+    if (!user) { navigate({ to: "/login" }); return; }
+    if (profile?.role === "nutritionist") { window.location.href = "/nutritionist"; }
+  }, [authLoaded, user, profile, navigate]);
 
   if (!authLoaded || !user) {
     return (
@@ -309,6 +311,7 @@ function Dashboard() {
         open={profileOpen}
         onOpenChange={setProfileOpen}
         profile={profile}
+        userId={user?.id}
         onSave={async (p) => { await updateProfile(p); setProfileOpen(false); }}
         onLogout={handleLogout}
       />

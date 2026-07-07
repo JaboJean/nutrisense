@@ -57,6 +57,7 @@ export function useAuth(): UseAuthReturn {
         sex:      data.sex       ?? "male",
         weightKg: data.weight_kg ?? 0,
         heightCm: data.height_cm ?? 0,
+        role:     (data.role     ?? "patient") as "patient" | "nutritionist",
       });
       return;
     }
@@ -68,6 +69,7 @@ export function useAuth(): UseAuthReturn {
         sex:      (meta.sex as "male" | "female") ?? "male",
         weightKg: Number(meta.weight_kg ?? 0),
         heightCm: Number(meta.height_cm ?? 0),
+        role:     (meta.role as "patient" | "nutritionist") ?? "patient",
       };
       await supabase.from("profiles").upsert({
         id:        userId,
@@ -76,6 +78,7 @@ export function useAuth(): UseAuthReturn {
         sex:       p.sex,
         weight_kg: p.weightKg,
         height_cm: p.heightCm,
+        role:      p.role ?? "patient",
       });
       setProfile(p);
     }
@@ -98,6 +101,7 @@ export function useAuth(): UseAuthReturn {
           sex:       p.sex,
           weight_kg: p.weightKg,
           height_cm: p.heightCm,
+          role:      p.role ?? "patient",
         },
       },
     });
@@ -113,6 +117,7 @@ export function useAuth(): UseAuthReturn {
         sex:       p.sex,
         weight_kg: p.weightKg,
         height_cm: p.heightCm,
+        role:      p.role ?? "patient",
       });
       if (pe) return pe.message;
       setProfile(p);
@@ -151,6 +156,7 @@ export function useAuth(): UseAuthReturn {
       sex:       p.sex,
       weight_kg: p.weightKg,
       height_cm: p.heightCm,
+      role:      p.role ?? "patient",
     });
     if (error) return error.message;
     setProfile(p);

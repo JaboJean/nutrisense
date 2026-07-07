@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, LogOut } from "lucide-react";
+import { Check, Copy, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { type UserProfile, getBMI, getBMILabel } from "@/hooks/useProfile";
@@ -8,17 +8,27 @@ type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   profile: UserProfile | null;
+  userId?: string;
   onSave: (p: UserProfile) => void | Promise<void>;
   onLogout: () => void | Promise<void>;
 };
 
-export function ProfileSheet({ open, onOpenChange, profile, onSave, onLogout }: Props) {
+export function ProfileSheet({ open, onOpenChange, profile, userId, onSave, onLogout }: Props) {
   const [name, setName]     = useState("");
   const [age, setAge]       = useState("");
   const [sex, setSex]       = useState<"male" | "female">("male");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
-  const [saved, setSaved]   = useState(false);
+  const [saved, setSaved]     = useState(false);
+  const [copied, setCopied]   = useState(false);
+
+  function copyCode() {
+    if (!userId) return;
+    navigator.clipboard.writeText(userId).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  }
 
   useEffect(() => {
     if (profile) {
@@ -114,6 +124,32 @@ export function ProfileSheet({ open, onOpenChange, profile, onSave, onLogout }: 
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-ink/40">BMI</div>
                 <div className="text-sm font-semibold">{getBMILabel(bmi)}</div>
+              </div>
+            </div>
+          )}
+
+          {userId && (
+            <div className="rounded-2xl bg-emerald-deep/5 ring-1 ring-emerald-deep/15 p-4 space-y-2">
+              <div className={labelCls}>Your Connect Code</div>
+              <p className="text-[11px] text-ink/50 leading-relaxed">
+                Share this code with your nutritionist so they can link your account.
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 truncate rounded-xl bg-ink/5 px-3 py-2 text-[11px] font-mono text-ink/70 ring-1 ring-ink/8">
+                  {userId}
+                </code>
+                <button
+                  onClick={copyCode}
+                  className={cn(
+                    "grid shrink-0 size-9 place-items-center rounded-xl transition-all",
+                    copied
+                      ? "bg-emerald-deep text-mint"
+                      : "bg-ink/5 text-ink/50 hover:bg-emerald-deep/10 hover:text-emerald-deep",
+                  )}
+                  title="Copy code"
+                >
+                  {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                </button>
               </div>
             </div>
           )}

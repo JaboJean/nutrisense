@@ -57,6 +57,7 @@ function SignupPage() {
   const [showPwd,  setShowPwd]  = useState(false);
   const [age,      setAge]      = useState("");
   const [sex,      setSex]      = useState<"male" | "female" | "">("");
+  const [role,     setRole]     = useState<"patient" | "nutritionist">("patient");
   const [weight,   setWeight]   = useState("");
   const [height,   setHeight]   = useState("");
   const [error,         setError]         = useState<string | null>(null);
@@ -100,12 +101,14 @@ function SignupPage() {
       sex:      sex as "male" | "female",
       weightKg: Number(weight),
       heightCm: Number(height),
+      role,
     });
 
     if (result === true) {
       setDone(true);
-      // Hard navigate so the dashboard mounts fresh and reads localStorage cleanly
-      setTimeout(() => { window.location.href = "/dashboard"; }, 1400);
+      setTimeout(() => {
+        window.location.href = role === "nutritionist" ? "/nutritionist" : "/dashboard";
+      }, 1400);
     } else {
       registering.current = false;
       setError(result);
@@ -347,6 +350,30 @@ function SignupPage() {
                         )}
                       >
                         {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className={labelCls}>I am a</span>
+                  <div className="flex gap-3">
+                    {([
+                      { v: "patient"      as const, l: "Patient",      d: "Track my own nutrition" },
+                      { v: "nutritionist" as const, l: "Nutritionist", d: "Monitor my patients"    },
+                    ]).map((r) => (
+                      <button
+                        key={r.v}
+                        type="button"
+                        onClick={() => setRole(r.v)}
+                        className={cn(
+                          "flex-1 rounded-2xl py-3 px-3 text-left transition-all",
+                          role === r.v
+                            ? "bg-emerald-deep text-mint shadow-[0_6px_16px_-8px_rgba(15,118,110,0.6)]"
+                            : "border border-ink/10 bg-ink/[0.02] text-ink/55 hover:border-emerald-deep/30",
+                        )}
+                      >
+                        <div className="text-sm font-semibold">{r.l}</div>
+                        <div className={cn("text-[10px] mt-0.5", role === r.v ? "text-mint/70" : "text-ink/35")}>{r.d}</div>
                       </button>
                     ))}
                   </div>
