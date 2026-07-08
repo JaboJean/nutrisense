@@ -38,7 +38,7 @@ Browser (React / TanStack Start)
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, TanStack Start, TailwindCSS, shadcn/ui |
+| Frontend | React 18, TailwindCSS |
 | Auth & DB | Supabase (PostgreSQL + Row-Level Security) |
 | Food classifier | ViT `vit_base_patch16_224` fine-tuned on KenyanFood13 |
 | Risk models | XGBoost + StandardScaler pipeline, SHAP TreeExplainer |
