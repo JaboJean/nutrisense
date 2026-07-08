@@ -13,10 +13,10 @@ from torchvision import transforms
 from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 import timm
 
-MODEL_DIR    = Path(os.getenv("MODEL_DIR", Path(__file__).parent))
+MODEL_DIR    = Path(os.getenv("MODEL_DIR", Path(__file__).parent)) / "models"
 MODEL_PATH   = MODEL_DIR / "food_finetuned_model.pth"
 CLASSES_PATH = MODEL_DIR / "class_names.txt"
-HF_MODEL_REPO = "JeanJabo/nutrisense-food-model"  # dedicated model repo (no 1 GB Space limit)
+HF_SPACE_REPO = "JeanJabo/nutrisense-api"
 
 _TRANSFORM = transforms.Compose([
     transforms.Resize(256),
@@ -27,17 +27,23 @@ _TRANSFORM = transforms.Compose([
 
 
 def _ensure_model() -> None:
-    """Download model weights from the dedicated HF Model repo on first startup."""
+    """Download model weights from the models/ subfolder of the Space on first startup."""
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
     if MODEL_PATH.exists():
         return
-    print(f"Downloading food_finetuned_model.pth from {HF_MODEL_REPO} ...")
     from huggingface_hub import hf_hub_download
-    hf_hub_download(
-        repo_id=HF_MODEL_REPO,
-        repo_type="model",
-        filename="food_finetuned_model.pth",
-        local_dir=str(MODEL_DIR),
-    )
+    for filename in ("food_finetuned_model.pth", "class_names.txt"):
+        dest = MODEL_DIR / filename
+        if dest.exists():
+            continue
+        print(f"Downloading models/{filename} from {HF_SPACE_REPO} ...")
+        hf_hub_download(
+            repo_id=HF_SPACE_REPO,
+            repo_type="space",
+            filename=f"models/{filename}",
+            local_dir=str(MODEL_DIR),
+            local_dir_use_symlinks=False,
+        )
     print("Download complete.")
 
 
