@@ -89,6 +89,7 @@ export function PhotoCapture({ onAdd }: Props) {
   const [dragging, setDragging] = useState(false);
   const [servings, setServings] = useState(1);
   const [meal, setMeal]         = useState<string>(autoMeal());
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   function handleFile(file: File) {
     if (!file.type.startsWith("image/")) return;
@@ -102,18 +103,35 @@ export function PhotoCapture({ onAdd }: Props) {
     if (!imgFile) return;
     setStage("analyzing");
     setErrMsg(null);
-    try {
-      const food = await classifyFood(imgFile);
-      if (food.confidence < 0.45) {
+    setStatusMsg(null);
+    const MAX_RETRIES = 3;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const food = await classifyFood(imgFile);
+        setStatusMsg(null);
+        if (food.confidence < 0.45) {
+          setResult(food);
+          setStage("low-confidence");
+          return;
+        }
         setResult(food);
-        setStage("low-confidence");
+        setStage("result");
+        return;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Analysis failed";
+        if (msg.includes("503") && attempt < MAX_RETRIES) {
+          setStatusMsg(`Server waking up… retry ${attempt + 1} of ${MAX_RETRIES}`);
+          await new Promise((r) => setTimeout(r, 10_000));
+          continue;
+        }
+        setErrMsg(
+          msg.includes("503")
+            ? "Server took too long to wake up. Please try again in a minute."
+            : msg,
+        );
+        setStage("error");
         return;
       }
-      setResult(food);
-      setStage("result");
-    } catch (e) {
-      setErrMsg(e instanceof Error ? e.message : "Analysis failed");
-      setStage("error");
     }
   }
 
@@ -255,8 +273,8 @@ export function PhotoCapture({ onAdd }: Props) {
             <img src={imgUrl} alt="Analysing" className="h-48 w-full object-cover opacity-60" />
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-emerald-deep/30 backdrop-blur-[2px]">
               <Loader2 className="size-8 animate-spin text-mint" />
-              <span className="text-sm font-semibold text-mint">
-                {ML_API_URL ? "Sending to AI model…" : "Identifying food…"}
+              <span className="text-sm font-semibold text-mint text-center px-4">
+                {statusMsg ?? (ML_API_URL ? "Sending to AI model…" : "Identifying food…")}
               </span>
             </div>
           </div>
