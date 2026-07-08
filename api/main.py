@@ -41,8 +41,14 @@ def risk_predictor():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Pre-warm models at startup so first request isn't slow
-    food_predictor()
+    # Pre-warm models at startup so first request isn't slow.
+    # Food predictor is allowed to fail (model file may not be uploaded yet);
+    # the Space still starts and the risk endpoint remains available.
+    try:
+        food_predictor()
+    except Exception as exc:
+        print(f"WARNING: food predictor failed to load at startup: {exc}")
+        print("Food classification will return 503 until the model is uploaded.")
     risk_predictor()
     yield
 
