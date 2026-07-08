@@ -6,7 +6,7 @@ Most nutrition apps were built for Western diets and have never heard of Isombe,
 
 > **Live app →** [nutrisense-ai.vercel.app](https://nutrisense-ai.vercel.app)
 > **ML API →** [huggingface.co/spaces/JeanJabo/nutrisense-api](https://huggingface.co/spaces/JeanJabo/nutrisense-api)
-> **Demo video →** *(add link here after recording)*
+> **Demo video →[**Demo *](https://drive.google.com/file/d/1z0Ppa8AcZ74I0IZvsXgDr0MfM6gR5Iwe/view?usp=drive_link)
 
 ---
 
