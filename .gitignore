@@ -41,6 +41,7 @@ data/dhs/
 
 # WHO STEPS microdata — confidential, must not be redistributed
 data/STEPS/
+data/rwanda*.csv
 
 # Raw food images — web-ready copies are in public/foods/
 data/Nutr/
