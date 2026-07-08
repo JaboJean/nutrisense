@@ -28,4 +28,4 @@ for local, remote in FILES:
     )
     print("done")
 
-print(f"\nSpace rebuilding → https://huggingface.co/spaces/{SPACE_ID}")
+print(f"\nSpace rebuilding -> https://huggingface.co/spaces/{SPACE_ID}")

@@ -2,8 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Check, Loader2, Sparkles, Users, X,
-  RefreshCw, UserPlus, ShieldOff, Mail,
+  RefreshCw, UserPlus, ShieldOff, Mail, LogOut,
 } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin, type NutritionistApplication } from "@/hooks/useAdmin";
@@ -325,9 +329,26 @@ function AdminPortal() {
             <button onClick={reload} className="grid size-9 place-items-center rounded-full nv-glass text-ink/50 hover:text-emerald-deep transition-colors" title="Refresh">
               <RefreshCw className="size-4" />
             </button>
-            <button onClick={async () => { await logout(); navigate({ to: "/" }); }} className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-emerald-deep to-forest text-mint font-semibold text-xs ring-2 ring-white/70" title={displayName}>
-              {displayName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-emerald-deep to-forest text-mint font-semibold text-xs ring-2 ring-white/70 hover:ring-emerald-deep/50 transition-all" title={displayName}>
+                  {displayName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="font-semibold text-ink truncate">{displayName}</div>
+                  <div className="text-xs text-ink/50 truncate">{user?.email}</div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer"
+                  onClick={async () => { await logout(); navigate({ to: "/" }); }}
+                >
+                  <LogOut className="size-4" /> Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

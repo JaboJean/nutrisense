@@ -9,6 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePatients, type PatientRecord } from "@/hooks/usePatients";
 import { predictRisk, type Prediction, type RiskScores } from "@/lib/mlApi";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/nutritionist")({
   head: () => ({ meta: [{ title: "Nutritionist Portal · Nutrisense-AI" }] }),
@@ -444,13 +448,29 @@ function NutritionistPortal() {
             >
               <Plus className="size-4" /> Add Patient
             </button>
-            <button
-              onClick={handleLogout}
-              className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-emerald-deep to-forest text-mint font-semibold text-xs ring-2 ring-white/70 hover:ring-emerald-deep/50 transition-all"
-              title={`${displayName} — sign out`}
-            >
-              {initials}
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-emerald-deep to-forest text-mint font-semibold text-xs ring-2 ring-white/70 hover:ring-emerald-deep/50 transition-all"
+                  title={displayName}
+                >
+                  {initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="font-semibold text-ink truncate">{displayName}</div>
+                  <div className="text-xs text-ink/50 truncate">{user?.email}</div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="size-4" /> Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
