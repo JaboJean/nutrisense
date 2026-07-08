@@ -39,6 +39,9 @@ data/dhs/
 *.sas7bdat
 *.dat
 
+# WHO STEPS microdata — confidential, must not be redistributed
+data/STEPS/
+
 # Raw food images — web-ready copies are in public/foods/
 data/Nutr/
 
