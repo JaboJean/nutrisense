@@ -5,10 +5,14 @@ import { QUICK_ADD_FOODS, FOOD_DATABASE, type LogItem } from "@/data/mock";
 
 function FoodImage({ item }: { item: LogItem }) {
   const [failed, setFailed] = useState(false);
-  if (item.img && !failed) {
+  const dbImg = FOOD_DATABASE.find(
+    (f) => f.name.toLowerCase() === item.name.toLowerCase(),
+  )?.img;
+  const src = (!failed && item.img) ? item.img : dbImg;
+  if (src) {
     return (
       <img
-        src={item.img}
+        src={src}
         alt={item.name}
         className="size-12 shrink-0 rounded-xl object-cover ring-1 ring-ink/5"
         onError={() => setFailed(true)}
