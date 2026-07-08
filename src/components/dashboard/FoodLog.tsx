@@ -3,6 +3,30 @@ import { Mic, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QUICK_ADD_FOODS, FOOD_DATABASE, type LogItem } from "@/data/mock";
 
+function FoodImage({ item }: { item: LogItem }) {
+  const [failed, setFailed] = useState(false);
+  if (item.img && !failed) {
+    return (
+      <img
+        src={item.img}
+        alt={item.name}
+        className="size-12 shrink-0 rounded-xl object-cover ring-1 ring-ink/5"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+  return (
+    <div className={cn(
+      "grid size-12 shrink-0 place-items-center rounded-xl text-2xl ring-1 ring-ink/5",
+      item.tone === "emerald" && "bg-gradient-to-br from-mint to-emerald-100",
+      item.tone === "amber"   && "bg-gradient-to-br from-amber/15 to-amber/5",
+      item.tone === "sky"     && "bg-gradient-to-br from-sky/15 to-sky/5",
+    )}>
+      <span aria-hidden>{item.glyph}</span>
+    </div>
+  );
+}
+
 type Props = {
   logItems: LogItem[];
   onAdd: (item: LogItem) => void;
@@ -189,22 +213,7 @@ export function FoodLog({ logItems, onAdd, onRemove, onOpenLogger, onMealClick }
                 )}
                 onClick={() => onMealClick?.(f)}
               >
-                {f.img ? (
-                  <img
-                    src={f.img}
-                    alt={f.name}
-                    className="size-12 shrink-0 rounded-xl object-cover ring-1 ring-ink/5"
-                  />
-                ) : (
-                  <div className={cn(
-                    "grid size-12 shrink-0 place-items-center rounded-xl text-2xl ring-1 ring-ink/5",
-                    f.tone === "emerald" && "bg-gradient-to-br from-mint to-emerald-100",
-                    f.tone === "amber"   && "bg-gradient-to-br from-amber/15 to-amber/5",
-                    f.tone === "sky"     && "bg-gradient-to-br from-sky/15 to-sky/5",
-                  )}>
-                    <span aria-hidden>{f.glyph}</span>
-                  </div>
-                )}
+                <FoodImage item={f} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[13px] font-semibold text-ink">{f.name}</div>
                   <div className="truncate text-[11px] text-ink/50">{f.meta}</div>

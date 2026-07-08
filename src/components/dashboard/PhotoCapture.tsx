@@ -117,11 +117,21 @@ export function PhotoCapture({ onAdd }: Props) {
     }
   }
 
-  function handleAddToLog() {
+  async function handleAddToLog() {
     if (!result) return;
     const scaledKcal    = Math.round(result.kcal    * servings);
     const scaledIron    = parseFloat((result.iron    * servings).toFixed(1));
     const scaledProtein = parseFloat((result.protein * servings).toFixed(1));
+
+    let persistedImg: string | undefined;
+    if (imgFile) {
+      persistedImg = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(imgFile);
+      });
+    }
+
     onAdd({
       id:        `photo-${Date.now()}`,
       name:      result.name,
@@ -130,7 +140,7 @@ export function PhotoCapture({ onAdd }: Props) {
       tone:      result.tone,
       glyph:     result.glyph,
       meal,
-      img:       imgUrl ?? undefined,
+      img:       persistedImg,
       logged_at: new Date().toISOString(),
     });
     setImgUrl(null);
