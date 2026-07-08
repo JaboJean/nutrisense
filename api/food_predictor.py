@@ -16,7 +16,7 @@ import timm
 MODEL_DIR    = Path(os.getenv("MODEL_DIR", Path(__file__).parent))
 MODEL_PATH   = MODEL_DIR / "food_finetuned_model.pth"
 CLASSES_PATH = MODEL_DIR / "class_names.txt"
-HF_REPO      = "JeanJabo/nutrisense-api"
+HF_MODEL_REPO = "JeanJabo/nutrisense-food-model"  # dedicated model repo (no 1 GB Space limit)
 
 _TRANSFORM = transforms.Compose([
     transforms.Resize(256),
@@ -27,15 +27,14 @@ _TRANSFORM = transforms.Compose([
 
 
 def _ensure_model() -> None:
-    """XET/LFS files are not included in the Docker build context.
-    Download from HuggingFace Hub on first startup."""
+    """Download model weights from the dedicated HF Model repo on first startup."""
     if MODEL_PATH.exists():
         return
-    print(f"Downloading food_finetuned_model.pth from {HF_REPO} ...")
+    print(f"Downloading food_finetuned_model.pth from {HF_MODEL_REPO} ...")
     from huggingface_hub import hf_hub_download
     hf_hub_download(
-        repo_id=HF_REPO,
-        repo_type="space",
+        repo_id=HF_MODEL_REPO,
+        repo_type="model",
         filename="food_finetuned_model.pth",
         local_dir=str(MODEL_DIR),
     )
