@@ -52,6 +52,7 @@ data/Nutr/
 # Kaggle notebook auto-generated output files
 ML/outputs/results/__results___files/
 ML/outputs/results/__huggingface_repos__.json
+data/results*/
 
 # Editor directories and files
 .vscode/*
