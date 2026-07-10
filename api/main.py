@@ -49,7 +49,11 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         print(f"WARNING: food predictor failed to load at startup: {exc}")
         print("Food classification will return 503 until the model is uploaded.")
-    risk_predictor()
+    try:
+        risk_predictor()
+    except Exception as exc:
+        print(f"WARNING: risk predictor failed to load at startup: {exc}")
+        print("Risk prediction will return 503 until the model is available.")
     yield
 
 

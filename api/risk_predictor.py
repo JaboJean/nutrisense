@@ -1,6 +1,6 @@
 """
-XGBoost risk predictor — loads nutrisense_model.joblib once at startup,
-exposes predict(features, logs) -> Prediction dict.
+XGBoost / GradientBoosting risk predictor — loads nutrisense_model.joblib
+once at startup, exposes predict(logs, age, sex) -> Prediction dict.
 """
 import os
 from pathlib import Path
@@ -13,21 +13,22 @@ from nutrition_db import get as get_nutrition
 
 MODEL_DIR   = Path(os.getenv("MODEL_DIR", Path(__file__).parent))
 BUNDLE_PATH = MODEL_DIR / "nutrisense_model.joblib"
-HF_REPO     = "JeanJabo/nutrisense-api"
+HF_REPO     = "JeanJabo/nutrisense-food-model"   # model repo — 50 GB, no LFS limit
 
 
 def _ensure_bundle():
-    """Download the model bundle from HuggingFace Hub if not present locally."""
-    if not BUNDLE_PATH.exists():
-        print(f"Downloading nutrisense_model.joblib from {HF_REPO} ...")
-        from huggingface_hub import hf_hub_download
-        hf_hub_download(
-            repo_id=HF_REPO,
-            repo_type="space",
-            filename="nutrisense_model.joblib",
-            local_dir=str(MODEL_DIR),
-        )
-        print("Download complete.")
+    if BUNDLE_PATH.exists():
+        return
+    print(f"Downloading nutrisense_model.joblib from {HF_REPO} ...")
+    from huggingface_hub import hf_hub_download
+    hf_hub_download(
+        repo_id=HF_REPO,
+        repo_type="model",
+        filename="nutrisense_model.joblib",
+        local_dir=str(MODEL_DIR),
+    )
+    print("Download complete.")
+
 
 FEATURES = [
     "age", "sex",
@@ -38,45 +39,49 @@ FEATURES = [
 ]
 
 FEATURE_LABELS = {
-    "age":        "Age",
-    "sex":        "Sex",
-    "energy_kcal":"Caloric intake",
-    "protein_g":  "Protein",
-    "fat_g":      "Fat",
-    "carb_g":     "Carbohydrates",
-    "iron_mg":    "Iron intake",
-    "vitC_mg":    "Vitamin C",
-    "vitA_mcg":   "Vitamin A",
-    "fiber_g":    "Dietary fibre",
-    "sugar_g":    "Sugar load",
-    "calcium_mg": "Calcium",
-    "zinc_mg":    "Zinc",
-    "sodium_mg":  "Sodium",
+    "age":         "Age",
+    "sex":         "Sex",
+    "energy_kcal": "Caloric intake",
+    "protein_g":   "Protein",
+    "fat_g":       "Fat",
+    "carb_g":      "Carbohydrates",
+    "iron_mg":     "Iron intake",
+    "vitC_mg":     "Vitamin C",
+    "vitA_mcg":    "Vitamin A",
+    "fiber_g":     "Dietary fibre",
+    "sugar_g":     "Sugar load",
+    "calcium_mg":  "Calcium",
+    "zinc_mg":     "Zinc",
+    "sodium_mg":   "Sodium",
 }
+
+DEFAULT_THRESHOLDS = {"anemia": 0.40, "diabetes": 0.35, "overweight": 0.50}
 
 
 class RiskPredictor:
     def __init__(self) -> None:
         _ensure_bundle()
         bundle = joblib.load(BUNDLE_PATH)
-        self.models     = bundle["models"]       # {disease: Pipeline}
-        self.explainers = bundle["explainers"]   # {disease: TreeExplainer}
-        self.thresholds = bundle["thresholds"]
+
+        self.models     = bundle["models"]
+        self.thresholds = bundle.get("thresholds", DEFAULT_THRESHOLDS)
+
+        # Explainers may not be in the bundle (locally-trained model).
+        # Build them at runtime — TreeExplainer works for both XGBoost and GBM.
+        if "explainers" in bundle:
+            self.explainers = bundle["explainers"]
+        else:
+            self.explainers = {}
+            for disease, model in self.models.items():
+                clf = model.named_steps["clf"] if hasattr(model, "named_steps") else model
+                self.explainers[disease] = shap.TreeExplainer(clf)
 
     def predict(
         self,
-        logs: list[dict],          # list of {name: str, ...}
+        logs: list[dict],
         age: float,
-        sex: str,                  # "male" | "female"
+        sex: str,   # "male" | "female"
     ) -> dict:
-        """
-        Returns:
-        {
-          "scores": {"anemia": int, "diabetes": int, "overweight": int, "overall": int},
-          "shap":   {"anemia": [...], "diabetes": [...], "overweight": [...]}
-        }
-        Each score is 0–100 (probability × 100).
-        """
         # Aggregate nutrients from food log
         totals = {k: 0.0 for k in [
             "energy_kcal", "protein_g", "fat_g", "carb_g",
@@ -99,13 +104,9 @@ class RiskPredictor:
             totals["zinc_mg"]     += n["zinc"]
             totals["sodium_mg"]   += n["sodium"]
 
-        # The model was trained on full-day nutrient totals (3 meals/day assumption).
-        # Scale up proportionally when fewer than 3 meals are logged so that:
-        #   - Anemia: single-meal iron (2mg) isn't read as extreme daily deficiency
-        #   - Overweight/Diabetes: actual calorie/sugar differences are preserved
-        #     (calorie-ratio scaling would collapse everyone to the same energy value)
+        # Scale single-meal logs to full-day estimates
         n_meals = max(1, len(logs))
-        scale = max(1.0, 3.0 / n_meals)  # 1 meal→3×, 2 meals→1.5×, 3+→1×
+        scale   = max(1.0, 3.0 / n_meals)
         if scale > 1.0:
             for k in totals:
                 totals[k] *= scale
@@ -120,16 +121,23 @@ class RiskPredictor:
         ]])
 
         scores, shap_out = {}, {}
-        for disease, pipe in self.models.items():
-            prob = float(pipe.predict_proba(X)[0, 1])
+        for disease, model in self.models.items():
+            prob = float(model.predict_proba(X)[0, 1])
             scores[disease] = max(1, round(prob * 100))
 
-            # SHAP on the scaled input
-            scaler  = pipe.named_steps["scaler"]
-            X_sc    = scaler.transform(X)
-            exp     = self.explainers[disease]
-            sv      = exp.shap_values(X_sc)           # (1, 14) or (14,)
-            sv_row  = np.array(sv).reshape(-1)
+            # Get the scaled input for SHAP (Pipeline has scaler; plain clf gets raw X)
+            if hasattr(model, "named_steps") and "scaler" in model.named_steps:
+                X_shap = model.named_steps["scaler"].transform(X)
+            else:
+                X_shap = X
+
+            sv = self.explainers[disease].shap_values(X_shap)
+
+            # TreeExplainer returns list[class_0, class_1] for binary clf
+            if isinstance(sv, list):
+                sv_row = np.array(sv[1]).reshape(-1)
+            else:
+                sv_row = np.array(sv).reshape(-1)
 
             top_idx = np.abs(sv_row).argsort()[::-1][:5]
             shap_out[disease] = [
@@ -137,7 +145,5 @@ class RiskPredictor:
                 for i in top_idx
             ]
 
-        overall = round(sum(scores.values()) / len(scores))
-        scores["overall"] = overall
-
+        scores["overall"] = round(sum(scores[d] for d in ["anemia", "diabetes", "overweight"]) / 3)
         return {"scores": scores, "shap": shap_out}
