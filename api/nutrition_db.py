@@ -492,6 +492,12 @@ NUTRITION_DB: dict[str, FoodMeta] = {
         "calcium": 201.0, "zinc": 1.5, "sodium": 640.0,
         "glyph": "🍕", "tone": "amber", "tag": "Italian",
     },
+    "cheese_pizza": {
+        "display": "Cheese Pizza", "kcal": 300, "protein": 13.0, "fat": 12.5, "carb": 34.0,
+        "iron": 2.0, "vitC": 1.8, "vitA": 82.0, "fiber": 2.0, "sugar": 3.8,
+        "calcium": 240.0, "zinc": 1.8, "sodium": 700.0,
+        "glyph": "🍕", "tone": "amber", "tag": "Italian",
+    },
     "pork_chop": {
         "display": "Pork Chop", "kcal": 243, "protein": 27.4, "fat": 14.0, "carb": 0.0,
         "iron": 0.9, "vitC": 0.0, "vitA": 4.0, "fiber": 0.0, "sugar": 0.0,
