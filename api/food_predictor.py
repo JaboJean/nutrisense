@@ -48,6 +48,8 @@ class FoodPredictor:
     def __init__(self) -> None:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        _ensure_model()  # download weights + class_names.txt before reading either
+
         if CLASSES_PATH.exists():
             with open(CLASSES_PATH) as f:
                 self.classes = [line.strip() for line in f if line.strip()]
@@ -57,8 +59,6 @@ class FoodPredictor:
                 "mandazi", "masalachips", "matoke", "mukimo", "nyamachoma",
                 "pilau", "sukumawiki", "ugali",
             ]
-
-        _ensure_model()
 
         ckpt  = torch.load(MODEL_PATH, map_location=self.device, weights_only=False)
         state = ckpt.get("state", ckpt)
