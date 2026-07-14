@@ -2,17 +2,17 @@
 
 **Personal disease risk intelligence, calibrated for East Africa.**
 
-Most nutrition apps were built for Western diets and have never heard of Isombe, Ibishyimbo, or Matoke. Nutrisense-AI is built differently: it lets Rwandan users photograph their everyday meals, tracks nutritional intake in real time, and predicts personalised risk scores for anemia, type 2 diabetes, and overweight using machine learning models trained directly on Rwanda DHS 2019-20 population data, so the predictions reflect East African realities, not Western averages.
+Most nutrition apps were built for Western diets and have never heard of Isombe, Ibishyimbo, or Matoke. Nutrisense-AI is built differently: it lets Rwandan users photograph their everyday meals, tracks nutritional intake in real time, and predicts personalised risk scores for anemia, type 2 diabetes, and overweight using machine learning models trained on Rwanda DHS + STEPS Rwanda 2012 microdata, so the predictions reflect East African realities, not Western averages.
 
 > **Live app →** [nutrisense-ai.vercel.app](https://nutrisense-ai.vercel.app)
 > **ML API →** [huggingface.co/spaces/JeanJabo/nutrisense-api](https://huggingface.co/spaces/JeanJabo/nutrisense-api)
-> **Demo video →[**Demo *](https://drive.google.com/file/d/1z0Ppa8AcZ74I0IZvsXgDr0MfM6gR5Iwe/view?usp=drive_link)
+> **Demo video →** [Demo](https://drive.google.com/file/d/1z0Ppa8AcZ74I0IZvsXgDr0MfM6gR5Iwe/view?usp=drive_link)
 
 ---
 
 ## The Problem
 
-Rwanda and East Africa face a dual burden of malnutrition. Existing tools (ZOE, DayTwo) cost USD 300–2,000 and are trained on Western food databases. Apps like MyFitnessPal lack disease prediction entirely and do not cover Rwandan staples like Isombe, Ibishyimbo, Ugali, or Matoke.
+Rwanda and East Africa face a dual burden of malnutrition. Existing tools (ZOE, DayTwo) cost USD 300–2,000 and are trained on Western food databases. Apps like MyFitnessPal lack disease prediction entirely and do not cover Rwandan staples like Isombe, Ibihaza, Ugali, or Matoke.
 
 | Disease | Rwanda prevalence (DHS 2019-20) |
 |---------|-------------------------------|
@@ -27,23 +27,28 @@ Nutrisense-AI is a free, accessible web platform that predicts personalised risk
 ## Architecture
 
 ```
-Browser (React / TanStack Start)
+Browser (TanStack Start / React 19)
         │
         ├── Supabase  (auth + food log storage)
         │
-        └── HuggingFace Space (FastAPI)
-                ├── POST /api/predict/food   ← ViT image classifier (KenyanFood13, 13 classes)
-                └── POST /api/predict/risk   ← XGBoost risk models × 3 + SHAP
+        └── HuggingFace Spaces (FastAPI — Docker)
+                ├── POST /api/predict/food   ← ViT-B/16 image classifier (114 classes)
+                ├── POST /api/predict/risk   ← GradientBoosting × 3 + SHAP
+                └── GET  /health
+                          │
+                          └── HuggingFace Model Repo (weights downloaded at startup)
 ```
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, TailwindCSS |
+| Frontend | TanStack Start, React 19, TailwindCSS 4, Vite |
 | Auth & DB | Supabase (PostgreSQL + Row-Level Security) |
-| Food classifier | ViT `vit_base_patch16_224` fine-tuned on KenyanFood13 |
-| Risk models | XGBoost + StandardScaler pipeline, SHAP TreeExplainer |
-| Training data | Rwanda DHS 2019-20 (risk) · KenyanFood13 (food classifier) |
-| API | FastAPI + Uvicorn on HuggingFace Spaces |
+| Food classifier | ViT-B/16 (`vit_base_patch16_224.orig_in21k`) fine-tuned on Food-101 + KenyanFood13 (114 classes) |
+| Risk models | GradientBoostingClassifier × 3 (scikit-learn) + SHAP TreeExplainer |
+| Nutrition lookup | Hand-curated `nutrition_db.py` (132 entries, 12 nutrient fields) |
+| Training data | DHS Rwanda + STEPS Rwanda 2012 microdata (risk) · Food-101 + KenyanFood13 (food classifier) |
+| Model storage | HuggingFace Model Repo `JeanJabo/nutrisense-food-model` (50 GB) |
+| API | FastAPI + Uvicorn, Docker on HuggingFace Spaces |
 | Deployment | Vercel (frontend) · HuggingFace Spaces (API) |
 
 ---
@@ -101,9 +106,9 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 # → http://localhost:8000/docs  (Swagger UI)
 ```
 
-The API downloads `nutrisense_model.joblib` (~150 MB) from HuggingFace automatically on first start.
+On first start the API downloads `food_finetuned_model.pth` (~350 MB), `class_names.txt`, and `nutrisense_model.joblib` from the HuggingFace Model Repo automatically.
 
-Set `VITE_ML_API_URL=http://localhost:8000` in `.env.local` to use your local API.
+Set `VITE_ML_API_URL=http://localhost:8000` in `.env.local` to point the frontend at your local API.
 
 ---
 
@@ -154,11 +159,11 @@ Then go to **Authentication → Email** and **disable "Confirm email"** so the 3
 
 ## API Reference
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | Health check |
-| `POST` | `/api/predict/food` | Classify a food photo (`multipart/form-data`, field: `file`) |
-| `POST` | `/api/predict/risk` | Predict risk scores from food logs + profile |
+| Method | Endpoint              | Description                                                       |
+|--------|-----------------------|-------------------------------------------------------------------|
+| `GET`  | `/health`             | Health check                                                      |
+| `POST` | `/api/predict/food`   | Classify a food photo (`multipart/form-data`, field: `file`)      |
+| `POST` | `/api/predict/risk`   | Predict risk scores from food logs + profile                      |
 
 **Risk prediction request:**
 ```json
@@ -181,7 +186,7 @@ Then go to **Authentication → Email** and **disable "Confirm email"** so the 3
 }
 ```
 
-SHAP values follow XGBoost TreeExplainer sign convention: positive = increases disease risk, negative = reduces risk.
+SHAP values follow GradientBoosting TreeExplainer sign convention: positive = increases disease risk, negative = reduces risk.
 
 ---
 
@@ -189,12 +194,13 @@ SHAP values follow XGBoost TreeExplainer sign convention: positive = increases d
 
 | Decision | Rationale |
 |----------|-----------|
-| Rwanda DHS 2019-20 training data | Ground-truth population statistics for Rwanda rather than generic or Western datasets |
-| Meal-count scaling before inference | Model trained on daily totals; `scale = max(1, 3/n_meals)` extrapolates partial logs without collapsing the calorie signal used by overweight/diabetes models |
-| 45% confidence threshold on food classifier | KenyanFood13 is a closed-world 13-class model; below-threshold results shown as suggestions, not accepted silently |
+| DHS Rwanda + STEPS Rwanda 2012 microdata | Ground-truth population data from Rwanda rather than generic or Western datasets |
+| 114-class food classifier | Food-101 (101 classes, 101K images) + KenyanFood13 (13 East African classes, ~4K images) merged and fine-tuned on ViT-B/16; covers both global and regional staples |
+| Meal-count scaling before inference | Models trained on daily totals; `scale = max(1.0, 3.0 / n_meals)` extrapolates partial logs without collapsing the calorie signal used by overweight/diabetes models |
 | SHAP TreeExplainer | Per-prediction explainability — users see *why* each score changed, not just the number |
+| GradientBoostingClassifier × 3 (class-weighted) | Separate binary classifiers for anemia, type 2 diabetes, and overweight; class-weighting handles Rwanda's imbalanced prevalence rates |
 | Harris-Benedict × 1.4 for calorie goals | Personalised daily targets from user age, sex, weight, and height |
-| Scores capped at 90% | XGBoost without Platt scaling produces overconfident probabilities; cap prevents display of false certainty |
+| Scores capped at 90 | Raw GBM probabilities can be overconfident; cap prevents display of false certainty |
 
 ---
 
@@ -202,32 +208,36 @@ SHAP values follow XGBoost TreeExplainer sign convention: positive = increases d
 
 ```
 nutrisense/
-├── api/                          # FastAPI ML backend
-│   ├── main.py                   # Routes
-│   ├── food_predictor.py         # ViT inference
-│   ├── risk_predictor.py         # XGBoost inference + SHAP
-│   ├── nutrition_db.py           # Nutrient lookup (East African foods)
-│   └── requirements.txt
+├── api/                          # FastAPI ML backend (deployed to HuggingFace Spaces)
+│   ├── main.py                   # Routes + lifespan handler (pre-warms both models)
+│   ├── food_predictor.py         # ViT-B/16 inference (114 classes)
+│   ├── risk_predictor.py         # GradientBoosting inference + SHAP
+│   ├── nutrition_db.py           # Nutrient lookup (132 entries, East African foods)
+│   ├── requirements.txt
+│   └── README.md                 # HuggingFace Space config (YAML frontmatter)
 ├── src/
 │   ├── routes/                   # Pages: index, dashboard, login, signup
 │   ├── components/dashboard/     # All dashboard UI components
 │   ├── hooks/                    # useAuth, useProfile, useFoodLogs
 │   └── lib/                      # mlApi client, Supabase client
 ├── ML/
-│   ├── nutrisense_training.ipynb # Full training pipeline (ViT + XGBoost)
+│   ├── nutrisense_training.ipynb # Full training pipeline (ViT fine-tuning + GradientBoosting)
 │   └── outputs/                  # ROC curves, SHAP plots, confusion matrices
-└── push_to_hf.py                 # Deploy API to HuggingFace Space
+└── push_to_hf.py                 # Upload API files to HuggingFace Space via HF API
 ```
 
 ---
 
 ## ML Training
 
-Notebooks are in `ML/`. Run on **Kaggle** (GPU T4 recommended):
+The notebook is in `ML/nutrisense_training.ipynb`. Run on **Kaggle** (GPU T4 or P100 recommended):
 
-1. Attach the `pytorch-opencv-course-classification` competition dataset
-2. Add your `HF_TOKEN` as a Kaggle secret
-3. Run `nutrisense_training.ipynb` end-to-end
+1. Add the `dansbecker/food-101` dataset as a Kaggle input (Food-101)
+2. Add the `kmader/food41` or KenyanFood13 dataset for East African classes
+3. Add your `HF_TOKEN` as a Kaggle secret
+4. Run `nutrisense_training.ipynb` end-to-end — it trains ViT-B/16 on 114 classes and three GradientBoosting classifiers, then pushes weights to `JeanJabo/nutrisense-food-model`
+
+> **Note:** Risk model training requires DHS Rwanda + STEPS Rwanda 2012 microdata. These datasets are restricted-license WHO/DHS microdata and **must not** be committed to any public repository or redistributed.
 
 Training outputs (ROC curves, confusion matrices, SHAP plots, CV results) are saved in `ML/outputs/`.
 
@@ -235,19 +245,30 @@ Training outputs (ROC curves, confusion matrices, SHAP plots, CV results) are sa
 
 ## Deploying API Updates
 
+**Option 1 — Upload individual files (fast):**
+
 ```bash
 python push_to_hf.py --token hf_YOUR_TOKEN_HERE
 ```
 
-Uploads all files in `api/` to the HuggingFace Space and triggers a rebuild (~2 min).
+Uploads `risk_predictor.py`, `nutrition_db.py`, `food_predictor.py`, and `requirements.txt` to the Space.
+
+**Option 2 — Full git subtree push (recommended for `main.py` or `README.md` changes):**
+
+```bash
+git push space "$(git subtree split --prefix api main)":main --force
+```
+
+Pushes the entire `api/` directory as the Space's `main` branch and triggers a Docker rebuild (~2 min).
 
 ---
 
 ## Limitations & Future Work
 
-- **Food classifier scope**: 13 East African classes (KenyanFood13). Rwanda-specific dishes (Isombe, Ibihaza, Umutsima) are out-of-distribution — the model surfaces its best guess with an amber confidence warning rather than a silent wrong answer.
-- **Risk model calibration**: XGBoost without Platt scaling produces overconfident raw probabilities; scores are capped and a meal-count scaling heuristic is applied.
-- **Future**: Fine-tune on a Rwanda-augmented food dataset; add Platt scaling to risk models; extend to hydration and activity tracking.
+- **Food classifier scope**: 114 classes cover Food-101 staples plus 13 East African dishes (KenyanFood13). Rwanda-specific dishes not in either dataset (e.g. Ibihaza, Umutsima) surface their closest match with an amber confidence warning.
+- **Risk model calibration**: GradientBoosting without Platt scaling can produce overconfident raw probabilities; scores are capped at 90 and meal-count scaling is applied before inference.
+- **Data recency**: Risk models trained on STEPS Rwanda 2012 data; Rwanda's nutrition profile has shifted since then.
+- **Future**: Fine-tune on a Rwanda-augmented food dataset; add Platt scaling to risk models; extend to hydration and activity tracking; add nutritionist dashboard for patient oversight.
 
 ---
 
