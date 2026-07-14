@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as NutritionistRouteImport } from './routes/nutritionist'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as FindNutritionistRouteImport } from './routes/find-nutritionist'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApplyNutritionistRouteImport } from './routes/apply-nutritionist'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -36,6 +37,11 @@ const NutritionistRoute = NutritionistRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindNutritionistRoute = FindNutritionistRouteImport.update({
+  id: '/find-nutritionist',
+  path: '/find-nutritionist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/apply-nutritionist': typeof ApplyNutritionistRoute
   '/dashboard': typeof DashboardRoute
+  '/find-nutritionist': typeof FindNutritionistRoute
   '/login': typeof LoginRoute
   '/nutritionist': typeof NutritionistRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/apply-nutritionist': typeof ApplyNutritionistRoute
   '/dashboard': typeof DashboardRoute
+  '/find-nutritionist': typeof FindNutritionistRoute
   '/login': typeof LoginRoute
   '/nutritionist': typeof NutritionistRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/apply-nutritionist': typeof ApplyNutritionistRoute
   '/dashboard': typeof DashboardRoute
+  '/find-nutritionist': typeof FindNutritionistRoute
   '/login': typeof LoginRoute
   '/nutritionist': typeof NutritionistRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/apply-nutritionist'
     | '/dashboard'
+    | '/find-nutritionist'
     | '/login'
     | '/nutritionist'
     | '/reset-password'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/apply-nutritionist'
     | '/dashboard'
+    | '/find-nutritionist'
     | '/login'
     | '/nutritionist'
     | '/reset-password'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/apply-nutritionist'
     | '/dashboard'
+    | '/find-nutritionist'
     | '/login'
     | '/nutritionist'
     | '/reset-password'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ApplyNutritionistRoute: typeof ApplyNutritionistRoute
   DashboardRoute: typeof DashboardRoute
+  FindNutritionistRoute: typeof FindNutritionistRoute
   LoginRoute: typeof LoginRoute
   NutritionistRoute: typeof NutritionistRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-nutritionist': {
+      id: '/find-nutritionist'
+      path: '/find-nutritionist'
+      fullPath: '/find-nutritionist'
+      preLoaderRoute: typeof FindNutritionistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ApplyNutritionistRoute: ApplyNutritionistRoute,
   DashboardRoute: DashboardRoute,
+  FindNutritionistRoute: FindNutritionistRoute,
   LoginRoute: LoginRoute,
   NutritionistRoute: NutritionistRoute,
   ResetPasswordRoute: ResetPasswordRoute,

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Activity, Flame, History, Home, LogOut, Plus, Search, Sparkles, User } from "lucide-react";
+import { Activity, Flame, Home, LogOut, Plus, Search, Sparkles, Stethoscope, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useFoodLogs } from "@/hooks/useFoodLogs";
@@ -145,11 +145,11 @@ function Dashboard() {
   const initials = getInitials(displayName);
 
   const BOTTOM_NAV = [
-    { icon: Home,     label: "Home",    tab: "overview" as TabKey },
-    { icon: Activity, label: "Risk",    tab: "risk"     as TabKey },
-    { icon: Plus,     label: "Log",     fab: true                 },
-    { icon: History,  label: "History", tab: "logs"     as TabKey },
-    { icon: User,     label: "Profile", profile: true             },
+    { icon: Home,         label: "Home",    tab: "overview" as TabKey },
+    { icon: Activity,     label: "Risk",    tab: "risk"     as TabKey },
+    { icon: Plus,         label: "Log",     fab: true                 },
+    { icon: Stethoscope,  label: "Find",    href: "/find-nutritionist" },
+    { icon: User,         label: "Profile", profile: true             },
   ];
 
   return (
@@ -187,6 +187,13 @@ function Dashboard() {
                 {t.l}
               </button>
             ))}
+            <button
+              onClick={() => navigate({ to: "/find-nutritionist" })}
+              className="flex items-center gap-1.5 rounded-full px-4 py-1.5 font-medium text-ink/60 hover:text-emerald-deep transition-all"
+            >
+              <Stethoscope className="size-3.5" />
+              Find Nutritionist
+            </button>
           </nav>
 
           {/* Actions */}
@@ -311,6 +318,18 @@ function Dashboard() {
               >
                 <Icon className="size-5" />
                 Profile
+              </button>
+            );
+          }
+          if (n.href) {
+            return (
+              <button
+                key={i}
+                onClick={() => navigate({ to: n.href as string })}
+                className="flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] font-semibold uppercase tracking-tight text-ink/40 transition-colors hover:text-emerald-deep"
+              >
+                <Icon className="size-5" />
+                {n.label}
               </button>
             );
           }

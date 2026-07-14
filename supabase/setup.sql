@@ -50,3 +50,124 @@ create policy "own food logs"
 
 -- Done. Also disable email confirmation in:
 -- Authentication → Settings → Email Auth → toggle off "Confirm email"
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Nutritionist Directory (publicly readable by auth users, admin-writable)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create table if not exists public.nutritionist_directory (
+  id          uuid        default gen_random_uuid() primary key,
+  name        text        not null,
+  credential  text,
+  institution text,
+  district    text        not null,
+  address     text,
+  phone       text,
+  email       text,
+  specialty   text[]      default '{}',
+  available   boolean     default true,
+  verified    boolean     default true,
+  source      text,
+  created_at  timestamptz default now()
+);
+
+alter table public.nutritionist_directory enable row level security;
+
+create policy "auth users read directory"
+  on public.nutritionist_directory for select
+  using (auth.uid() is not null);
+
+create policy "admins insert directory"
+  on public.nutritionist_directory for insert
+  with check (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+create policy "admins update directory"
+  on public.nutritionist_directory for update
+  using (
+    exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
+  );
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Seed: Real nutritionists and nutrition departments in Rwanda
+-- Sources: nutrirwanda.com · afridoctor.com · kfh.rw
+--          rwandamilitaryhospital.rw · lifecare.rw
+-- ─────────────────────────────────────────────────────────────────────────────
+
+insert into public.nutritionist_directory
+  (name, credential, institution, district, address, phone, email, specialty, verified, source)
+values
+  (
+    'Philemon Kwizera',
+    'Registered Nutritionist-Dietitian (RAHPC)',
+    'Nutri-Santé Rwanda',
+    'Kicukiro, Kigali',
+    'KK 10 AVE / IMELA HOUSE, Kicukiro (near Ziniya market)',
+    '+250 780 626 378',
+    null,
+    ARRAY['Weight Management','Non-Communicable Diseases','Sports Nutrition'],
+    true,
+    'nutrirwanda.com'
+  ),
+  (
+    'Umulisa Claudine',
+    'Registered Nutritionist-Dietitian (RAHPC)',
+    'Nutri-Santé Rwanda',
+    'Kicukiro, Kigali',
+    'KK 10 AVE / IMELA HOUSE, Kicukiro (near Ziniya market)',
+    '+250 788 606 046',
+    null,
+    ARRAY['Weight Management','Diabetes Nutrition','Pregnancy & Maternal Nutrition'],
+    true,
+    'nutrirwanda.com'
+  ),
+  (
+    'Dr. Odette UWERA KAMANZI',
+    'Nutritionist / Dietitian',
+    null,
+    'Kigali',
+    null,
+    null,
+    null,
+    ARRAY['Clinical Dietetics','Medical Nutrition Therapy'],
+    true,
+    'afridoctor.com'
+  ),
+  (
+    'Nutrition & Dietetics Department',
+    'Hospital Department',
+    'King Faisal Hospital Rwanda',
+    'Gasabo, Kigali',
+    'KG 544 Street 10, Kacyiru, Gasabo',
+    '+250 788 123 200',
+    'info@kfhkigali.com',
+    ARRAY['Medical Nutrition Therapy','Weight Management','Paediatric Nutrition','Sports Nutrition'],
+    true,
+    'kfh.rw'
+  ),
+  (
+    'Nutrition Department',
+    'Hospital Department',
+    'Rwanda Military Hospital',
+    'Kicukiro, Kigali',
+    'KK 739st, Kicukiro',
+    '+250 788 330 247',
+    'info@rmh.rw',
+    ARRAY['Clinical Nutrition','Medical Nutrition Therapy'],
+    true,
+    'rwandamilitaryhospital.rw'
+  ),
+  (
+    'Nutrition & Dietetics',
+    'Multi-Speciality Clinic',
+    'AIM LifeCare Clinic',
+    'Gasabo, Kigali',
+    'Vision Arcade Building, Gacuriro, Kigali',
+    '+250 794 107 123',
+    'customercare@lifecare.rw',
+    ARRAY['Nutrition Counselling','Weight Management','Clinical Nutrition'],
+    true,
+    'lifecare.rw'
+  )
+on conflict do nothing;
