@@ -1,19 +1,26 @@
 -- Run this entire file in the Supabase SQL Editor:
 -- Dashboard → SQL Editor → New query → paste → Run
+-- Safe to re-run: uses IF NOT EXISTS and drops policies before recreating them.
 
--- 1. Profiles table (linked to Supabase auth users)
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 1. Profiles table
+-- ─────────────────────────────────────────────────────────────────────────────
 create table if not exists public.profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  name text not null default '',
-  age integer,
-  sex text check (sex in ('male', 'female')),
-  weight_kg numeric(5,2),
-  height_cm numeric(5,1),
+  id         uuid references auth.users(id) on delete cascade primary key,
+  name       text        not null default '',
+  age        integer,
+  sex        text        check (sex in ('male', 'female')),
+  weight_kg  numeric(5,2),
+  height_cm  numeric(5,1),
+  role       text        not null default 'patient',
   created_at timestamptz default now()
 );
 
--- 2. Row Level Security — users can only access their own row
 alter table public.profiles enable row level security;
+
+drop policy if exists "own profile select" on public.profiles;
+drop policy if exists "own profile insert" on public.profiles;
+drop policy if exists "own profile update" on public.profiles;
 
 create policy "own profile select"
   on public.profiles for select
@@ -28,8 +35,8 @@ create policy "own profile update"
   using (auth.uid() = id);
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 3. Food logs table
-
+-- 2. Food logs table
+-- ─────────────────────────────────────────────────────────────────────────────
 create table if not exists public.food_logs (
   id        uuid        default gen_random_uuid() primary key,
   user_id   uuid        references auth.users(id) on delete cascade not null,
@@ -39,22 +46,84 @@ create table if not exists public.food_logs (
   tone      text,
   glyph     text,
   meal      text,
+  img       text,
   logged_at timestamptz default now()
 );
 
 alter table public.food_logs enable row level security;
 
+drop policy if exists "own food logs" on public.food_logs;
+
 create policy "own food logs"
   on public.food_logs for all
   using (auth.uid() = user_id);
 
--- Done. Also disable email confirmation in:
--- Authentication → Settings → Email Auth → toggle off "Confirm email"
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 3. Nutritionist applications
+-- ─────────────────────────────────────────────────────────────────────────────
+create table if not exists public.nutritionist_applications (
+  id            uuid        default gen_random_uuid() primary key,
+  user_id       uuid        references auth.users(id) on delete cascade not null,
+  full_name     text        not null,
+  email         text        not null,
+  credential_no text        not null,
+  institution   text        not null,
+  note          text,
+  status        text        not null default 'pending',
+  reviewed_at   timestamptz,
+  created_at    timestamptz default now()
+);
+
+alter table public.nutritionist_applications enable row level security;
+
+drop policy if exists "applicants read own" on public.nutritionist_applications;
+drop policy if exists "applicants insert own" on public.nutritionist_applications;
+drop policy if exists "admins read all applications" on public.nutritionist_applications;
+drop policy if exists "admins update applications" on public.nutritionist_applications;
+
+create policy "applicants read own"
+  on public.nutritionist_applications for select
+  using (auth.uid() = user_id);
+
+create policy "applicants insert own"
+  on public.nutritionist_applications for insert
+  with check (auth.uid() = user_id);
+
+create policy "admins read all applications"
+  on public.nutritionist_applications for select
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+create policy "admins update applications"
+  on public.nutritionist_applications for update
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Nutritionist Directory (publicly readable by auth users, admin-writable)
+-- 4. Patient assignments (nutritionist ↔ patient)
 -- ─────────────────────────────────────────────────────────────────────────────
+create table if not exists public.patient_assignments (
+  id               uuid        default gen_random_uuid() primary key,
+  nutritionist_id  uuid        references auth.users(id) on delete cascade not null,
+  patient_id       uuid        references auth.users(id) on delete cascade not null,
+  assigned_at      timestamptz default now(),
+  unique (nutritionist_id, patient_id)
+);
 
+alter table public.patient_assignments enable row level security;
+
+drop policy if exists "nutritionists manage own assignments" on public.patient_assignments;
+drop policy if exists "patients read own assignment" on public.patient_assignments;
+
+create policy "nutritionists manage own assignments"
+  on public.patient_assignments for all
+  using (auth.uid() = nutritionist_id);
+
+create policy "patients read own assignment"
+  on public.patient_assignments for select
+  using (auth.uid() = patient_id);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 5. Nutritionist Directory (public read, admin write)
+-- ─────────────────────────────────────────────────────────────────────────────
 create table if not exists public.nutritionist_directory (
   id          uuid        default gen_random_uuid() primary key,
   name        text        not null,
@@ -72,6 +141,10 @@ create table if not exists public.nutritionist_directory (
 );
 
 alter table public.nutritionist_directory enable row level security;
+
+drop policy if exists "auth users read directory" on public.nutritionist_directory;
+drop policy if exists "admins insert directory"   on public.nutritionist_directory;
+drop policy if exists "admins update directory"   on public.nutritionist_directory;
 
 create policy "auth users read directory"
   on public.nutritionist_directory for select
@@ -94,7 +167,6 @@ create policy "admins update directory"
 -- Sources: nutrirwanda.com · afridoctor.com · kfh.rw
 --          rwandamilitaryhospital.rw · lifecare.rw
 -- ─────────────────────────────────────────────────────────────────────────────
-
 insert into public.nutritionist_directory
   (name, credential, institution, district, address, phone, email, specialty, verified, source)
 values
@@ -171,3 +243,8 @@ values
     'lifecare.rw'
   )
 on conflict do nothing;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- After running: disable email confirmation in
+-- Authentication → Settings → Email Auth → toggle off "Confirm email"
+-- ─────────────────────────────────────────────────────────────────────────────
