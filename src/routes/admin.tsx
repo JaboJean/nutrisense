@@ -309,7 +309,7 @@ function AdminPortal() {
 
       {/* Top bar */}
       <header className="sticky top-0 z-40 nv-glass border-b border-emerald-deep/10">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="flex h-16 w-full items-center justify-between px-5 sm:px-8 lg:px-12">
           <div className="flex items-center gap-2.5">
             <div className="grid size-9 place-items-center rounded-2xl bg-emerald-deep shadow-[0_8px_24px_-12px_rgba(15,118,110,0.7)]">
               <Sparkles className="size-4 text-mint" />
@@ -353,7 +353,7 @@ function AdminPortal() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-5 pt-12 sm:px-8">
+      <main className="px-5 pt-12 sm:px-8 lg:px-12">
 
         <div className="mb-8">
           <h1 className="font-display text-3xl font-semibold text-ink">Nutritionist Management</h1>
@@ -361,7 +361,7 @@ function AdminPortal() {
         </div>
 
         {/* Stats */}
-        <div className="mb-8 grid grid-cols-3 gap-4 max-w-2xl">
+        <div className="mb-8 grid grid-cols-3 gap-4 lg:grid-cols-3 max-w-2xl lg:max-w-none">
           {[
             { label: "Active nutritionists", value: active.length,  tone: "emerald" },
             { label: "Pending review",       value: pending.length, tone: "amber"   },

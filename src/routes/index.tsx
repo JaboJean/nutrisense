@@ -28,7 +28,7 @@ function LandingPage() {
 
       {/* ── Nav ── */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-ink/5 bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="flex h-16 w-full items-center justify-between px-5 sm:px-8 lg:px-12">
           <div className="flex items-center gap-2.5">
             <div className="grid size-8 place-items-center rounded-xl bg-emerald-deep shadow-[0_6px_16px_-8px_rgba(15,118,110,0.7)]">
               <Sparkles className="size-3.5 text-mint" />
@@ -67,7 +67,7 @@ function LandingPage() {
         <div className="pointer-events-none absolute -top-40 -right-40 size-[600px] rounded-full bg-emerald-deep/6 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 size-[400px] rounded-full bg-sky/8 blur-[100px]" />
 
-        <div className="mx-auto grid max-w-6xl gap-14 px-5 py-24 sm:px-8 lg:grid-cols-2 lg:items-center lg:gap-8">
+        <div className="grid gap-14 px-5 py-24 sm:px-8 lg:px-12 lg:grid-cols-2 lg:items-center lg:gap-8">
 
           {/* Copy */}
           <div className="animate-nv-rise">
@@ -197,7 +197,7 @@ function LandingPage() {
 
       {/* ── Stats strip ── */}
       <div className="border-y border-ink/5 bg-ink/[0.02]">
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-12 gap-y-4 px-5 py-8 sm:px-8">
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-4 px-5 py-8 sm:px-8 lg:px-12">
           {[
             { v: "3",    l: "diseases monitored" },
             { v: "40+",  l: "food classes recognised" },
@@ -215,7 +215,7 @@ function LandingPage() {
 
       {/* ── Features ── */}
       <section id="features" className="py-24 px-5 sm:px-8">
-        <div className="mx-auto max-w-6xl">
+        <div className="w-full">
           <div className="text-center max-w-xl mx-auto mb-14">
             <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-deep mb-3">What Nutrisense-AI does</div>
             <h2 className="font-display text-4xl font-bold leading-tight">Three AI systems.<br />One clear picture.</h2>
@@ -274,7 +274,7 @@ function LandingPage() {
 
       {/* ── How it works ── */}
       <section id="how-it-works" className="nv-mesh py-24 px-5 sm:px-8">
-        <div className="mx-auto max-w-5xl">
+        <div className="w-full">
           <div className="text-center mb-14">
             <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-deep mb-3">Simple by design</div>
             <h2 className="font-display text-4xl font-bold">From meal to insight in 3 steps</h2>
@@ -326,7 +326,7 @@ function LandingPage() {
 
       {/* ── About ── */}
       <section id="about" className="py-24 px-5 sm:px-8 border-t border-ink/5">
-        <div className="mx-auto max-w-5xl">
+        <div className="w-full">
           <div className="grid gap-10 md:grid-cols-2 items-center">
             <div>
               <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-deep mb-3">About the project</div>
@@ -369,7 +369,7 @@ function LandingPage() {
 
       {/* ── Final CTA ── */}
       <section className="bg-emerald-deep px-5 py-20 sm:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="mx-auto max-w-2xl text-center w-full">
           <div className="inline-flex items-center gap-2 rounded-full bg-mint/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-mint mb-6">
             <Sparkles className="size-3.5" /> Free to use · No credit card
           </div>
@@ -390,7 +390,7 @@ function LandingPage() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-ink/5 px-5 py-10 sm:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-xs text-ink/40 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 text-xs text-ink/40 sm:flex-row lg:px-12">
           <div className="flex items-center gap-2">
             <Sparkles className="size-3.5 text-emerald-deep" />
             <span className="font-semibold text-ink/60">Nutrisense-AI</span>

@@ -157,7 +157,7 @@ function Dashboard() {
 
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-40 nv-glass border-b border-emerald-deep/10">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="flex h-16 w-full items-center justify-between px-5 sm:px-8 lg:px-12">
 
           <div className="flex items-center gap-2.5">
             <div className="grid size-9 place-items-center rounded-2xl bg-emerald-deep shadow-[0_8px_24px_-12px_rgba(15,118,110,0.7)]">
@@ -223,7 +223,7 @@ function Dashboard() {
       </header>
 
       {/* ── Page content ── */}
-      <main key={active} className="animate-nv-expand mx-auto max-w-6xl px-5 pt-12 sm:px-8">
+      <main key={active} className="animate-nv-expand px-5 pt-12 sm:px-8 lg:px-12">
 
         {active === "overview" && (
           <div className="space-y-14">
@@ -295,7 +295,7 @@ function Dashboard() {
       </main>
 
       {/* ── Mobile bottom nav ── */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto flex max-w-md items-center justify-between gap-1 rounded-t-3xl border border-ink/5 bg-white/90 px-4 pb-7 pt-3 shadow-[0_-20px_40px_-20px_rgba(15,39,36,0.2)] backdrop-blur-xl md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex w-full items-center justify-between gap-1 rounded-t-3xl border border-ink/5 bg-white/90 px-4 pb-7 pt-3 shadow-[0_-20px_40px_-20px_rgba(15,39,36,0.2)] backdrop-blur-xl md:hidden">
         {BOTTOM_NAV.map((n, i) => {
           const Icon = n.icon;
           if (n.fab) {

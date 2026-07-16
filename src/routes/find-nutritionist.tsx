@@ -211,7 +211,7 @@ function NutritionistCard({
             <div className="flex items-center gap-1.5 flex-wrap">
               <h3 className="font-display text-base font-bold text-ink leading-snug">{entry.name}</h3>
               {entry.verified && (
-                <BadgeCheck className="size-4 shrink-0 text-emerald-deep" title="Verified" />
+                <span title="Verified"><BadgeCheck className="size-4 shrink-0 text-emerald-deep" /></span>
               )}
             </div>
             {entry.credential && (
@@ -350,7 +350,7 @@ function FindNutritionist() {
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-40 bg-white border-b border-ink/8 shadow-sm">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-12">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate({ to: "/dashboard" })}
@@ -386,7 +386,7 @@ function FindNutritionist() {
 
       {/* ── Search + filters ── */}
       <div className="bg-white border-b border-ink/6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 space-y-3">
+        <div className="w-full px-4 sm:px-6 lg:px-12 py-4 space-y-3">
 
           {/* Search bar */}
           <div className="relative">
@@ -428,7 +428,7 @@ function FindNutritionist() {
       </div>
 
       {/* ── Results ── */}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+      <main className="w-full px-4 sm:px-6 lg:px-12 pt-6">
 
         {/* Disclaimer */}
         <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">

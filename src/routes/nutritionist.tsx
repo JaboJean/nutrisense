@@ -428,7 +428,7 @@ function NutritionistPortal() {
 
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-40 nv-glass border-b border-emerald-deep/10">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="flex h-16 w-full items-center justify-between px-5 sm:px-8 lg:px-12">
           <div className="flex items-center gap-2.5">
             <div className="grid size-9 place-items-center rounded-2xl bg-emerald-deep shadow-[0_8px_24px_-12px_rgba(15,118,110,0.7)]">
               <Sparkles className="size-4 text-mint" />
@@ -476,7 +476,7 @@ function NutritionistPortal() {
       </header>
 
       {/* ── Main content ── */}
-      <main className="mx-auto max-w-6xl px-5 pt-12 sm:px-8">
+      <main className="px-5 pt-12 sm:px-8 lg:px-12">
 
         {/* Summary strip */}
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -528,7 +528,7 @@ function NutritionistPortal() {
         ) : (
           <>
             {/* Search */}
-            <div className="relative mb-6 max-w-sm">
+            <div className="relative mb-6 max-w-lg">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-ink/35" />
               <input
                 value={search}
@@ -558,7 +558,7 @@ function NutritionistPortal() {
       </main>
 
       {/* Footer */}
-      <footer className="mx-auto mt-16 max-w-6xl px-5 pb-8 sm:px-8">
+      <footer className="mt-16 px-5 pb-8 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between border-t border-ink/5 pt-6 text-xs text-ink/35">
           <span className="flex items-center gap-1.5">
             <Sparkles className="size-3.5 text-emerald-deep" />

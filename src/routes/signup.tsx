@@ -190,7 +190,7 @@ function SignupPage() {
           <span className="font-display text-sm font-semibold text-emerald-deep">Nutrisense-AI</span>
         </Link>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-md">
 
           {/* Mobile progress */}
           <div className="flex items-center gap-1.5 mb-6 lg:hidden">
