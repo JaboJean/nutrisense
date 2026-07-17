@@ -117,11 +117,11 @@ export function PhotoCapture({ onAdd }: Props) {
       try {
         const food = await classifyFood(imgFile);
         setStatusMsg(null);
-        if (food.confidence < 0.30) {
+        if (food.confidence < 0.50) {
           setStage("not-food");
           return;
         }
-        if (food.confidence < 0.45) {
+        if (food.confidence < 0.70) {
           setResult(food);
           setStage("low-confidence");
           return;
