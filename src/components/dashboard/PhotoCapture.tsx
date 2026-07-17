@@ -455,9 +455,9 @@ export function PhotoCapture({ onAdd }: Props) {
             </div>
           </div>
           <div className="rounded-2xl bg-coral/8 px-4 py-4 ring-1 ring-coral/20 text-center">
-            <p className="text-sm font-semibold text-coral">No food detected</p>
+            <p className="text-sm font-semibold text-coral">This is not a food image</p>
             <p className="mt-1 text-xs text-ink/55 leading-relaxed">
-              This image doesn't appear to contain food. Please take a clear photo of a meal or dish.
+              Please upload a food image.
             </p>
           </div>
           <button
