@@ -24,6 +24,10 @@ interface FoodResult {
   tag:        string;
 }
 
+class NotFoodError extends Error {
+  constructor() { super("not_food"); this.name = "NotFoodError"; }
+}
+
 async function classifyFood(file: File): Promise<FoodResult> {
   // ── Real ML path ─────────────────────────────────────────────────────────
   if (ML_API_URL) {
@@ -33,6 +37,10 @@ async function classifyFood(file: File): Promise<FoodResult> {
       method: "POST",
       body: form,
     });
+    if (res.status === 422) {
+      const body = await res.json().catch(() => ({}));
+      if (body?.detail === "not_food") throw new NotFoodError();
+    }
     if (!res.ok) throw new Error(`API error ${res.status}`);
     return res.json() as Promise<FoodResult>;
   }
@@ -56,7 +64,7 @@ async function classifyFood(file: File): Promise<FoodResult> {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Stage = "idle" | "preview" | "analyzing" | "result" | "low-confidence" | "error";
+type Stage = "idle" | "preview" | "analyzing" | "result" | "low-confidence" | "not-food" | "error";
 
 type Props = { onAdd: (item: LogItem) => void };
 
@@ -118,6 +126,10 @@ export function PhotoCapture({ onAdd }: Props) {
         setStage("result");
         return;
       } catch (e) {
+        if (e instanceof NotFoodError) {
+          setStage("not-food");
+          return;
+        }
         const msg = e instanceof Error ? e.message : "Analysis failed";
         if (msg.includes("503") && attempt < MAX_RETRIES) {
           setStatusMsg(`Server waking up… retry ${attempt + 1} of ${MAX_RETRIES}`);
@@ -426,6 +438,30 @@ export function PhotoCapture({ onAdd }: Props) {
               Discard
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── Not food ── */}
+      {stage === "not-food" && imgUrl && (
+        <div className="space-y-3 animate-nv-rise">
+          <div className="relative overflow-hidden rounded-2xl">
+            <img src={imgUrl} alt="Not food" className="h-32 w-full object-cover opacity-40" />
+            <div className="absolute inset-0 flex items-center justify-center bg-ink/20 backdrop-blur-[2px]">
+              <span className="text-4xl">🚫</span>
+            </div>
+          </div>
+          <div className="rounded-2xl bg-coral/8 px-4 py-4 ring-1 ring-coral/20 text-center">
+            <p className="text-sm font-semibold text-coral">No food detected</p>
+            <p className="mt-1 text-xs text-ink/55 leading-relaxed">
+              This image doesn't appear to contain food. Please take a clear photo of a meal or dish.
+            </p>
+          </div>
+          <button
+            onClick={reset}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-ink/5 py-2.5 text-sm font-semibold text-ink/60 hover:bg-ink/10 transition-colors"
+          >
+            Try a different image
+          </button>
         </div>
       )}
 
