@@ -64,7 +64,7 @@ async function classifyFood(file: File): Promise<FoodResult> {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Stage = "idle" | "preview" | "analyzing" | "result" | "low-confidence" | "not-food" | "error";
+type Stage = "idle" | "preview" | "analyzing" | "result" | "low-confidence" | "not-food" | "unrecognized" | "error";
 
 type Props = { onAdd: (item: LogItem) => void };
 
@@ -131,7 +131,7 @@ export function PhotoCapture({ onAdd }: Props) {
         return;
       } catch (e) {
         if (e instanceof NotFoodError) {
-          setStage("not-food");
+          setStage("unrecognized");
           return;
         }
         const msg = e instanceof Error ? e.message : "Analysis failed";
@@ -440,6 +440,38 @@ export function PhotoCapture({ onAdd }: Props) {
               className="rounded-2xl bg-ink/5 py-2.5 text-sm font-semibold text-ink/60 transition-colors hover:bg-ink/10"
             >
               Discard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Unrecognized dish (food but not in training classes) ── */}
+      {stage === "unrecognized" && imgUrl && (
+        <div className="space-y-3 animate-nv-rise">
+          <div className="relative overflow-hidden rounded-2xl">
+            <img src={imgUrl} alt="Unrecognized" className="h-32 w-full object-cover opacity-60" />
+            <div className="absolute inset-0 flex items-center justify-center bg-amber/20 backdrop-blur-[2px]">
+              <span className="text-4xl">🔍</span>
+            </div>
+          </div>
+          <div className="rounded-2xl bg-amber/8 px-4 py-4 ring-1 ring-amber/20 text-center">
+            <p className="text-sm font-semibold text-amber">Dish not recognised</p>
+            <p className="mt-1 text-xs text-ink/55 leading-relaxed">
+              This looks like food but isn't in our library. Try a clearer photo or log the meal manually using the search.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={reset}
+              className="flex-1 rounded-2xl bg-ink/5 py-2.5 text-sm font-semibold text-ink/60 hover:bg-ink/10 transition-colors"
+            >
+              Try another photo
+            </button>
+            <button
+              onClick={() => { reset(); }}
+              className="flex-1 rounded-2xl bg-emerald-deep py-2.5 text-sm font-semibold text-mint transition-colors hover:opacity-90"
+            >
+              Log manually
             </button>
           </div>
         </div>
