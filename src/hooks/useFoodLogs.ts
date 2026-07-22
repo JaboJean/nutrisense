@@ -47,14 +47,15 @@ export function useFoodLogs(user: User | null) {
     const { data, error } = await supabase
       .from("food_logs")
       .insert({
-        user_id: user.id,
-        name:    item.name,
-        meta:    item.meta,
-        tag:     item.tag,
-        tone:    item.tone,
-        glyph:   item.glyph,
-        img:     item.img ?? null,
-        meal:    item.meal,
+        user_id:   user.id,
+        name:      item.name,
+        meta:      item.meta,
+        tag:       item.tag,
+        tone:      item.tone,
+        glyph:     item.glyph,
+        img:       item.img ?? null,
+        meal:      item.meal,
+        logged_at: optimistic.logged_at,
       })
       .select()
       .single();

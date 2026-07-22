@@ -42,31 +42,36 @@ export async function predictRisk(
   profile?: UserProfile | null,
 ): Promise<Prediction> {
   if (ML_API_URL) {
-    const res = await fetch(`${ML_API_URL}/api/predict/risk`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        logs: logs.map((l) => ({ name: l.name, meal: l.meal })),
-        profile: profile
-          ? {
-              age:      profile.age,
-              sex:      profile.sex,
-              weightKg: profile.weightKg,
-              heightCm: profile.heightCm,
-            }
-          : undefined,
-      }),
-    });
-    if (!res.ok) throw new Error(`Risk API error ${res.status}`);
-    const data = await res.json() as Prediction;
-    // Cap at 90 — XGBoost produces overconfident probabilities without calibration;
-    // daily-scaling in the API reduces saturation, but we still bound the top end
-    // so the display never implies near-certainty the model doesn't earn.
-    for (const k of ["anemia", "diabetes", "overweight"] as const) {
-      data.scores[k] = Math.min(90, data.scores[k]);
+    try {
+      const res = await fetch(`${ML_API_URL}/api/predict/risk`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          logs: logs.map((l) => ({ name: l.name, meal: l.meal })),
+          profile: profile
+            ? {
+                age:      profile.age,
+                sex:      profile.sex,
+                weightKg: profile.weightKg,
+                heightCm: profile.heightCm,
+              }
+            : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error(`Risk API error ${res.status}`);
+      const data = await res.json() as Prediction;
+      // Cap at 90 — XGBoost produces overconfident probabilities without calibration;
+      // daily-scaling in the API reduces saturation, but we still bound the top end
+      // so the display never implies near-certainty the model doesn't earn.
+      for (const k of ["anemia", "diabetes", "overweight"] as const) {
+        data.scores[k] = Math.min(90, data.scores[k]);
+      }
+      data.scores.overall = Math.min(90, data.scores.overall);
+      return data;
+    } catch (err) {
+      // HF Space is cold-starting or unreachable — fall through to local estimates
+      console.warn("[Nutrisense] ML API unavailable, using local estimates:", err);
     }
-    data.scores.overall = Math.min(90, data.scores.overall);
-    return data;
   }
 
   // ── Mock fallback ─────────────────────────────────────────────────────────
