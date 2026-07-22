@@ -80,7 +80,9 @@ class RiskPredictor:
         self,
         logs: list[dict],
         age: float,
-        sex: str,   # "male" | "female"
+        sex: str,           # "male" | "female"
+        weight_kg: float = 70.0,
+        height_cm: float = 170.0,
     ) -> dict:
         # Aggregate nutrients from food log
         totals = {k: 0.0 for k in [
@@ -144,6 +146,55 @@ class RiskPredictor:
                 {"f": FEATURE_LABELS[FEATURES[i]], "v": round(float(sv_row[i]), 3)}
                 for i in top_idx
             ]
+
+        # ── Overweight: replace ML output with BMI-based score ────────────────
+        # The ML model was trained on dietary proxies from DHS data and almost
+        # never fires for typical East African diets. BMI (derived from the
+        # user's actual weight/height) is the clinical gold standard for
+        # overweight assessment, so we use it directly.
+        bmi = weight_kg / (height_cm / 100) ** 2
+        if bmi >= 35:
+            ow_score = 92
+        elif bmi >= 30:
+            ow_score = 80
+        elif bmi >= 27.5:
+            ow_score = 65
+        elif bmi >= 25:
+            ow_score = 48
+        elif bmi >= 23:
+            ow_score = 25
+        elif bmi >= 18.5:
+            ow_score = 8
+        else:
+            ow_score = 15  # underweight carries its own risk
+        scores["overweight"] = ow_score
+
+        # Inject BMI as the top SHAP entry so the explanation reflects the
+        # primary driver of this score.
+        bmi_shap = round((bmi - 22.5) * 0.04, 3)  # positive above normal range
+        shap_out["overweight"] = [{"f": "Body Mass Index", "v": bmi_shap}] + shap_out["overweight"][:4]
+
+        # ── Diabetes: replace weak ML output with glycemic load heuristic ─────
+        # The ML model achieved AUROC 0.598 (essentially random) because the
+        # training label was a dietary proxy rather than measured glucose.
+        # We substitute a glycemic load score based on daily sugar and net carb.
+        daily_sugar = totals["sugar_g"]
+        net_carb    = max(0.0, totals["carb_g"] - totals["fiber_g"])
+        if daily_sugar >= 75:
+            diab_score = 70
+        elif daily_sugar >= 50:
+            diab_score = 55
+        elif daily_sugar >= 30:
+            diab_score = 38
+        elif daily_sugar >= 15:
+            diab_score = 22
+        elif net_carb >= 350:
+            diab_score = 30
+        elif net_carb >= 250:
+            diab_score = 20
+        else:
+            diab_score = 8  # baseline population prevalence
+        scores["diabetes"] = diab_score
 
         scores["overall"] = round(sum(scores[d] for d in ["anemia", "diabetes", "overweight"]) / 3)
         return {"scores": scores, "shap": shap_out}

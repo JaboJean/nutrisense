@@ -166,6 +166,8 @@ def predict_risk(req: RiskRequest):
             logs=logs,
             age=profile.age,
             sex=profile.sex,
+            weight_kg=profile.weightKg,
+            height_cm=profile.heightCm,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Prediction error: {exc}")
