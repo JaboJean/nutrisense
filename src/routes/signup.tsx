@@ -242,7 +242,7 @@ function SignupPage() {
                     autoFocus
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Jean Jacques"
+                    placeholder="Enter your full name"
                     className={inputCls}
                   />
                 </label>

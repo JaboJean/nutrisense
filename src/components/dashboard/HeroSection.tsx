@@ -82,7 +82,7 @@ export function HeroSection({ name, logItems, scores, profile }: Props) {
         <div>
           <p className="text-sm text-ink/45 font-medium">{getGreeting()}</p>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-            {name ?? "Jean Jacques"}
+            {name ?? "there"}
           </h1>
           <p className="mt-2 text-[15px] leading-relaxed text-ink/55">
             {logItems.length === 0
