@@ -136,7 +136,7 @@ async def predict_food(image: UploadFile = File(...)):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Inference error: {exc}")
 
-    if confidence < 0.50:
+    if confidence < 0.40:
         raise HTTPException(status_code=422, detail="not_food")
 
     from nutrition_db import get
